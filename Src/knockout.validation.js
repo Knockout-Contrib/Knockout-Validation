@@ -39,6 +39,8 @@
 
             ko.validation.registerValueBindingHandler();
         },
+        //backwards compatability
+        configure: function(options){ ko.validation.init(options); },
 
         group: function (obj) { // array of observables or viewModel
             var group = isArray(obj) ? obj : values(obj);
@@ -163,11 +165,14 @@
         },
         registerValueBindingHandler: function () { // parse html5 input validation attributes where value binder, optional feature
             var init = ko.bindingHandlers.value.init;
-            
-            //Override the Value Binding
-            ko.bindingHandlers.value.init = function (element, valueAccessor, allBindingsAccessor, viewModel, options) {
+
+            ko.bindingHandlers.value.init = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+
                 init(element, valueAccessor, allBindingsAccessor);
-                var config = extend({}, configuration, options.validation);
+
+                //var config = extend({}, configuration, bindingContext.$root.$validation);
+                var config = extend({}, configuration, bindingContext.$root.$validation);
+
                 if (config.parseInputAttributes) {
                     setTimeout(function () {
                         ko.utils.arrayForEach(['required', 'min', 'max', 'maxLength', 'pattern'], function (attr) {
@@ -180,11 +185,10 @@
                         });
                     }, 0);
                 }
-
                 if (config.insertMessages && isValidatable(valueAccessor())) {
                     var validationMessageElement = ko.validation.insertValidationMessage(element);
                     if (config.messageTemplate) {
-                        ko.renderTemplate(config.messageTemplate, { field: valueAccessor()}, null, validationMessageElement, 'replaceNode');
+                        ko.renderTemplate(config.messageTemplate, { field: valueAccessor() }, null, validationMessageElement, 'replaceNode');
                     } else {
                         ko.applyBindingsToNode(validationMessageElement, { validationMessage: valueAccessor() });
                     }
@@ -265,23 +269,50 @@
 
     ko.bindingHandlers.validationMessage = { // individual error message, if modified or post binding
         update: function (element, valueAccessor) {
-            valueAccessor().extend({ validatable: true });
-            ko.bindingHandlers.text.update(element, function () {
-                return !configuration.messagesOnModified || valueAccessor().isModified() ? valueAccessor().isValid : null;
-            });
+            var obsv = valueAccessor();
+            obsv.extend({ validatable: true });
+
+            var errorMsgAccessor = function () {
+                if (!configuration.messagesOnModified || obsv.isModified()) {
+                    return obsv.isValid() ? null : obsv.error;
+                } else {
+                    return null;
+                }
+            };
+
+            ko.bindingHandlers.text.update(element, errorMsgAccessor);
         }
     };
 
+    // ValidationOptions:
+    // This binding handler allows you to override the initial config by setting any of the options for a specific element or context of elements
+    //
+    // Example:
+    // <div data-bind="validationOptions: { insertMessages: true, messageTemplate: 'customTemplate', errorMessageClass: 'mySpecialClass'}">
+    //      <input type="text" data-bind="value: someValue"/>
+    //      <input type="text" data-bind="value: someValue2"/>
+    // </div>
     ko.bindingHandlers.validationOptions = {
-        init: function (element, valueAccessor, allBindingsAccessor, viewModel, options) {
-            return { 'controlsDescendantBindings': true }
+        makeValueAccessor: function (valueAccessor, bindingContext) {
+            return function () {
+                var bc = bindingContext;
+                bc.$data.$validation = valueAccessor();
+                return bc.$data; // which is the viewModel
+            };
         },
-        update: function (element, valueAccessor, allBindingsAccessor, viewModel, options, descendantBindingContext) {
-            var localOptions = extend({}, options, { validation: valueAccessor() });
-            ko.applyBindingsToDescendants(viewModel, element, localOptions);
+
+        init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+            //We don't want to change the context of the 'WITH' binding... just simply pull the options out of the binding string
+            // so we just pass the same context down, and store the validation options on the $data item.
+            var newValueAccessor = ko.bindingHandlers.validationOptions.makeValueAccessor(valueAccessor, bindingContext);
+            return ko.bindingHandlers['with'].init(element, newValueAccessor, allBindingsAccessor, viewModel, bindingContext);
+        },
+        update: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+
+            var newValueAccessor = ko.bindingHandlers.validationOptions.makeValueAccessor(valueAccessor, bindingContext);
+            return ko.bindingHandlers['with'].update(element, newValueAccessor, allBindingsAccessor, viewModel, bindingContext);
         }
     };
-
     //#endregion
 
     //#region Knockout Extenders
@@ -298,7 +329,7 @@
     //          params: true
     //      }
     //  )};
-    ko.extenders.validation = function (observable, rules) { // allow single rule or array
+    ko.extenders['validation'] = function (observable, rules) { // allow single rule or array
         ko.utils.arrayForEach(isArray(rules) ? rules : [rules], function (rule) {
             // the 'rule' being passed in here has no name to identify a core Rule,
             // so we add it as an anonymous rule

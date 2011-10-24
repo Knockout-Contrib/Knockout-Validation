@@ -2,14 +2,6 @@
 /// <reference path="../Lib/knockout-latest.debug.js" />
 /// <reference path="../Src/knockout.validation.js" />
 
-ko.validation.init({
-    registerExtenders: true,
-    messagesOnModified: true,
-    insertMessages: true,
-    parseInputAttributes: true,
-    messageTemplate: null
-});
-
 //#region Required Validation
 
 module('Required Validation');
