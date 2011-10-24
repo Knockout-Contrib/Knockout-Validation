@@ -1,0 +1,12 @@
+*.dll
+*.pdb
+*.obj
+*.csproj
+*.csproj.FileListAbsolute.txt
+*.cache
+*.cs
+*.txt
+*.sln
+*.user
+*.config
+*.suo
