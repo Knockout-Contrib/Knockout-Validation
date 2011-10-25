@@ -40,7 +40,7 @@
             ko.validation.registerValueBindingHandler();
         },
         //backwards compatability
-        configure: function(options){ ko.validation.init(options); },
+        configure: function (options) { ko.validation.init(options); },
 
         group: function (obj) { // array of observables or viewModel
             var group = isArray(obj) ? obj : values(obj);
@@ -170,8 +170,8 @@
 
                 init(element, valueAccessor, allBindingsAccessor);
 
-                //var config = extend({}, configuration, bindingContext.$root.$validation);
-                var config = extend({}, configuration, bindingContext.$root.$validation);
+                //if the bindingContext contains a $validation object, they must be using a validationOptions binding
+                var config = extend({}, configuration, bindingContext.$data.$validation);
 
                 if (config.parseInputAttributes) {
                     setTimeout(function () {
@@ -295,9 +295,11 @@
     ko.bindingHandlers.validationOptions = {
         makeValueAccessor: function (valueAccessor, bindingContext) {
             return function () {
-                var bc = bindingContext;
-                bc.$data.$validation = valueAccessor();
-                return bc.$data; // which is the viewModel
+                var validationAddIn = { $validation: valueAccessor() };
+
+                var newBindingContext = extend({}, validationAddIn, bindingContext.$data);
+                //bc.$data.$validation = valueAccessor();
+                return newBindingContext;
             };
         },
 
