@@ -1,6 +1,11 @@
 #Knockout Validation
 A KnockoutJS Plugin for model and property validation
 
+Contributors:
+
+* [Andy Booth](https://github.com/andybooth)
+* [Eric Barnard](https://github.com/ericmbarnard)
+
 ##Getting Started
 ```javascript
 //setup the validation library, you can optionally pass in an 'options' object to configure the plug-in
@@ -16,7 +21,7 @@ var myComplexObj = ko.observable()
                      .extend({ pattern: {
                           message: 'Hey this doesnt match my pattern',
                           params: '^[A-Z0-9].$'
-                     }}
+                     }});
 ```
 see more examples on the Fiddle: http://jsfiddle.net/ericbarnard/KHFn8/
 
