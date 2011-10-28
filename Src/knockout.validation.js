@@ -23,7 +23,9 @@
         messageTemplate: null,
         insertMessages: true,
         parseInputAttributes: false,
-        errorMessageClass: 'validationMessage'
+        errorMessageClass: 'validationMessage',
+		onValidationError: function(failedObservables){},
+		onValidationStart: function(){}
     };
 
     ko.validation = {
@@ -43,7 +45,9 @@
         configure: function (options) { ko.validation.init(options); },
 
         group: function (obj) { // array of observables or viewModel
-            var group = isArray(obj) ? obj : values(obj);
+			configuration.onValidationStart();
+			var failedObservables = [];
+			var group = isArray(obj) ? obj : values(obj);
             var observables = ko.utils.arrayFilter(group, function (item) {
                 if (ko.isObservable(item)) {
                     item.extend({ validatable: true });
@@ -54,18 +58,20 @@
             var result = ko.dependentObservable(function () {
                 var errors = [];
                 ko.utils.arrayForEach(observables, function (observable) {
-
                     if (!observable.isValid()) {
                         errors.push(observable.error);
+						failedObservables.push(observable);
                     }
                 });
                 return errors;
             });
+
             result.showAllMessages = function () {
                 ko.utils.arrayForEach(observables, function (observable) {
                     observable.isModified(true);
                 });
             };
+			if(failedObservables.length != 0) configuration.onValidationError(failedObservables);
             return result;
         },
         formatMessage: function (message, params) {
@@ -185,8 +191,16 @@
                         });
                     }, 0);
                 }
-                if (config.insertMessages && isValidatable(valueAccessor())) {
-                    var validationMessageElement = ko.validation.insertValidationMessage(element);
+
+				if (isValidatable(valueAccessor())) {
+					//adds element to elements array on observable
+					valueAccessor().elements.push(element);
+					//removes the element from the observable's property when the element is destroyed
+					ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
+						if(element in valueAccessor().elements) ko.utils.arrayRemoveItem(valueAccessor().elements, element);
+					}); 
+								
+					var validationMessageElement = ko.validation.insertValidationMessage(element);
                     if (config.messageTemplate) {
                         ko.renderTemplate(config.messageTemplate, { field: valueAccessor() }, null, validationMessageElement, 'replaceNode');
                     } else {
@@ -269,12 +283,16 @@
 
     ko.bindingHandlers.validationMessage = { // individual error message, if modified or post binding
         update: function (element, valueAccessor) {
-            var obsv = valueAccessor();
+            configuration.onValidationStart();
+			var obsv = valueAccessor();
             obsv.extend({ validatable: true });
 
             var errorMsgAccessor = function () {
                 if (!configuration.messagesOnModified || obsv.isModified()) {
-                    return obsv.isValid() ? null : obsv.error;
+                    var valid = obsv.isValid();
+					if(!valid) configuration.onValidationError([obsv]);
+					var valueToInsert = configuration.insertMessages ? obsv.error : null;
+					return valid ? null : valueToInsert;
                 } else {
                     return null;
                 }
@@ -358,7 +376,7 @@
             //
             // Rule Context = { rule: '<rule name>', params: '<passed in params>', message: '<Override of default Message>' }            
             observable.rules = ko.observableArray(); //holds the rule Contexts to use as part of validation
-
+			observable.elements = []; // holds an array of elements that are bind to this observable, most likely always 1.
             observable.isValid = ko.dependentObservable(function () {
                 var i = 0,
                     r, // the rule validator to execute
