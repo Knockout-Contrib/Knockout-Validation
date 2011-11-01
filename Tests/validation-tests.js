@@ -260,14 +260,14 @@ test('Object is Valid and isValid returns True', function () {
 
 module('Complex Rule Validation');
 test('Object is Valid and isValid returns True', function () {
-    var testObj = ko.observable()
-                    .extend({ required: true })
-                    .extend({ minLength: 2 })
-                    .extend({ pattern: {
-                            message: 'It must contain some',
-                            params: 'some'
-                        }
-                    });
+    var testObj = ko.observable();
+    testObj.extend({ required: true })
+           .extend({ minLength: 2 })
+           .extend({ pattern: {
+                message: 'It must contain some',
+                params: 'some'
+            }
+           });
 
     ok(!testObj.isValid(), testObj.error);
     ok(testObj.error.indexOf('required') > -1, "required is first error");
@@ -282,4 +282,26 @@ test('Object is Valid and isValid returns True', function () {
 
 });
 
+test('Object is Valid and isValid returns True', function () {
+    var testObj = ko.observable().extend({ 
+                    required: true,
+                    minLength: 2, 
+                    pattern: {
+                        message: 'It must contain some',
+                        params: 'some'
+                    }
+                });
+
+    ok(!testObj.isValid(), testObj.error);
+    ok(testObj.error.indexOf('required') > -1, "required is first error");
+
+    testObj('s');
+    ok(!testObj.isValid(), testObj.error);
+    ok(testObj.error.indexOf('at least') > -1, "Minimum Length not met");
+
+    testObj('som');
+    ok(!testObj.isValid(), testObj.error);
+    ok(testObj.error.indexOf('must contain') > -1, "Doesn't match required pattern");
+
+});
 //#endregion

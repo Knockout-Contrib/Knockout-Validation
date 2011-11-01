@@ -15,13 +15,25 @@ ko.validation.init();
 var myObject = ko.observable().extend({ required: true });
 
 //oooh complexity
-var myComplexObj = ko.observable()
-                     .extend({ required: true })
-                     .extend({ minLength: 3 })
-                     .extend({ pattern: {
+var myComplexObj = ko.observable().extend({ 
+                     required: true,
+                     minLength: 3,
+                     pattern: {
                           message: 'Hey this doesnt match my pattern',
                           params: '^[A-Z0-9].$'
-                     }});
+                     }
+                 });
+
+//or a different flavor if you like
+var myComplexObj = ko.observable()
+
+myComplexObj.extend({ required: true })
+            .extend({ minLength: 3 })
+            .extend({ pattern: {
+                 message: 'Hey this doesnt match my pattern',
+                 params: '^[A-Z0-9].$'
+            }});
+
 ```
 see more examples on the Fiddle: http://jsfiddle.net/ericbarnard/KHFn8/
 
