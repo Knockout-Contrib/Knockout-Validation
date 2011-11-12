@@ -223,7 +223,7 @@
     ko.validation.rules = {};
     ko.validation.rules['required'] = {
         validator: function (val, required) {
-            return required && val && val.length > 0;
+            return required && val && (val+'').length > 0;
         },
         message: 'This field is required.'
     };
