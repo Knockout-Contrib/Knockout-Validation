@@ -304,4 +304,15 @@ test('Object is Valid and isValid returns True', function () {
     ok(testObj.error.indexOf('must contain') > -1, "Doesn't match required pattern");
 
 });
+
+module('Utils Tests');
+test('hasAttribute works in old IE', function () {
+
+    var el = document.getElementById('testAgeInput');
+
+    ok(el, 'found element');
+
+    ok(ko.validation.utils.hasAttribute(el, 'required'), 'element correctly has html5 input attribute');
+    ok(!ko.validation.utils.hasAttribute(el, 'pattern'), 'element correctly does not have html5 input attribute');
+});
 //#endregion

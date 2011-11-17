@@ -4,19 +4,6 @@
 (function () {
     if (typeof (ko) === undefined) throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in';
 
-    //#region Utilities
-
-    function isArray(o) { return o.isArray || Object.prototype.toString.call(o) === '[object Array]'; }
-    function isObject(o) { return o != null && typeof o === 'object'; }
-    function values(o) { var r = []; for (var i in o) { r.push(o[i]); } return r; }
-    function hasAttribute(node, attr) { if (node.hasAttribute) return (node.hasAttribute(attr)); else return (!!node.getAttribute(attr)); }
-    function isValidatable(o) { return o.rules && o.isValid && o.isModified; }
-    function insertAfter(node, newNode) { node.parentNode.insertBefore(newNode, node.nextSibling); }
-    function extend(o, p, q) { if (!p) return o; for (var i in p) { if (isObject(p[i])) { if (!o[i]) o[i] = {}; extend(o[i], p[i]); } else { o[i] = p[i]; } } if (q) extend(o, q); return o; }
-    var newId = (function () { var a = new Date().getTime(); return function () { return a++ } })();
-
-    //#endregion
-
     var configuration = {
         registerExtenders: true,
         messagesOnModified: true,
@@ -26,12 +13,71 @@
         errorMessageClass: 'validationMessage'
     };
 
+    //#region Utilities
+
+    var utils = (function () {
+        var seedId = new Date().getTime();
+
+        return {
+            isArray: function (o) {
+                return o.isArray || Object.prototype.toString.call(o) === '[object Array]';
+            },
+            isObject: function (o) {
+                return o != null && typeof o === 'object';
+            },
+            values: function (o) {
+                var r = [];
+                for (var i in o) {
+                    r.push(o[i]);
+                }
+                return r;
+            },
+            hasAttribute: function (node, attr) {
+                
+//                if (node.hasAttribute) {
+//                    return (node.hasAttribute(attr));
+//                } else {
+//                    return (!!node.getAttribute(attr));
+//                }
+                  return node.getAttribute(attr) !== null;
+            },
+            isValidatable: function (o) {
+                return o.rules && o.isValid && o.isModified;
+            },
+            insertAfter: function (node, newNode) {
+                node.parentNode.insertBefore(newNode, node.nextSibling);
+            },
+            extend: function (o, p, q) {
+                if (!p) {
+                    return o;
+                }
+                for (var i in p) {
+                    if (utils.isObject(p[i])) {
+                        if (!o[i]) o[i] = {};
+                        utils.extend(o[i], p[i]);
+                    } else {
+                        o[i] = p[i];
+                    }
+                }
+                if (q) {
+                    utils.extend(o, q);
+                }
+                return o;
+            },
+            newId: function () {
+                return seedId += 1;
+            }
+        };
+    } ());
+
+    //#endregion
+
     ko.validation = {
 
         //Call this on startup
         //any config can be overridden with the passed in options
         init: function (options) {
-            extend(configuration, options);
+            utils.extend(configuration, options);
 
             if (configuration.registerExtenders) {
                 ko.validation.registerExtenders();
@@ -43,7 +89,7 @@
         configure: function (options) { ko.validation.init(options); },
 
         group: function (obj) { // array of observables or viewModel
-            var group = isArray(obj) ? obj : values(obj);
+            var group = utils.isArray(obj) ? obj : utils.values(obj);
             var observables = ko.utils.arrayFilter(group, function (item) {
                 if (ko.isObservable(item)) {
                     item.extend({ validatable: true });
@@ -102,7 +148,7 @@
         //      }
         //  )};
         addAnonymousRule: function (observable, ruleObj) {
-            var ruleName = newId();
+            var ruleName = utils.newId();
 
             //Create an anonymous rule to reference
             ko.validation.rules[ruleName] = {
@@ -160,7 +206,7 @@
         insertValidationMessage: function (element) {
             var span = document.createElement('SPAN');
             span.className = configuration.errorMessageClass;
-            insertAfter(element, span);
+            utils.insertAfter(element, span);
             return span;
         },
         registerValueBindingHandler: function () { // parse html5 input validation attributes where value binder, optional feature
@@ -171,12 +217,12 @@
                 init(element, valueAccessor, allBindingsAccessor);
 
                 //if the bindingContext contains a $validation object, they must be using a validationOptions binding
-                var config = extend({}, configuration, bindingContext.$data.$validation);
+                var config = utils.extend({}, configuration, bindingContext.$data.$validation);
 
                 if (config.parseInputAttributes) {
                     setTimeout(function () {
                         ko.utils.arrayForEach(['required', 'min', 'max', 'maxLength', 'pattern'], function (attr) {
-                            if (hasAttribute(element, attr)) {
+                            if (utils.hasAttribute(element, attr)) {
                                 ko.validation.addRule(valueAccessor(), {
                                     rule: attr,
                                     params: element.getAttribute(attr) || true
@@ -185,7 +231,7 @@
                         });
                     }, 0);
                 }
-                if (config.insertMessages && isValidatable(valueAccessor())) {
+                if (config.insertMessages && utils.isValidatable(valueAccessor())) {
                     var validationMessageElement = ko.validation.insertValidationMessage(element);
                     if (config.messageTemplate) {
                         ko.renderTemplate(config.messageTemplate, { field: valueAccessor() }, null, validationMessageElement, 'replaceNode');
@@ -196,6 +242,8 @@
             };
         }
     };
+
+    ko.validation.utils = utils;
 
     //#region Core Validation Rules
 
@@ -223,7 +271,7 @@
     ko.validation.rules = {};
     ko.validation.rules['required'] = {
         validator: function (val, required) {
-            return required && val && (val+'').length > 0;
+            return required && val && (val + '').length > 0;
         },
         message: 'This field is required.'
     };
@@ -297,7 +345,7 @@
             return function () {
                 var validationAddIn = { $validation: valueAccessor() };
 
-                var newBindingContext = extend({}, validationAddIn, bindingContext.$data);
+                var newBindingContext = utils.extend({}, validationAddIn, bindingContext.$data);
                 //bc.$data.$validation = valueAccessor();
                 return newBindingContext;
             };
@@ -332,7 +380,7 @@
     //      }
     //  )};
     ko.extenders['validation'] = function (observable, rules) { // allow single rule or array
-        ko.utils.arrayForEach(isArray(rules) ? rules : [rules], function (rule) {
+        ko.utils.arrayForEach(utils.isArray(rules) ? rules : [rules], function (rule) {
             // the 'rule' being passed in here has no name to identify a core Rule,
             // so we add it as an anonymous rule
             // If the developer is wanting to use a core Rule, but use a different message see the 'addExtender' logic for examples
@@ -349,7 +397,7 @@
     // 2. test.extend({validatable: false});
     // this will remove the validation properties from the Observable object should you need to do that.
     ko.extenders['validatable'] = function (observable, enable) {
-        if (enable && !isValidatable(observable)) {
+        if (enable && !utils.isValidatable(observable)) {
 
             observable.error = null; // holds the error message, we only need one since we stop processing validators when one is invalid
 
