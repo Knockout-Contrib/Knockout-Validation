@@ -6,6 +6,7 @@ Contributors:
 * [Andy Booth](https://github.com/andybooth)
 * [Eric Barnard](https://github.com/ericmbarnard)
 
+Tested in IE 6+, FF7, Chrome 15
 ##Getting Started
 ```javascript
 //setup the validation library, you can optionally pass in an 'options' object to configure the plug-in
