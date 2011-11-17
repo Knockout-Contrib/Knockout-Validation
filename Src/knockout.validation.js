@@ -33,13 +33,7 @@
                 return r;
             },
             hasAttribute: function (node, attr) {
-                
-//                if (node.hasAttribute) {
-//                    return (node.hasAttribute(attr));
-//                } else {
-//                    return (!!node.getAttribute(attr));
-//                }
-                  return node.getAttribute(attr) !== null;
+                return node.getAttribute(attr) !== null;
             },
             isValidatable: function (o) {
                 return o.rules && o.isValid && o.isModified;
