@@ -178,6 +178,121 @@ test('Object is NOT Valid and isValid returns False', function () {
 
 //#endregion
 
+//#region Email Validation
+
+module('Email Validation');
+test('Object is Valid and isValid returns True', function () {
+    var testObj = ko.observable('').extend({ email: true });
+
+    testObj('test@example.com');
+
+    equal(testObj(), 'test@example.com', 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and isValid returns False', function () {
+    var testObj = ko.observable('').extend({ email: true });
+
+    testObj('text#example.com');
+
+    equal(testObj(), 'text#example.com', 'observable still works');
+    equal(testObj.isValid(), false, testObj.error);
+});
+
+//#endregion
+
+//#region Date Validation
+
+module('Date Validation');
+test('Object is Valid and isValid returns True', function () {
+    var testObj = ko.observable('').extend({ date: true });
+
+    testObj('11/18/2011');
+
+    equal(testObj(), '11/18/2011', 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and isValid returns False', function () {
+    var testObj = ko.observable('').extend({ date: true });
+
+    testObj('stuff');
+
+    equal(testObj(), 'stuff', 'observable still works');
+    equal(testObj.isValid(), false, testObj.error);
+});
+
+//#endregion
+
+//#region DateISO Validation
+
+module('DateISO Validation');
+test('Object is Valid and isValid returns True', function () {
+    var testObj = ko.observable('').extend({ dateISO: true });
+
+    testObj('2011-11-18');
+
+    equal(testObj(), '2011-11-18', 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and isValid returns False', function () {
+    var testObj = ko.observable('').extend({ dateISO: true });
+
+    testObj('stuff');
+
+    equal(testObj(), 'stuff', 'observable still works');
+    equal(testObj.isValid(), false, testObj.error);
+});
+
+//#endregion
+
+//#region Number Validation
+
+module('Number Validation');
+test('Object is Valid and isValid returns True', function () {
+    var testObj = ko.observable('').extend({ number: true });
+
+    testObj(200.01);
+
+    equal(testObj(), 200.01, 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and isValid returns False', function () {
+    var testObj = ko.observable('').extend({ number: true });
+
+    testObj('stuff');
+
+    equal(testObj(), 'stuff', 'observable still works');
+    equal(testObj.isValid(), false, testObj.error);
+});
+
+//#endregion
+
+//#region Digit Validation
+
+module('Digit Validation');
+test('Object is Valid and isValid returns True', function () {
+    var testObj = ko.observable('').extend({ number: true });
+
+    testObj(2);
+
+    equal(testObj(), 2, 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and isValid returns False', function () {
+    var testObj = ko.observable('').extend({ number: true });
+
+    testObj('stuff');
+
+    equal(testObj(), 'stuff', 'observable still works');
+    equal(testObj.isValid(), false, testObj.error);
+});
+
+//#endregion
+
 //#region PhoneUS Validation
 
 module('PhoneUS Validation');
