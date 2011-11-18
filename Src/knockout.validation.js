@@ -2,7 +2,7 @@
 
 
 (function () {
-    if (typeof (ko) === undefined) throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in';
+    if (typeof (ko) === undefined) { throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in'; }
 
     var configuration = {
         registerExtenders: true,
@@ -11,6 +11,13 @@
         insertMessages: true,
         parseInputAttributes: false,
         errorMessageClass: 'validationMessage'
+    };
+
+    var html5Attributes = ['required', 'pattern', 'min', 'max', 'step'];
+
+    var async = function (expr) {
+        if (window.setImmediate) { window.setImmediate(expr); }
+        else { window.setTimeout(expr, 0); }
     };
 
     //#region Utilities
@@ -23,12 +30,14 @@
                 return o.isArray || Object.prototype.toString.call(o) === '[object Array]';
             },
             isObject: function (o) {
-                return o != null && typeof o === 'object';
+                return o !== null && typeof o === 'object';
             },
             values: function (o) {
                 var r = [];
                 for (var i in o) {
-                    r.push(o[i]);
+                    if (o.hasOwnProperty(i)) {
+                        r.push(o[i]);
+                    }
                 }
                 return r;
             },
@@ -47,7 +56,7 @@
                 }
                 for (var i in p) {
                     if (utils.isObject(p[i])) {
-                        if (!o[i]) o[i] = {};
+                        if (!o[i]) { o[i] = {}; }
                         utils.extend(o[i], p[i]);
                     } else {
                         o[i] = p[i];
@@ -203,6 +212,18 @@
             utils.insertAfter(element, span);
             return span;
         },
+
+        parseInputValidationAttributes: function (element, valueAccessor) {
+            ko.utils.arrayForEach(html5Attributes, function (attr) {
+                if (utils.hasAttribute(element, attr)) {
+                    ko.validation.addRule(valueAccessor(), {
+                        rule: attr,
+                        params: element.getAttribute(attr) || true
+                    });
+                }
+            });
+        },
+
         registerValueBindingHandler: function () { // parse html5 input validation attributes where value binder, optional feature
             var init = ko.bindingHandlers.value.init;
 
@@ -214,16 +235,7 @@
                 var config = utils.extend({}, configuration, bindingContext.$data.$validation);
 
                 if (config.parseInputAttributes) {
-                    setTimeout(function () {
-                        ko.utils.arrayForEach(['required', 'min', 'max', 'maxLength', 'pattern'], function (attr) {
-                            if (utils.hasAttribute(element, attr)) {
-                                ko.validation.addRule(valueAccessor(), {
-                                    rule: attr,
-                                    params: element.getAttribute(attr) || true
-                                });
-                            }
-                        });
-                    }, 0);
+                    async(function () { ko.validation.parseInputValidationAttributes(element, valueAccessor) });
                 }
                 if (config.insertMessages && utils.isValidatable(valueAccessor())) {
                     var validationMessageElement = ko.validation.insertValidationMessage(element);
@@ -305,11 +317,18 @@
         message: 'Please check this value.'
     };
 
+    ko.validation.rules['step'] = {
+        validator: function (val, step) {
+            return val % step === 0;
+        },
+        message: 'The value must increment by {0}'
+    };
+
     //#endregion
 
     //#region Knockout Binding Handlers
 
-    ko.bindingHandlers.validationMessage = { // individual error message, if modified or post binding
+    ko.bindingHandlers['validationMessage'] = { // individual error message, if modified or post binding
         update: function (element, valueAccessor) {
             var obsv = valueAccessor();
             obsv.extend({ validatable: true });
@@ -334,14 +353,11 @@
     //      <input type="text" data-bind="value: someValue"/>
     //      <input type="text" data-bind="value: someValue2"/>
     // </div>
-    ko.bindingHandlers.validationOptions = {
+    ko.bindingHandlers['validationOptions'] = {
         makeValueAccessor: function (valueAccessor, bindingContext) {
             return function () {
                 var validationAddIn = { $validation: valueAccessor() };
-
-                var newBindingContext = utils.extend({}, validationAddIn, bindingContext.$data);
-                //bc.$data.$validation = valueAccessor();
-                return newBindingContext;
+                return utils.extend({}, validationAddIn, bindingContext.$data);
             };
         },
 
@@ -414,7 +430,7 @@
                     ctx = rules[i];
 
                     //get the core Rule to use for validation
-                    var r = ko.validation.rules[ctx.rule];
+                    r = ko.validation.rules[ctx.rule];
 
                     //Execute the validator and see if its valid
                     if (!r.validator(observable(), ctx.params || true)) { // default param is true, eg. required = true

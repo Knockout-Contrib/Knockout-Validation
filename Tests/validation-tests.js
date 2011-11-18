@@ -153,6 +153,31 @@ test('Object is NOT Valid and isValid returns False', function () {
 
 //#endregion
 
+//#region Step Validation
+
+module('Step Validation');
+test('Object is Valid and isValid returns True', function () {
+    var testObj = ko.observable('')
+                    .extend({ step: 3 });
+
+    testObj(6);
+
+    equal(testObj(), 6, 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and isValid returns False', function () {
+    var testObj = ko.observable('')
+                    .extend({ step: 2 });
+
+    testObj(5);
+
+    equal(testObj(), 5, 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
+//#endregion
+
 //#region Custom Rule Validation
 module('Custom Rule Validation');
 test('Custom Rule Is Valid Test', function () {
