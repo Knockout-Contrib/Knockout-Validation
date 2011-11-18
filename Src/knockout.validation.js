@@ -474,7 +474,7 @@
         validator: function (value, validate) {
             return validate && !/Invalid|NaN/.test(new Date(value));
         },
-        message: 'Please enter a proper date'
+        message: 'Please enter a proper date' 
     };
 
     ko.validation.rules['dateISO'] = {
