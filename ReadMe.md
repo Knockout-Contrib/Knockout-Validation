@@ -87,6 +87,33 @@ var myObj = ko.observable('').extend({ pattern: '^[a-z0-9].$' });
 ```javascript
 var myObj = ko.observable('').extend({ step: 3 });
 ```
+**Email**:
+
+```javascript
+var myObj = ko.observable('').extend({ email: true });
+```
+**Date**:
+
+```javascript
+var myObj = ko.observable('').extend({ date: true });
+```
+**DateISO**:
+
+```javascript
+var myObj = ko.observable('').extend({ dateISO: true });
+```
+**Number**:
+
+```javascript
+var myObj = ko.observable('').extend({ number: true });
+```
+**Digit**:
+
+```javascript
+var myObj = ko.observable('').extend({ digit: true });
+```
+
+_Much thanks to the [jQuery Validation Plug-In](https://github.com/jzaefferer/jquery-validation) team for their work on many of the rules_
 ##Custom Validation Rules
 ####Custom Rules
 Custom Rules can be created using the simple example below. All you need is to define a validator function and a default message. 
