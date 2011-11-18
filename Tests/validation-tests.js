@@ -228,7 +228,7 @@ test('Object is NOT Valid and isValid returns False', function () {
 
 module('DateISO Validation');
 test('Object is Valid and isValid returns True', function () {
-    var testObj = ko.observable('').extend({ dateISO: true });
+    var testObj = ko.observable('').extend({ dateISO: true }); 
 
     testObj('2011-11-18');
 
