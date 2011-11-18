@@ -92,14 +92,16 @@
         configure: function (options) { ko.validation.init(options); },
 
         group: function (obj) { // array of observables or viewModel
-            var group = utils.isArray(obj) ? obj : utils.values(obj);
-            var observables = ko.utils.arrayFilter(group, function (item) {
+            var objValues = utils.isArray(obj) ? obj : utils.values(obj);
+
+            var observables = ko.utils.arrayFilter(objValues, function (item) {
                 if (ko.isObservable(item)) {
                     item.extend({ validatable: true });
                     return true;
                 }
                 return false;
             });
+
             var result = ko.dependentObservable(function () {
                 var errors = [];
                 ko.utils.arrayForEach(observables, function (observable) {
@@ -110,13 +112,18 @@
                 });
                 return errors;
             });
+
+
+
             result.showAllMessages = function () {
                 ko.utils.arrayForEach(observables, function (observable) {
                     observable.isModified(true);
                 });
             };
+
             return result;
         },
+
         formatMessage: function (message, params) {
             return message.replace('{0}', params);
         },
@@ -450,7 +457,36 @@
             });
         }
         return observable;
-    }
+    };
+
+    //#endregion
+
+    //#region Additional Rules
+
+    ko.validation.rules['phoneUS'] = {
+        validator: function (phoneNumber, isPhone) {
+            if (typeof (phoneNumber) !== 'string') { return false; }
+            phoneNumber = phoneNumber.replace(/\s+/g, "");
+            return phoneNumber.length > 9 && phoneNumber.match(/^(1-?)?(\([2-9]\d{2}\)|[2-9]\d{2})-?[2-9]\d{2}-?\d{4}$/);
+        },
+        message: 'Please specify a valid phone number'
+    };
+
+    //#endregion
+
+    //#region validatedObservable
+
+    ko.validatedObservable = function (initialValue) {
+        if (!ko.validation.utils.isObject(initialValue)) { return ko.observable(initialValue).extend({ validatable: true }); }
+
+        var obsv = ko.observable(initialValue);
+        obsv.errors = ko.validation.group(initialValue);
+        obsv.isValid = ko.dependentObservable(function () {
+            return obsv.errors().length === 0;
+        });
+
+        return obsv;
+    };
 
     //#endregion
 
