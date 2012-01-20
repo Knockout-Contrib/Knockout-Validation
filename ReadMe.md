@@ -6,22 +6,48 @@ Contributors:
 * [Andy Booth](https://github.com/andybooth)
 * [Eric Barnard](https://github.com/ericmbarnard)
 
+Tested in IE 6+, FF7, Chrome 15
 ##Getting Started
 ```javascript
 //setup the validation library, you can optionally pass in an 'options' object to configure the plug-in
 ko.validation.init();
 
 //start using it!
-var myObject = ko.observable().extend({ required: true });
+var myValue = ko.observable().extend({ required: true });
 
 //oooh complexity
-var myComplexObj = ko.observable()
-                     .extend({ required: true })
-                     .extend({ minLength: 3 })
-                     .extend({ pattern: {
+var myComplexValue = ko.observable().extend({ 
+                     required: true,
+                     minLength: 3,
+                     pattern: {
                           message: 'Hey this doesnt match my pattern',
                           params: '^[A-Z0-9].$'
-                     }});
+                     }
+                 });
+
+//or chaining if you like that
+var myComplexValue = ko.observable()
+
+myComplexValue.extend({ required: true })
+            .extend({ minLength: 3 })
+            .extend({ pattern: {
+                 message: 'Hey this doesnt match my pattern',
+                 params: '^[A-Z0-9].$'
+            }});
+
+//want to know if all of your ViewModel's properties are valid?
+var myViewModel = ko.validatedObservable({
+   property1: ko.observable().extend({ required: true }),
+   property2: ko.observable().extend({ max: 10 })
+});
+
+console.log(myViewModel.isValid()); //false
+
+myViewModel().property1('something');
+myViewModel().property2(9);
+
+console.log(myViewModel.isValid()); //true
+
 ```
 see more examples on the Fiddle: http://jsfiddle.net/ericbarnard/KHFn8/
 
@@ -56,7 +82,38 @@ var myObj = ko.observable('').extend({ maxLength: 12 });
 ```javascript
 var myObj = ko.observable('').extend({ pattern: '^[a-z0-9].$' });
 ```
+**Step**:
 
+```javascript
+var myObj = ko.observable('').extend({ step: 3 });
+```
+**Email**:
+
+```javascript
+var myObj = ko.observable('').extend({ email: true });
+```
+**Date**:
+
+```javascript
+var myObj = ko.observable('').extend({ date: true });
+```
+**DateISO**:
+
+```javascript
+var myObj = ko.observable('').extend({ dateISO: true });
+```
+**Number**:
+
+```javascript
+var myObj = ko.observable('').extend({ number: true });
+```
+**Digit**:
+
+```javascript
+var myObj = ko.observable('').extend({ digit: true });
+```
+
+_Much thanks to the [jQuery Validation Plug-In](https://github.com/jzaefferer/jquery-validation) team for their work on many of the rules_
 ##Custom Validation Rules
 ####Custom Rules
 Custom Rules can be created using the simple example below. All you need is to define a validator function and a default message. 
@@ -101,10 +158,11 @@ Min: `<input type="text" data-bind="value: myProp" min="2" />`
 
 Max: `<input type="text" data-bind="value: myProp" max="99" />`
 
-MinLength: `<input type="text" data-bind="value: myProp" minLength="10" />`
-
 Pattern: `<input type="text" data-bind="value: myProp" pattern="^[a-z0-9].*" />`
 
+Step: `<input type="text" data-bind="value: myProp" step="3" />`
+
+**Special Note, the 'MinLength' attribute was removed until the HTML5 spec fully supports it**
 ##Configuration Options
 ```javascript
 var options = {
@@ -150,4 +208,29 @@ Use this for:
 ```
 
 ##Remote Validation Rules
-we are working more on this, but for now you can create a custom rule and use a synchronous AJAX request in your rule to return `true/false` 
+we are working more on this, but for now you can create a custom rule and use a synchronous AJAX request in your rule to return `true/false`
+
+```javascript
+ko.validation.rules['myRemoteValidation'] = {
+     validator: function(val, param){
+          var isValid = true;
+          
+          //this library doesn't depend on jQuery/Zepto, so you'll need to include it separately
+          $.ajax({
+              async: false,
+              url: '/remoteValidation',
+              type: 'POST',
+              data: { value: val, param: param },
+              success: function(response){
+                     isValid = response === true;              
+              },
+              error: function(){
+                     isValid = false; //however you would like to handle this              
+              }
+           });
+           
+           return isValid;
+      },
+      message: 'This is InValid'
+};                      
+```

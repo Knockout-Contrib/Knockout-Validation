@@ -2,20 +2,7 @@
 
 
 (function () {
-    if (typeof (ko) === undefined) throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in';
-
-    //#region Utilities
-
-    function isArray(o) { return o.isArray || Object.prototype.toString.call(o) === '[object Array]'; }
-    function isObject(o) { return o != null && typeof o === 'object'; }
-    function values(o) { var r = []; for (var i in o) { r.push(o[i]); } return r; }
-    function hasAttribute(node, attr) { if (node.hasAttribute) return (node.hasAttribute(attr)); else return (!!node.getAttribute(attr)); }
-    function isValidatable(o) { return o.rules && o.isValid && o.isModified; }
-    function insertAfter(node, newNode) { node.parentNode.insertBefore(newNode, node.nextSibling); }
-    function extend(o, p, q) { if (!p) return o; for (var i in p) { if (isObject(p[i])) { if (!o[i]) o[i] = {}; extend(o[i], p[i]); } else { o[i] = p[i]; } } if (q) extend(o, q); return o; }
-    var newId = (function () { var a = new Date().getTime(); return function () { return a++ } })();
-
-    //#endregion
+    if (typeof (ko) === undefined) { throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in'; }
 
     var configuration = {
         registerExtenders: true,
@@ -28,12 +15,74 @@
 		onValidationStart: function(){}
     };
 
+    var html5Attributes = ['required', 'pattern', 'min', 'max', 'step'];
+
+    var async = function (expr) {
+        if (window.setImmediate) { window.setImmediate(expr); }
+        else { window.setTimeout(expr, 0); }
+    };
+
+    //#region Utilities
+
+    var utils = (function () {
+        var seedId = new Date().getTime();
+
+        return {
+            isArray: function (o) {
+                return o.isArray || Object.prototype.toString.call(o) === '[object Array]';
+            },
+            isObject: function (o) {
+                return o !== null && typeof o === 'object';
+            },
+            values: function (o) {
+                var r = [];
+                for (var i in o) {
+                    if (o.hasOwnProperty(i)) {
+                        r.push(o[i]);
+                    }
+                }
+                return r;
+            },
+            hasAttribute: function (node, attr) {
+                return node.getAttribute(attr) !== null;
+            },
+            isValidatable: function (o) {
+                return o.rules && o.isValid && o.isModified;
+            },
+            insertAfter: function (node, newNode) {
+                node.parentNode.insertBefore(newNode, node.nextSibling);
+            },
+            extend: function (o, p, q) {
+                if (!p) {
+                    return o;
+                }
+                for (var i in p) {
+                    if (utils.isObject(p[i])) {
+                        if (!o[i]) { o[i] = {}; }
+                        utils.extend(o[i], p[i]);
+                    } else {
+                        o[i] = p[i];
+                    }
+                }
+                if (q) {
+                    utils.extend(o, q);
+                }
+                return o;
+            },
+            newId: function () {
+                return seedId += 1;
+            }
+        };
+    } ());
+
+    //#endregion
+
     ko.validation = {
 
         //Call this on startup
         //any config can be overridden with the passed in options
         init: function (options) {
-            extend(configuration, options);
+            utils.extend(configuration, options);
 
             if (configuration.registerExtenders) {
                 ko.validation.registerExtenders();
@@ -45,19 +94,22 @@
         configure: function (options) { ko.validation.init(options); },
 
         group: function (obj) { // array of observables or viewModel
-			configuration.onValidationStart();
+            configuration.onValidationStart();
 			var failedObservables = [];
-			var group = isArray(obj) ? obj : values(obj);
-            var observables = ko.utils.arrayFilter(group, function (item) {
+			var objValues = utils.isArray(obj) ? obj : utils.values(obj);
+
+            var observables = ko.utils.arrayFilter(objValues, function (item) {
                 if (ko.isObservable(item)) {
                     item.extend({ validatable: true });
                     return true;
                 }
                 return false;
             });
+
             var result = ko.dependentObservable(function () {
                 var errors = [];
                 ko.utils.arrayForEach(observables, function (observable) {
+
                     if (!observable.isValid()) {
                         errors.push(observable.error);
 						failedObservables.push(observable);
@@ -66,14 +118,18 @@
                 return errors;
             });
 
+
+
             result.showAllMessages = function () {
                 ko.utils.arrayForEach(observables, function (observable) {
                     observable.isModified(true);
                 });
             };
+
 			if(failedObservables.length != 0) configuration.onValidationError(failedObservables);
             return result;
         },
+
         formatMessage: function (message, params) {
             return message.replace('{0}', params);
         },
@@ -108,7 +164,7 @@
         //      }
         //  )};
         addAnonymousRule: function (observable, ruleObj) {
-            var ruleName = newId();
+            var ruleName = utils.newId();
 
             //Create an anonymous rule to reference
             ko.validation.rules[ruleName] = {
@@ -166,9 +222,21 @@
         insertValidationMessage: function (element) {
             var span = document.createElement('SPAN');
             span.className = configuration.errorMessageClass;
-            insertAfter(element, span);
+            utils.insertAfter(element, span);
             return span;
         },
+
+        parseInputValidationAttributes: function (element, valueAccessor) {
+            ko.utils.arrayForEach(html5Attributes, function (attr) {
+                if (utils.hasAttribute(element, attr)) {
+                    ko.validation.addRule(valueAccessor(), {
+                        rule: attr,
+                        params: element.getAttribute(attr) || true
+                    });
+                }
+            });
+        },
+
         registerValueBindingHandler: function () { // parse html5 input validation attributes where value binder, optional feature
             var init = ko.bindingHandlers.value.init;
 
@@ -177,30 +245,19 @@
                 init(element, valueAccessor, allBindingsAccessor);
 
                 //if the bindingContext contains a $validation object, they must be using a validationOptions binding
-                var config = extend({}, configuration, bindingContext.$data.$validation);
+                var config = utils.extend({}, configuration, bindingContext.$data.$validation);
 
                 if (config.parseInputAttributes) {
-                    setTimeout(function () {
-                        ko.utils.arrayForEach(['required', 'min', 'max', 'maxLength', 'pattern'], function (attr) {
-                            if (hasAttribute(element, attr)) {
-                                ko.validation.addRule(valueAccessor(), {
-                                    rule: attr,
-                                    params: element.getAttribute(attr) || true
-                                });
-                            }
-                        });
-                    }, 0);
+                    async(function () { ko.validation.parseInputValidationAttributes(element, valueAccessor) });
                 }
-
-				if (isValidatable(valueAccessor())) {
+                if (isValidatable(valueAccessor())) {
 					//adds element to elements array on observable
 					valueAccessor().elements.push(element);
 					//removes the element from the observable's property when the element is destroyed
 					ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
 						if(element in valueAccessor().elements) ko.utils.arrayRemoveItem(valueAccessor().elements, element);
 					}); 
-								
-					var validationMessageElement = ko.validation.insertValidationMessage(element);
+                    var validationMessageElement = ko.validation.insertValidationMessage(element);
                     if (config.messageTemplate) {
                         ko.renderTemplate(config.messageTemplate, { field: valueAccessor() }, null, validationMessageElement, 'replaceNode');
                     } else {
@@ -210,6 +267,8 @@
             };
         }
     };
+
+    ko.validation.utils = utils;
 
     //#region Core Validation Rules
 
@@ -237,7 +296,7 @@
     ko.validation.rules = {};
     ko.validation.rules['required'] = {
         validator: function (val, required) {
-            return required && val && val.length > 0;
+            return required && val && (val + '').length > 0;
         },
         message: 'This field is required.'
     };
@@ -277,11 +336,18 @@
         message: 'Please check this value.'
     };
 
+    ko.validation.rules['step'] = {
+        validator: function (val, step) {
+            return val % step === 0;
+        },
+        message: 'The value must increment by {0}'
+    };
+
     //#endregion
 
     //#region Knockout Binding Handlers
 
-    ko.bindingHandlers.validationMessage = { // individual error message, if modified or post binding
+    ko.bindingHandlers['validationMessage'] = { // individual error message, if modified or post binding
         update: function (element, valueAccessor) {
             configuration.onValidationStart();
 			var obsv = valueAccessor();
@@ -310,14 +376,11 @@
     //      <input type="text" data-bind="value: someValue"/>
     //      <input type="text" data-bind="value: someValue2"/>
     // </div>
-    ko.bindingHandlers.validationOptions = {
+    ko.bindingHandlers['validationOptions'] = {
         makeValueAccessor: function (valueAccessor, bindingContext) {
             return function () {
                 var validationAddIn = { $validation: valueAccessor() };
-
-                var newBindingContext = extend({}, validationAddIn, bindingContext.$data);
-                //bc.$data.$validation = valueAccessor();
-                return newBindingContext;
+                return utils.extend({}, validationAddIn, bindingContext.$data);
             };
         },
 
@@ -350,7 +413,7 @@
     //      }
     //  )};
     ko.extenders['validation'] = function (observable, rules) { // allow single rule or array
-        ko.utils.arrayForEach(isArray(rules) ? rules : [rules], function (rule) {
+        ko.utils.arrayForEach(utils.isArray(rules) ? rules : [rules], function (rule) {
             // the 'rule' being passed in here has no name to identify a core Rule,
             // so we add it as an anonymous rule
             // If the developer is wanting to use a core Rule, but use a different message see the 'addExtender' logic for examples
@@ -367,7 +430,7 @@
     // 2. test.extend({validatable: false});
     // this will remove the validation properties from the Observable object should you need to do that.
     ko.extenders['validatable'] = function (observable, enable) {
-        if (enable && !isValidatable(observable)) {
+        if (enable && !utils.isValidatable(observable)) {
 
             observable.error = null; // holds the error message, we only need one since we stop processing validators when one is invalid
 
@@ -390,7 +453,7 @@
                     ctx = rules[i];
 
                     //get the core Rule to use for validation
-                    var r = ko.validation.rules[ctx.rule];
+                    r = ko.validation.rules[ctx.rule];
 
                     //Execute the validator and see if its valid
                     if (!r.validator(observable(), ctx.params || true)) { // default param is true, eg. required = true
@@ -410,7 +473,71 @@
             });
         }
         return observable;
-    }
+    };
+
+    //#endregion
+
+    //#region Additional Rules
+
+    ko.validation.rules['email'] = {
+        validator: function (val, validate) {
+            return validate && /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i.test(val);
+        },
+        message: '{0} is not a proper email address'
+    };
+
+    ko.validation.rules['date'] = {
+        validator: function (value, validate) {
+            return validate && !/Invalid|NaN/.test(new Date(value));
+        },
+        message: 'Please enter a proper date' 
+    };
+
+    ko.validation.rules['dateISO'] = {
+        validator: function (value, validate) {
+            return validate && /^\d{4}[\/-]\d{1,2}[\/-]\d{1,2}$/.test(value);
+        },
+        message: 'Please enter a proper date'
+    };
+
+    ko.validation.rules['number'] = {
+        validator: function (value, validate) {
+            return validate && /^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(value);
+        },
+        message: 'Please enter a number'
+    };
+
+    ko.validation.rules['digits'] = {
+        validator: function (value, validate) {
+            return validate && /^\d+$/.test(value);
+        },
+        message: 'Please enter a digit'
+    };
+
+    ko.validation.rules['phoneUS'] = {
+        validator: function (phoneNumber, validate) {
+            if (typeof (phoneNumber) !== 'string') { return false; }
+            phoneNumber = phoneNumber.replace(/\s+/g, "");
+            return validate && phoneNumber.length > 9 && phoneNumber.match(/^(1-?)?(\([2-9]\d{2}\)|[2-9]\d{2})-?[2-9]\d{2}-?\d{4}$/);
+        },
+        message: 'Please specify a valid phone number'
+    };
+
+    //#endregion
+
+    //#region validatedObservable
+
+    ko.validatedObservable = function (initialValue) {
+        if (!ko.validation.utils.isObject(initialValue)) { return ko.observable(initialValue).extend({ validatable: true }); }
+
+        var obsv = ko.observable(initialValue);
+        obsv.errors = ko.validation.group(initialValue);
+        obsv.isValid = ko.dependentObservable(function () {
+            return obsv.errors().length === 0;
+        });
+
+        return obsv;
+    };
 
     //#endregion
 
