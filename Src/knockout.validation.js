@@ -8,9 +8,12 @@
         registerExtenders: true,
         messagesOnModified: true,
         messageTemplate: null,
-        insertMessages: true,
+        insertMessages: true,           
+        decorateElement: false,                 //false to keep backward compatibility
         parseInputAttributes: false,
-        errorMessageClass: 'validationMessage'
+        errorClass: null,                       //single class for error message and element
+        errorElementClass: 'validationElement',  //class to decorate error element
+        errorMessageClass: 'validationMessage'  //class to decorate error message
     };
 
     var html5Attributes = ['required', 'pattern', 'min', 'max', 'step'];
@@ -76,10 +79,15 @@
     //#endregion
 
     ko.validation = {
-
         //Call this on startup
         //any config can be overridden with the passed in options
         init: function (options) {
+            //if specific error classes are not provided then apply generic errorClass
+            //it has to be done on option so that options.errorClass can override default 
+            //errorElementClass and errorMessage class but not those provided in options
+            options.errorElementClass = options.errorElementClass || options.errorClass;
+            options.errorMessageClass = options.errorMessageClass || options.errorClass;
+
             utils.extend(configuration, options);
 
             if (configuration.registerExtenders) {
@@ -239,11 +247,13 @@
                 init(element, valueAccessor, allBindingsAccessor);
 
                 //if the bindingContext contains a $validation object, they must be using a validationOptions binding
+                //TODO: when bound to anything other than INPUT binding context is null causing an error
                 var config = utils.extend({}, configuration, bindingContext.$data.$validation);
 
                 if (config.parseInputAttributes) {
                     async(function () { ko.validation.parseInputValidationAttributes(element, valueAccessor) });
                 }
+                //if requested insert message element and apply bindings
                 if (config.insertMessages && utils.isValidatable(valueAccessor())) {
                     var validationMessageElement = ko.validation.insertValidationMessage(element);
                     if (config.messageTemplate) {
@@ -252,6 +262,11 @@
                         ko.applyBindingsToNode(validationMessageElement, { validationMessage: valueAccessor() });
                     }
                 }
+                //if requested add binding to decorate element
+                if (config.decorateElement && utils.isValidatable(valueAccessor())) {
+                    ko.applyBindingsToNode(element, { validationElement: valueAccessor() });
+                }
+                
             };
         }
     };
@@ -334,7 +349,22 @@
     //#endregion
 
     //#region Knockout Binding Handlers
+    
+    ko.bindingHandlers['validationElement'] = {
+        update: function (element, valueAccessor) {
+            var obsv = valueAccessor();
+            obsv.extend({ validatable: true });
 
+            var cssSettingsAccessor = function () {
+                var result = {};
+                result[configuration.errorElementClass] = !obsv.isValid();
+                return result;
+            };
+            //add or remove class on the element;
+            ko.bindingHandlers.css.update(element, cssSettingsAccessor);
+        }
+    };
+    
     ko.bindingHandlers['validationMessage'] = { // individual error message, if modified or post binding
         update: function (element, valueAccessor) {
             var obsv = valueAccessor();
@@ -347,7 +377,8 @@
                     return null;
                 }
             };
-
+            //TODO: validation element should be invisible when text is empty
+            //      right now it is visible when style defines a border for example
             ko.bindingHandlers.text.update(element, errorMsgAccessor);
         }
     };
