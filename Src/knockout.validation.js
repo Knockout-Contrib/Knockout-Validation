@@ -41,6 +41,9 @@
                 }
                 return r;
             },
+            getValue: function(o) { 
+                return (typeof o === 'function' ? o() : o);
+            },
             hasAttribute: function (node, attr) {
                 return node.getAttribute(attr) !== null;
             },
@@ -434,21 +437,25 @@
                     r, // the rule validator to execute
                     ctx, // the current Rule Context for the loop
                     rules = observable.rules(), //cache for iterator
-                    len = rules.length; //cache for iterator
+                    len = rules.length, //cache for iterator
+                    params = null, //cache for parameters value (as it may be provided as function or observable)
+                    message = null;  //cache for message
 
                 for (; i < len; i++) {
 
                     //get the Rule Context info to give to the core Rule
                     ctx = rules[i];
-
+                    //get value of params. default param is true, eg. required = true
+                    //it can be provided as value, function, observable or function returning observable
+                    params = ko.unwrapObservable(utils.getValue(ctx.params)) || true;
                     //get the core Rule to use for validation
                     r = ko.validation.rules[ctx.rule];
 
                     //Execute the validator and see if its valid
-                    if (!r.validator(observable(), ctx.params || true)) { // default param is true, eg. required = true
+                    if (!r.validator(observable(), params)) { 
 
                         //not valid, so format the error message and stick it in the 'error' variable
-                        observable.error = ko.validation.formatMessage(ctx.message || r.message, ctx.params);
+                        observable.error = ko.validation.formatMessage(ctx.message || r.message, params);
                         return false;
                     }
                 }
@@ -470,7 +477,11 @@
 
     ko.validation.rules['email'] = {
         validator: function (val, validate) {
-            return validate && /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i.test(val);
+            //I think an empty email address is also a valid entry
+            //if one want's to enforce entry it should be done with 'required: true'
+            return (!val) || (
+                validate && /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i.test(val)
+            );
         },
         message: '{0} is not a proper email address'
     };
@@ -511,7 +522,47 @@
         },
         message: 'Please specify a valid phone number'
     };
+    
+    ko.validation.rules['equal'] = {
+        validator: function (val, params) {
+            var otherValue = params;
+            return val === otherValue;
+        },
+        message: 'values must equal'
+    };
+    
+    ko.validation.rules['notEqual'] = {
+        validator: function (val, params) {
+            var otherValue = params;
+            return val !== otherValue;
+        },
+        message: 'please choose another value.'
+    };
 
+    //unique in collection
+    // options are:
+    //    collection: array or function returning (observable) array 
+    //              in which the value has to be unique
+    //    valueAccessor: function that returns value from an object stored in collection
+    //              if it is null the value is compared directly
+    //    external: set to true when object you are validating is automatically updating collection
+    ko.validation.rules['unique'] = {
+        validator: function (val, options) {
+            var c = utils.getValue(options.collection),
+                external = utils.getValue(externalValue),
+                counter = 0;
+
+            if (!val || !c) return true;
+
+            ko.utils.arrayFilter(ko.utils.unwrapObservable(c), function (item) {
+                if (val === (options.valueAccessor ? options.valueAccessor(item) : item)) counter++;
+            });
+            // if value is external even 1 same value in collection means the value is not unique
+            return counter < (external !== undefined && val !== external ? 1 : 2);
+        },
+        message: 'Please make sure the value is unique.'
+    };
+    
     //#endregion
 
     //#region validatedObservable
