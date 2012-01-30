@@ -85,8 +85,6 @@
             if (configuration.registerExtenders) {
                 ko.validation.registerExtenders();
             }
-
-            ko.validation.registerValueBindingHandler();
         },
         //backwards compatability
         configure: function (options) { ko.validation.init(options); },
@@ -229,34 +227,38 @@
                     });
                 }
             });
-        },
-
-        registerValueBindingHandler: function () { // parse html5 input validation attributes where value binder, optional feature
-            var init = ko.bindingHandlers.value.init;
-
-            ko.bindingHandlers.value.init = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-
-                init(element, valueAccessor, allBindingsAccessor);
-
-                //if the bindingContext contains a $validation object, they must be using a validationOptions binding
-                var config = utils.extend({}, configuration, bindingContext.$data.$validation);
-
-                if (config.parseInputAttributes) {
-                    async(function () { ko.validation.parseInputValidationAttributes(element, valueAccessor) });
-                }
-                if (config.insertMessages && utils.isValidatable(valueAccessor())) {
-                    var validationMessageElement = ko.validation.insertValidationMessage(element);
-                    if (config.messageTemplate) {
-                        ko.renderTemplate(config.messageTemplate, { field: valueAccessor() }, null, validationMessageElement, 'replaceNode');
-                    } else {
-                        ko.applyBindingsToNode(validationMessageElement, { validationMessage: valueAccessor() });
-                    }
-                }
-            };
         }
     };
 
     ko.validation.utils = utils;
+
+    //setup the 'init' bindingHandler override where we inject validation messages
+    (function () {
+        var init = ko.bindingHandlers.value.init;
+
+        ko.bindingHandlers.value.init = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+
+            init(element, valueAccessor, allBindingsAccessor);
+
+            //if the bindingContext contains a $validation object, they must be using a validationOptions binding
+            var config = utils.extend({}, configuration, bindingContext.$data.$validation);
+
+            // parse html5 input validation attributes, optional feature
+            if (config.parseInputAttributes) {
+                async(function () { ko.validation.parseInputValidationAttributes(element, valueAccessor) });
+            }
+
+            if (config.insertMessages && utils.isValidatable(valueAccessor())) {
+                var validationMessageElement = ko.validation.insertValidationMessage(element);
+                if (config.messageTemplate) {
+                    ko.renderTemplate(config.messageTemplate, { field: valueAccessor() }, null, validationMessageElement, 'replaceNode');
+                } else {
+                    ko.applyBindingsToNode(validationMessageElement, { validationMessage: valueAccessor() });
+                }
+            }
+        };
+    } ());
+
 
     //#region Core Validation Rules
 
@@ -284,7 +286,10 @@
     ko.validation.rules = {};
     ko.validation.rules['required'] = {
         validator: function (val, required) {
-            return required && val && (val + '').length > 0;
+            if (val === undefined || val === null) {
+                return !required;
+            }
+            return required && (val + '').length > 0;
         },
         message: 'This field is required.'
     };
@@ -474,7 +479,7 @@
         validator: function (value, validate) {
             return validate && !/Invalid|NaN/.test(new Date(value));
         },
-        message: 'Please enter a proper date' 
+        message: 'Please enter a proper date'
     };
 
     ko.validation.rules['dateISO'] = {

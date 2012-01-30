@@ -26,6 +26,15 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
 
+test('Zero is a valid value for required', function () {
+
+    var testObj = ko.observable(0)
+                    .extend({ required: true });
+
+    equal(testObj(), 0, 'observable still works');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
 //#endregion
 
 //#region Min Validation
