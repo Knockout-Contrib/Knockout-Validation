@@ -56,23 +56,6 @@
             insertAfter: function (node, newNode) {
                 node.parentNode.insertBefore(newNode, node.nextSibling);
             },
-            extend: function (o, p, q) {
-                if (!p) {
-                    return o;
-                }
-                for (var i in p) {
-                    if (utils.isObject(p[i])) {
-                        if (!o[i]) { o[i] = {}; }
-                        utils.extend(o[i], p[i]);
-                    } else {
-                        o[i] = p[i];
-                    }
-                }
-                if (q) {
-                    utils.extend(o, q);
-                }
-                return o;
-            },
             newId: function () {
                 return seedId += 1;
             }
@@ -92,7 +75,7 @@
             options.errorElementClass = options.errorElementClass || options.errorClass || configuration.errorElementClass;
             options.errorMessageClass = options.errorMessageClass || options.errorClass || configuration.errorMessageClass;
 
-            utils.extend(configuration, options);
+            ko.utils.extend(configuration, options);
 
             if (configuration.registerExtenders) {
                 ko.validation.registerExtenders();
@@ -254,7 +237,8 @@
 
             //if the bindingContext contains a $validation object, they must be using a validationOptions binding
             //TODO: when bound to anything other than INPUT binding context is null causing an error
-            var config = utils.extend({}, configuration, bindingContext.$data.$validation);
+            var config = ko.utils.extend({}, configuration);
+            ko.utils.extend(config, bindingContext.$data.$validation);
 
             // parse html5 input validation attributes, optional feature
             if (config.parseInputAttributes) {
@@ -408,7 +392,7 @@
         makeValueAccessor: function (valueAccessor, bindingContext) {
             return function () {
                 var validationAddIn = { $validation: valueAccessor() };
-                return utils.extend({}, validationAddIn, bindingContext.$data);
+                return ko.utils.extend(validationAddIn, bindingContext.$data);
             };
         },
 
