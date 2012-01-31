@@ -447,7 +447,7 @@
                     ctx = rules[i];
                     //get value of params. default param is true, eg. required = true
                     //it can be provided as value, function, observable or function returning observable
-                    params = ko.unwrapObservable(utils.getValue(ctx.params)) || true;
+                    params = ko.utils.unwrapObservable(utils.getValue(ctx.params)) || true;
                     //get the core Rule to use for validation
                     r = ko.validation.rules[ctx.rule];
 
