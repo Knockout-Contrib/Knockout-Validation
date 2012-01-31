@@ -95,7 +95,7 @@
                 return false;
             });
 
-            var result = ko.dependentObservable(function () {
+            var result = ko.computed(function () {
                 var errors = [];
                 ko.utils.arrayForEach(observables, function (observable) {
 
@@ -452,7 +452,7 @@
             // Rule Context = { rule: '<rule name>', params: '<passed in params>', message: '<Override of default Message>' }            
             observable.rules = ko.observableArray(); //holds the rule Contexts to use as part of validation
 
-            observable.isValid = ko.dependentObservable(function () {
+            observable.isValid = ko.computed(function () {
                 var i = 0,
                     r, // the rule validator to execute
                     ctx, // the current Rule Context for the loop
@@ -592,7 +592,7 @@
 
         var obsv = ko.observable(initialValue);
         obsv.errors = ko.validation.group(initialValue);
-        obsv.isValid = ko.dependentObservable(function () {
+        obsv.isValid = ko.computed(function () {
             return obsv.errors().length === 0;
         });
 
