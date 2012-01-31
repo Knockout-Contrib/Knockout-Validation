@@ -69,6 +69,8 @@
         //Call this on startup
         //any config can be overridden with the passed in options
         init: function (options) {
+            //becuase we will be accessing options properties it has to be an object at least
+            options = options || {};
             //if specific error classes are not provided then apply generic errorClass
             //it has to be done on option so that options.errorClass can override default 
             //errorElementClass and errorMessage class but not those provided in options            
