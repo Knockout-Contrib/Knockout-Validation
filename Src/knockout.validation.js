@@ -10,7 +10,10 @@
         messageTemplate: null,
         insertMessages: true,
         parseInputAttributes: false,
-        errorMessageClass: 'validationMessage'
+        decorateElement: false,         //false to keep backward compatibility
+        errorClass: null,               //single class for error message and element
+        errorElementClass: 'validationElement',  //class to decorate error element
+        errorMessageClass: 'validationMessage'  //class to decorate error message
     };
 
     var html5Attributes = ['required', 'pattern', 'min', 'max', 'step'];
@@ -41,7 +44,7 @@
                 }
                 return r;
             },
-            getValue: function(o) { 
+            getValue: function (o) {
                 return (typeof o === 'function' ? o() : o);
             },
             hasAttribute: function (node, attr) {
@@ -83,6 +86,12 @@
         //Call this on startup
         //any config can be overridden with the passed in options
         init: function (options) {
+            //if specific error classes are not provided then apply generic errorClass
+            //it has to be done on option so that options.errorClass can override default 
+            //errorElementClass and errorMessage class but not those provided in options            
+            options.errorElementClass = options.errorElementClass || options.errorClass || configuration.errorElementClass;
+            options.errorMessageClass = options.errorMessageClass || options.errorClass || configuration.errorMessageClass;
+
             utils.extend(configuration, options);
 
             if (configuration.registerExtenders) {
@@ -244,6 +253,7 @@
             init(element, valueAccessor, allBindingsAccessor);
 
             //if the bindingContext contains a $validation object, they must be using a validationOptions binding
+            //TODO: when bound to anything other than INPUT binding context is null causing an error
             var config = utils.extend({}, configuration, bindingContext.$data.$validation);
 
             // parse html5 input validation attributes, optional feature
@@ -251,6 +261,7 @@
                 async(function () { ko.validation.parseInputValidationAttributes(element, valueAccessor) });
             }
 
+            //if requested insert message element and apply bindings
             if (config.insertMessages && utils.isValidatable(valueAccessor())) {
                 var validationMessageElement = ko.validation.insertValidationMessage(element);
                 if (config.messageTemplate) {
@@ -258,6 +269,10 @@
                 } else {
                     ko.applyBindingsToNode(validationMessageElement, { validationMessage: valueAccessor() });
                 }
+            }
+            //if requested add binding to decorate element	
+            if (config.decorateElement && utils.isValidatable(valueAccessor())) {
+                ko.applyBindingsToNode(element, { validationElement: valueAccessor() });
             }
         };
     } ());
@@ -356,7 +371,28 @@
                 }
             };
 
+            //toggle visibility on validation messages when validation hasn't been evaluated, or when the object isValid
+            var visiblityAccessor = function () {
+                return obsv.isModified() ? !obsv.isValid() : false;
+            };
+
             ko.bindingHandlers.text.update(element, errorMsgAccessor);
+            ko.bindingHandlers.visible.update(element, visiblityAccessor);
+        }
+    };
+
+    ko.bindingHandlers['validationElement'] = {
+        update: function (element, valueAccessor) {
+            var obsv = valueAccessor();
+            obsv.extend({ validatable: true });
+
+            var cssSettingsAccessor = function () {
+                var result = {};
+                result[configuration.errorElementClass] = !obsv.isValid();
+                return result;
+            };
+            //add or remove class on the element;	
+            ko.bindingHandlers.css.update(element, cssSettingsAccessor);
         }
     };
 
@@ -452,7 +488,7 @@
                     r = ko.validation.rules[ctx.rule];
 
                     //Execute the validator and see if its valid
-                    if (!r.validator(observable(), params)) { 
+                    if (!r.validator(observable(), params)) {
 
                         //not valid, so format the error message and stick it in the 'error' variable
                         observable.error = ko.validation.formatMessage(ctx.message || r.message, params);
@@ -522,7 +558,7 @@
         },
         message: 'Please specify a valid phone number'
     };
-    
+
     ko.validation.rules['equal'] = {
         validator: function (val, params) {
             var otherValue = params;
@@ -530,7 +566,7 @@
         },
         message: 'values must equal'
     };
-    
+
     ko.validation.rules['notEqual'] = {
         validator: function (val, params) {
             var otherValue = params;
@@ -549,7 +585,7 @@
     ko.validation.rules['unique'] = {
         validator: function (val, options) {
             var c = utils.getValue(options.collection),
-                external = utils.getValue(externalValue),
+                external = utils.getValue(options.externalValue),
                 counter = 0;
 
             if (!val || !c) return true;
@@ -562,7 +598,7 @@
         },
         message: 'Please make sure the value is unique.'
     };
-    
+
     //#endregion
 
     //#region validatedObservable

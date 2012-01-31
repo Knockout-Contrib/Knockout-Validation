@@ -478,6 +478,80 @@ test('Object is Valid and isValid returns True', function () {
 });
 //#endregion
 
+//#region Equal tests
+module("Equal Tests");
+
+test('Object is Valid and isValid returns True', function () {
+    var compareObj = ko.observable(12);
+    var testObj = ko.observable('').extend({ equal: compareObj });
+
+    testObj(12);
+
+    equal(testObj(), 12, 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and isValid returns False', function () {
+    var compareObj = ko.observable(12);
+    var testObj = ko.observable('').extend({ equal: compareObj });
+
+    testObj(11);
+
+    equal(testObj(), 11, 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
+//#endregion
+
+//#region NotEqual tests
+module("Not Equal Tests");
+
+test('Object is Valid and isValid returns True', function () {
+    var compareObj = ko.observable(12);
+    var testObj = ko.observable('').extend({ notEqual: compareObj });
+
+    testObj(11);
+
+    equal(testObj(), 11, 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and isValid returns False', function () {
+    var compareObj = ko.observable(12);
+    var testObj = ko.observable('').extend({ notEqual: compareObj });
+
+    testObj(12);
+
+    equal(testObj(), 12, 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
+//#endregion
+
+//#region Unique tests
+module("Unique Tests");
+
+test('Object is Valid and isValid returns True', function () {
+    var compareObj = ko.observableArray([11, 12, 13]);
+    var testObj = ko.observable('').extend({ unique: { collection: compareObj} });
+
+    testObj(11);
+
+    equal(testObj(), 11, 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and isValid returns False', function () {
+    var compareObj = ko.observableArray([11, 12, 13, 13]);
+    var testObj = ko.observable('').extend({ unique: { collection: compareObj} });
+
+    testObj(13);
+
+    equal(testObj(), 13, 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
+//#endregion
 module('Utils Tests');
 test('hasAttribute works in old IE', function () {
 
