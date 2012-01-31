@@ -238,7 +238,7 @@
             //if the bindingContext contains a $validation object, they must be using a validationOptions binding
             //TODO: when bound to anything other than INPUT binding context is null causing an error
             var config = ko.utils.extend({}, configuration);
-            ko.utils.extend(config, bindingContext.$data.$validation);
+            ko.utils.extend(config, bindingContext.$data.$validation); //$validation should be able to be undefined
 
             // parse html5 input validation attributes, optional feature
             if (config.parseInputAttributes) {
