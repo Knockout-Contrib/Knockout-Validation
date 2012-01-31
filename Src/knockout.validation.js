@@ -651,7 +651,7 @@
     };
 
     ko.applyBindingsWithValidation = function (viewModel, rootNode, options) {
-        
+        //TODO: support variable number of parameters to imitate ko.applyBindings
         ko.validation.init(options);
         ko.validation.group(viewModel);
         ko.applyBindings(viewModel, rootNode);
