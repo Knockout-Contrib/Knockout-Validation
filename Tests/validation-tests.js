@@ -552,16 +552,21 @@ test('Object is NOT Valid and isValid returns False', function () {
 });
 
 //#endregion
-module('Utils Tests');
-test('hasAttribute works in old IE', function () {
 
-    var el = document.getElementById('testAgeInput');
+//#region Utils Tests
+module('Grouping Tests');
 
-    ok(el, 'found element');
+test('Error Grouping works', function () {
+    var vm = {
+        firstName: ko.observable().extend({ required: true }),
+        lastName: ko.observable().extend({ minLength: 2 })
+    };
 
-    ok(ko.validation.utils.hasAttribute(el, 'required'), 'element correctly has html5 input attribute');
-    ok(!ko.validation.utils.hasAttribute(el, 'pattern'), 'element correctly does not have html5 input attribute');
+    var errors = ko.validation.group(vm);
+
+    equals(errors().length, 2, 'Grouping correctly finds 2 invalid properties');
 });
+//endregion
 
 //#region validatedObservable
 module('validatedObservable Tests');

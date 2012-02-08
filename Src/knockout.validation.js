@@ -32,6 +32,9 @@
     var utils = (function () {
         var seedId = new Date().getTime();
 
+        var domData = {}; //hash of data objects that we reference from dom elements
+        var domDataKey = '__ko_validation__';
+
         return {
             isArray: function (o) {
                 return o.isArray || Object.prototype.toString.call(o) === '[object Array]';
@@ -62,36 +65,72 @@
             },
             newId: function () {
                 return seedId += 1;
+            },
+            getConfigOptions: function (element) {
+                var options = utils.contextFor(element);
+
+                return options || configuration;
+            },
+            setDomData: function (node, data) {
+                var key = node[domDataKey];
+
+                if (!key) {
+                    node[domDataKey] = key = utils.newId();
+                }
+
+                domData[key] = data;
+            },
+            getDomData: function (node) {
+                var key = node[domDataKey];
+
+                if (!key) {
+                    return undefined;
+                }
+
+                return domData[key];
+            },
+            contextFor: function (node) {
+                switch (node.nodeType) {
+                    case 1:
+                    case 8:
+                        var context = utils.getDomData(node);
+                        if (context) return context;
+                        if (node.parentNode) return utils.contextFor(node.parentNode);
+                        break;
+                }
+                return undefined;
             }
         };
     } ());
 
     //#endregion
 
-    ko.validation = {
+    ko.validation = (function () {
+        return {
+            utils: utils,
 
-        //Call this on startup
-        //any config can be overridden with the passed in options
-        init: function (options) {
-            //becuase we will be accessing options properties it has to be an object at least
-            options = options || {};
-            //if specific error classes are not provided then apply generic errorClass
-            //it has to be done on option so that options.errorClass can override default 
-            //errorElementClass and errorMessage class but not those provided in options            
-            options.errorElementClass = options.errorElementClass || options.errorClass || configuration.errorElementClass;
-            options.errorMessageClass = options.errorMessageClass || options.errorClass || configuration.errorMessageClass;
+            //Call this on startup
+            //any config can be overridden with the passed in options
+            init: function (options) {
+                //becuase we will be accessing options properties it has to be an object at least
+                options = options || {};
+                //if specific error classes are not provided then apply generic errorClass
+                //it has to be done on option so that options.errorClass can override default 
+                //errorElementClass and errorMessage class but not those provided in options            
+                options.errorElementClass = options.errorElementClass || options.errorClass || configuration.errorElementClass;
+                options.errorMessageClass = options.errorMessageClass || options.errorClass || configuration.errorMessageClass;
 
-            ko.utils.extend(configuration, options);
+                ko.utils.extend(configuration, options);
 
-            if (configuration.registerExtenders) {
-                ko.validation.registerExtenders();
-            }
-        },
-        //backwards compatability
-        configure: function (options) { ko.validation.init(options); },
+                if (configuration.registerExtenders) {
+                    ko.validation.registerExtenders();
+                }
+            },
+            //backwards compatability
+            configure: function (options) { ko.validation.init(options); },
 
-        group: function group(obj, options) { // array of observables or viewModel
-            var options = ko.utils.extend(configuration.grouping, options),
+            group: function group(obj, options) { // array of observables or viewModel
+                var options = ko.utils.extend(configuration.grouping, options),
                 validatables = [],
                 result = null,
 
@@ -119,199 +158,163 @@
                     if (level !== 0) {
                         ko.utils.arrayForEach(objValues, function (observable) {
                             //but not falsy things and not HTML Elements
-                            if (observable && !observable.nodeType) traverse(observable, level+1);
+                            if (observable && !observable.nodeType) traverse(observable, level + 1);
                         });
                     }
                 };
-            
-            //if using observables then traverse structure once and add observables
-            if (options.observable) {
-                traverse(obj);
-                result = ko.dependentObservable(function () {
-                    var errors = [];
-                    ko.utils.arrayForEach(validatables, function (observable) {
-                        if (!observable.isValid()) {
-                            errors.push(observable.error);
-                        }
+
+                //if using observables then traverse structure once and add observables
+                if (options.observable) {
+                    traverse(obj);
+                    result = ko.dependentObservable(function () {
+                        var errors = [];
+                        ko.utils.arrayForEach(validatables, function (observable) {
+                            if (!observable.isValid()) {
+                                errors.push(observable.error);
+                            }
+                        });
+                        return errors;
                     });
-                    return errors;
+
+                    result.showAllMessages = function () {
+                        ko.utils.arrayForEach(validatables, function (observable) {
+                            observable.isModified(true);
+                        });
+                    };
+                } else { //if not using observables then every call to error() should traverse the structure
+                    result = function () {
+                        var errors = [];
+                        validatables = []; //clear validatables
+                        traverse(obj); // and traverse tree again
+                        ko.utils.arrayForEach(validatables, function (observable) {
+                            if (!observable.isValid()) {
+                                errors.push(observable.error);
+                            }
+                        });
+                        return errors;
+                    };
+
+                    result.showAllMessages = function () {
+                        ko.utils.arrayForEach(validatables, function (observable) {
+                            observable.isModified(true);
+                        });
+                    };
+
+                    obj.errors = result;
+                    obj.isValid = function () {
+                        return obj.errors().length === 0;
+                    }
+                }
+                return result;
+            },
+
+            formatMessage: function (message, params) {
+                return message.replace('{0}', params);
+            },
+
+            // addRule: 
+            // This takes in a ko.observable and a Rule Context - which is just a rule name and params to supply to the validator
+            // ie: ko.validation.addRule(myObservable, {
+            //          rule: 'required',
+            //          params: true
+            //      });
+            //
+            addRule: function (observable, rule) {
+                observable.extend({ validatable: true });
+
+                //push a Rule Context to the observables local array of Rule Contexts
+                observable.rules.push(rule);
+                return observable;
+            },
+
+            // addAnonymousRule:
+            // Anonymous Rules essentially have all the properties of a Rule, but are only specific for a certain property
+            // and developers typically are wanting to add them on the fly or not register a rule with the 'ko.validation.rules' object
+            //
+            // Example:
+            // var test = ko.observable('something').extend{(
+            //      validation: {
+            //          validator: function(val, someOtherVal){
+            //              return true;
+            //          },
+            //          message: "Something must be really wrong!',
+            //          params: true
+            //      }
+            //  )};
+            addAnonymousRule: function (observable, ruleObj) {
+                var ruleName = utils.newId();
+
+                //Create an anonymous rule to reference
+                ko.validation.rules[ruleName] = {
+                    validator: ruleObj.validator,
+                    message: ruleObj.message || 'Error'
+                };
+
+                //add the anonymous rule to the observable
+                ko.validation.addRule(observable, {
+                    rule: ruleName,
+                    params: ruleObj.params
                 });
-            
-                result.showAllMessages = function () {
-                    ko.utils.arrayForEach(validatables, function (observable) {
-                        observable.isModified(true);
-                    });
+            },
+
+            addExtender: function (ruleName) {
+                ko.extenders[ruleName] = function (observable, params) {
+                    //params can come in a few flavors
+                    // 1. Just the params to be passed to the validator
+                    // 2. An object containing the Message to be used and the Params to pass to the validator
+                    //
+                    // Example:
+                    // var test = ko.observable(3).extend({
+                    //      max: {
+                    //          message: 'This special field has a Max of {0}',
+                    //          params: 2
+                    //      }
+                    //  )};
+                    //
+                    if (params.message) { //if it has a message object, then its an object literal to use
+                        return ko.validation.addRule(observable, {
+                            rule: ruleName,
+                            message: params.message,
+                            params: params.params || true
+                        });
+                    } else {
+                        return ko.validation.addRule(observable, {
+                            rule: ruleName,
+                            params: params
+                        });
+                    }
                 };
-            } else { //if not using observables then every call to error() should traverse the structure
-                result = function() { 
-                    var errors = [];
-                    validatables = []; //clear validatables
-                    traverse(obj); // and traverse tree again
-                    ko.utils.arrayForEach(validatables, function (observable) {
-                        if (!observable.isValid()) {
-                            errors.push(observable.error);
-                        }
-                    });
-                    return errors;
-                };
-                
-                result.showAllMessages = function () {
-                    ko.utils.arrayForEach(validatables, function (observable) {
-                        observable.isModified(true);
-                    });
-                };
-                
-                obj.errors = result;
-                obj.isValid = function () { 
-                    return obj.errors().length === 0;
-                }
-            }
-            return result;
-        },
-
-        formatMessage: function (message, params) {
-            return message.replace('{0}', params);
-        },
-
-        // addRule: 
-        // This takes in a ko.observable and a Rule Context - which is just a rule name and params to supply to the validator
-        // ie: ko.validation.addRule(myObservable, {
-        //          rule: 'required',
-        //          params: true
-        //      });
-        //
-        addRule: function (observable, rule) {
-            observable.extend({ validatable: true });
-
-            //push a Rule Context to the observables local array of Rule Contexts
-            observable.rules.push(rule);
-            return observable;
-        },
-
-        // addAnonymousRule:
-        // Anonymous Rules essentially have all the properties of a Rule, but are only specific for a certain property
-        // and developers typically are wanting to add them on the fly or not register a rule with the 'ko.validation.rules' object
-        //
-        // Example:
-        // var test = ko.observable('something').extend{(
-        //      validation: {
-        //          validator: function(val, someOtherVal){
-        //              return true;
-        //          },
-        //          message: "Something must be really wrong!',
-        //          params: true
-        //      }
-        //  )};
-        addAnonymousRule: function (observable, ruleObj) {
-            var ruleName = utils.newId();
-
-            //Create an anonymous rule to reference
-            ko.validation.rules[ruleName] = {
-                validator: ruleObj.validator,
-                message: ruleObj.message || 'Error'
-            };
-
-            //add the anonymous rule to the observable
-            ko.validation.addRule(observable, {
-                rule: ruleName,
-                params: ruleObj.params
-            });
-        },
-
-        addExtender: function (ruleName) {
-            ko.extenders[ruleName] = function (observable, params) {
-                //params can come in a few flavors
-                // 1. Just the params to be passed to the validator
-                // 2. An object containing the Message to be used and the Params to pass to the validator
-                //
-                // Example:
-                // var test = ko.observable(3).extend({
-                //      max: {
-                //          message: 'This special field has a Max of {0}',
-                //          params: 2
-                //      }
-                //  )};
-                //
-                if (params.message) { //if it has a message object, then its an object literal to use
-                    return ko.validation.addRule(observable, {
-                        rule: ruleName,
-                        message: params.message,
-                        params: params.params || true
-                    });
-                } else {
-                    return ko.validation.addRule(observable, {
-                        rule: ruleName,
-                        params: params
-                    });
-                }
-            };
-        },
-        registerExtenders: function () { // root extenders optional, use 'validation' extender if would cause conflicts
-            if (configuration.registerExtenders) {
-                for (var ruleName in ko.validation.rules) {
-                    if (ko.validation.rules.hasOwnProperty(ruleName)) {
-                        if (!ko.extenders[ruleName]) {
-                            ko.validation.addExtender(ruleName);
+            },
+            registerExtenders: function () { // root extenders optional, use 'validation' extender if would cause conflicts
+                if (configuration.registerExtenders) {
+                    for (var ruleName in ko.validation.rules) {
+                        if (ko.validation.rules.hasOwnProperty(ruleName)) {
+                            if (!ko.extenders[ruleName]) {
+                                ko.validation.addExtender(ruleName);
+                            }
                         }
                     }
                 }
-            }
-        },
-        insertValidationMessage: function (element) {
-            var span = document.createElement('SPAN');
-            span.className = configuration.errorMessageClass;
-            utils.insertAfter(element, span);
-            return span;
-        },
+            },
+            insertValidationMessage: function (element) {
+                var span = document.createElement('SPAN');
+                span.className = configuration.errorMessageClass;
+                utils.insertAfter(element, span);
+                return span;
+            },
 
-        parseInputValidationAttributes: function (element, valueAccessor) {
-            ko.utils.arrayForEach(html5Attributes, function (attr) {
-                if (utils.hasAttribute(element, attr)) {
-                    ko.validation.addRule(valueAccessor(), {
-                        rule: attr,
-                        params: element.getAttribute(attr) || true
-                    });
-                }
-            });
-        }
-    };
-
-    ko.validation.utils = utils;
-
-    //setup the 'init' bindingHandler override where we inject validation messages
-    (function () {
-        var init = ko.bindingHandlers.value.init;
-
-        ko.bindingHandlers.value.init = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-
-            init(element, valueAccessor, allBindingsAccessor);
-
-            //if the bindingContext contains a $validation object, they must be using a validationOptions binding
-            //TODO: when bound to anything other than INPUT binding context is null causing an error
-            var config = ko.utils.extend({}, configuration);
-            ko.utils.extend(config, bindingContext.$data.$validation); //$validation should be able to be undefined
-
-            // parse html5 input validation attributes, optional feature
-            if (config.parseInputAttributes) {
-                async(function () { ko.validation.parseInputValidationAttributes(element, valueAccessor) });
-            }
-
-            //if requested insert message element and apply bindings
-            if (config.insertMessages && utils.isValidatable(valueAccessor())) {
-                var validationMessageElement = ko.validation.insertValidationMessage(element);
-                if (config.messageTemplate) {
-                    ko.renderTemplate(config.messageTemplate, { field: valueAccessor() }, null, validationMessageElement, 'replaceNode');
-                } else {
-                    ko.applyBindingsToNode(validationMessageElement, { validationMessage: valueAccessor() });
-                }
-            }
-            //if requested add binding to decorate element	
-            if (config.decorateElement && utils.isValidatable(valueAccessor())) {
-                ko.applyBindingsToNode(element, { validationElement: valueAccessor() });
+            parseInputValidationAttributes: function (element, valueAccessor) {
+                ko.utils.arrayForEach(html5Attributes, function (attr) {
+                    if (utils.hasAttribute(element, attr)) {
+                        ko.validation.addRule(valueAccessor(), {
+                            rule: attr,
+                            params: element.getAttribute(attr) || true
+                        });
+                    }
+                });
             }
         };
     } ());
-
 
     //#region Core Validation Rules
 
@@ -388,163 +391,6 @@
         },
         message: 'The value must increment by {0}'
     };
-
-    //#endregion
-
-    //#region Knockout Binding Handlers
-
-    ko.bindingHandlers['validationMessage'] = { // individual error message, if modified or post binding
-        update: function (element, valueAccessor) {
-            var obsv = valueAccessor();
-            obsv.extend({ validatable: true });
-
-            var errorMsgAccessor = function () {
-                if (!configuration.messagesOnModified || obsv.isModified()) {
-                    return obsv.isValid() ? null : obsv.error;
-                } else {
-                    return null;
-                }
-            };
-
-            //toggle visibility on validation messages when validation hasn't been evaluated, or when the object isValid
-            var visiblityAccessor = function () {
-                return obsv.isModified() ? !obsv.isValid() : false;
-            };
-
-            ko.bindingHandlers.text.update(element, errorMsgAccessor);
-            ko.bindingHandlers.visible.update(element, visiblityAccessor);
-        }
-    };
-
-    ko.bindingHandlers['validationElement'] = {
-        update: function (element, valueAccessor) {
-            var obsv = valueAccessor();
-            obsv.extend({ validatable: true });
-
-            var cssSettingsAccessor = function () {
-                var result = {};
-                result[configuration.errorElementClass] = !obsv.isValid();
-                return result;
-            };
-            //add or remove class on the element;
-            ko.bindingHandlers.css.update(element, cssSettingsAccessor);
-        }
-    };
-
-    // ValidationOptions:
-    // This binding handler allows you to override the initial config by setting any of the options for a specific element or context of elements
-    //
-    // Example:
-    // <div data-bind="validationOptions: { insertMessages: true, messageTemplate: 'customTemplate', errorMessageClass: 'mySpecialClass'}">
-    //      <input type="text" data-bind="value: someValue"/>
-    //      <input type="text" data-bind="value: someValue2"/>
-    // </div>
-    ko.bindingHandlers['validationOptions'] = {
-        makeValueAccessor: function (valueAccessor, bindingContext) {
-            return function () {
-                var validationAddIn = { $validation: valueAccessor() };
-                return ko.utils.extend(validationAddIn, bindingContext.$data);
-            };
-        },
-
-        init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-            //We don't want to change the context of the 'WITH' binding... just simply pull the options out of the binding string
-            // so we just pass the same context down, and store the validation options on the $data item.
-            var newValueAccessor = ko.bindingHandlers.validationOptions.makeValueAccessor(valueAccessor, bindingContext);
-            return ko.bindingHandlers['with'].init(element, newValueAccessor, allBindingsAccessor, viewModel, bindingContext);
-        },
-        update: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-
-            var newValueAccessor = ko.bindingHandlers.validationOptions.makeValueAccessor(valueAccessor, bindingContext);
-            return ko.bindingHandlers['with'].update(element, newValueAccessor, allBindingsAccessor, viewModel, bindingContext);
-        }
-    };
-    //#endregion
-
-    //#region Knockout Extenders
-
-    // Validation Extender:
-    // This is for creating custom validation logic on the fly
-    // Example:
-    // var test = ko.observable('something').extend{(
-    //      validation: {
-    //          validator: function(val, someOtherVal){
-    //              return true;
-    //          },
-    //          message: "Something must be really wrong!',
-    //          params: true
-    //      }
-    //  )};
-    ko.extenders['validation'] = function (observable, rules) { // allow single rule or array
-        ko.utils.arrayForEach(utils.isArray(rules) ? rules : [rules], function (rule) {
-            // the 'rule' being passed in here has no name to identify a core Rule,
-            // so we add it as an anonymous rule
-            // If the developer is wanting to use a core Rule, but use a different message see the 'addExtender' logic for examples
-            ko.validation.addAnonymousRule(observable, rule);
-        });
-        return observable;
-    };
-
-    //This is the extender that makes a Knockout Observable also 'Validatable'
-    //examples include:
-    // 1. var test = ko.observable('something').extend({validatable: true});
-    // this will ensure that the Observable object is setup properly to respond to rules
-    // 
-    // 2. test.extend({validatable: false});
-    // this will remove the validation properties from the Observable object should you need to do that.
-    ko.extenders['validatable'] = function (observable, enable) {
-        if (enable && !utils.isValidatable(observable)) {
-
-            observable.error = null; // holds the error message, we only need one since we stop processing validators when one is invalid
-
-            // observable.rules:
-            // ObservableArray of Rule Contexts, where a Rule Context is simply the name of a rule and the params to supply to it
-            //
-            // Rule Context = { rule: '<rule name>', params: '<passed in params>', message: '<Override of default Message>' }            
-            observable.rules = ko.observableArray(); //holds the rule Contexts to use as part of validation
-
-            observable.isValid = ko.computed(function () {
-                var i = 0,
-                    r, // the rule validator to execute
-                    ctx, // the current Rule Context for the loop
-                    rules = observable.rules(), //cache for iterator
-                    len = rules.length, //cache for iterator
-                    params = null, //cache for parameters value (as it may be provided as function or observable)
-                    message = null;  //cache for message
-
-                for (; i < len; i++) {
-
-                    //get the Rule Context info to give to the core Rule
-                    ctx = rules[i];
-                    //get value of params. default param is true, eg. required = true
-                    //it can be provided as value, function, observable or function returning observable
-                    params = ko.utils.unwrapObservable(utils.getValue(ctx.params)) || true;
-                    //get the core Rule to use for validation
-                    r = ko.validation.rules[ctx.rule];
-
-                    //Execute the validator and see if its valid
-                    if (!r.validator(observable(), params)) {
-
-                        //not valid, so format the error message and stick it in the 'error' variable
-                        observable.error = ko.validation.formatMessage(ctx.message || r.message, params);
-                        return false;
-                    }
-                }
-                observable.error = null;
-                return true;
-            });
-
-            observable.isModified = ko.observable(false);
-            observable.subscribe(function (newValue) {
-                observable.isModified(true);
-            });
-        }
-        return observable;
-    };
-
-    //#endregion
-
-    //#region Additional Rules
 
     ko.validation.rules['email'] = {
         validator: function (val, validate) {
@@ -636,7 +482,188 @@
 
     //#endregion
 
-    //#region validatedObservable
+    //#region Knockout Binding Handlers
+    //setup the 'init' bindingHandler override where we inject validation messages
+    (function () {
+        var init = ko.bindingHandlers.value.init;
+
+        ko.bindingHandlers.value.init = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+
+            init(element, valueAccessor, allBindingsAccessor);
+
+            var config = utils.getConfigOptions(element);
+
+            // parse html5 input validation attributes, optional feature
+            if (config.parseInputAttributes) {
+                async(function () { ko.validation.parseInputValidationAttributes(element, valueAccessor) });
+            }
+
+            //if requested insert message element and apply bindings
+            if (config.insertMessages && utils.isValidatable(valueAccessor())) {
+                var validationMessageElement = ko.validation.insertValidationMessage(element);
+                if (config.messageTemplate) {
+                    ko.renderTemplate(config.messageTemplate, { field: valueAccessor() }, null, validationMessageElement, 'replaceNode');
+                } else {
+                    ko.applyBindingsToNode(validationMessageElement, { validationMessage: valueAccessor() });
+                }
+            }
+            //if requested add binding to decorate element	
+            if (config.decorateElement && utils.isValidatable(valueAccessor())) {
+                ko.applyBindingsToNode(element, { validationElement: valueAccessor() });
+            }
+        };
+    } ());
+
+
+    ko.bindingHandlers['validationMessage'] = { // individual error message, if modified or post binding
+        update: function (element, valueAccessor) {
+            var obsv = valueAccessor(),
+                config = utils.getConfigOptions(element);
+
+            obsv.extend({ validatable: true });
+
+            var errorMsgAccessor = function () {
+                if (!config.messagesOnModified || obsv.isModified()) {
+                    return obsv.isValid() ? null : obsv.error;
+                } else {
+                    return null;
+                }
+            };
+
+            //toggle visibility on validation messages when validation hasn't been evaluated, or when the object isValid
+            var visiblityAccessor = function () {
+                return obsv.isModified() ? !obsv.isValid() : false;
+            };
+
+            ko.bindingHandlers.text.update(element, errorMsgAccessor);
+            ko.bindingHandlers.visible.update(element, visiblityAccessor);
+        }
+    };
+
+    ko.bindingHandlers['validationElement'] = {
+        update: function (element, valueAccessor) {
+            var obsv = valueAccessor();
+            obsv.extend({ validatable: true }),
+                config = utils.getConfigOptions(element);
+
+            var cssSettingsAccessor = function () {
+                var result = {};
+                result[config.errorElementClass] = !obsv.isValid();
+                return result;
+            };
+            //add or remove class on the element;
+            ko.bindingHandlers.css.update(element, cssSettingsAccessor);
+        }
+    };
+
+    // ValidationOptions:
+    // This binding handler allows you to override the initial config by setting any of the options for a specific element or context of elements
+    //
+    // Example:
+    // <div data-bind="validationOptions: { insertMessages: true, messageTemplate: 'customTemplate', errorMessageClass: 'mySpecialClass'}">
+    //      <input type="text" data-bind="value: someValue"/>
+    //      <input type="text" data-bind="value: someValue2"/>
+    // </div>
+    ko.bindingHandlers['validationOptions'] = (function () {
+        return {
+            init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+                var options = ko.utils.unwrapObservable(valueAccessor());
+                if (options) {
+                    var newConfig = ko.utils.extend({}, configuration);
+                    ko.utils.extend(newConfig, options);
+
+                    //store the validation options on the node so we can retrieve it later
+                    utils.setDomData(element, newConfig);
+                }
+            }
+        };
+    } ());
+    //#endregion
+
+    //#region Knockout Extenders
+
+    // Validation Extender:
+    // This is for creating custom validation logic on the fly
+    // Example:
+    // var test = ko.observable('something').extend{(
+    //      validation: {
+    //          validator: function(val, someOtherVal){
+    //              return true;
+    //          },
+    //          message: "Something must be really wrong!',
+    //          params: true
+    //      }
+    //  )};
+    ko.extenders['validation'] = function (observable, rules) { // allow single rule or array
+        ko.utils.arrayForEach(utils.isArray(rules) ? rules : [rules], function (rule) {
+            // the 'rule' being passed in here has no name to identify a core Rule,
+            // so we add it as an anonymous rule
+            // If the developer is wanting to use a core Rule, but use a different message see the 'addExtender' logic for examples
+            ko.validation.addAnonymousRule(observable, rule);
+        });
+        return observable;
+    };
+
+    //This is the extender that makes a Knockout Observable also 'Validatable'
+    //examples include:
+    // 1. var test = ko.observable('something').extend({validatable: true});
+    // this will ensure that the Observable object is setup properly to respond to rules
+    // 
+    // 2. test.extend({validatable: false});
+    // this will remove the validation properties from the Observable object should you need to do that.
+    ko.extenders['validatable'] = function (observable, enable) {
+        if (enable && !utils.isValidatable(observable)) {
+
+            observable.error = null; // holds the error message, we only need one since we stop processing validators when one is invalid
+
+            // observable.rules:
+            // ObservableArray of Rule Contexts, where a Rule Context is simply the name of a rule and the params to supply to it
+            //
+            // Rule Context = { rule: '<rule name>', params: '<passed in params>', message: '<Override of default Message>' }            
+            observable.rules = ko.observableArray(); //holds the rule Contexts to use as part of validation
+
+            observable.isValid = ko.computed(function () {
+                var i = 0,
+                    r, // the rule validator to execute
+                    ctx, // the current Rule Context for the loop
+                    rules = observable.rules(), //cache for iterator
+                    len = rules.length, //cache for iterator
+                    params = null, //cache for parameters value (as it may be provided as function or observable)
+                    message = null;  //cache for message
+
+                for (; i < len; i++) {
+
+                    //get the Rule Context info to give to the core Rule
+                    ctx = rules[i];
+                    //get value of params. default param is true, eg. required = true
+                    //it can be provided as value, function, observable or function returning observable
+                    params = ko.utils.unwrapObservable(utils.getValue(ctx.params)) || true;
+                    //get the core Rule to use for validation
+                    r = ko.validation.rules[ctx.rule];
+
+                    //Execute the validator and see if its valid
+                    if (!r.validator(observable(), params)) {
+
+                        //not valid, so format the error message and stick it in the 'error' variable
+                        observable.error = ko.validation.formatMessage(ctx.message || r.message, params);
+                        return false;
+                    }
+                }
+                observable.error = null;
+                return true;
+            });
+
+            observable.isModified = ko.observable(false);
+            observable.subscribe(function (newValue) {
+                observable.isModified(true);
+            });
+        }
+        return observable;
+    };
+
+    //#endregion
+
+    //#region Validated Observable
 
     ko.validatedObservable = function (initialValue) {
         if (!ko.validation.utils.isObject(initialValue)) { return ko.observable(initialValue).extend({ validatable: true }); }
@@ -650,10 +677,30 @@
         return obsv;
     };
 
+    //#endregion
+
+    //#region ApplyBindingsWithValidation
     ko.applyBindingsWithValidation = function (viewModel, rootNode, options) {
-        //TODO: support variable number of parameters to imitate ko.applyBindings
-        ko.validation.init(options);
-        ko.validation.group(viewModel);
+        var len = arguments.length,
+            node, config;
+
+        if (len > 2) { // all parameters were passed
+            node = rootNode;
+            config = options;
+        } else if (len < 2) {
+            node = document.body;
+        } else { //have to figure out if they passed in a root node or options
+            if (arguments[1].nodeType) { //its a node
+                node = rootNode;
+            } else {
+                config = arguments[1];
+            }
+        }
+
+        ko.validation.init();
+
+        if (config) { ko.validation.utils.setDomData(node, config); }
+
         ko.applyBindings(viewModel, rootNode);
     };
     //#endregion
