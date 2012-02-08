@@ -105,6 +105,7 @@
 
     //#endregion
 
+    //#region Public API
     ko.validation = (function () {
         return {
             utils: utils,
@@ -315,6 +316,7 @@
             }
         };
     } ());
+    //#endregion
 
     //#region Core Validation Rules
 
@@ -654,9 +656,27 @@
             });
 
             observable.isModified = ko.observable(false);
-            observable.subscribe(function (newValue) {
+            var h_change = observable.subscribe(function (newValue) {
                 observable.isModified(true);
             });
+
+            observable._disposeValidation = function () {
+                //first dispose of the subscriptions
+                observable.isValid.dispose();
+                observable.rules.removeAll();
+                observable.isModified._subscriptions['change'] = [];
+                h_change.dispose();
+
+                delete observable['rules'];
+                delete observable['error'];
+                delete observable['isValid'];
+                delete observable['isModified'];
+            };
+        } else if (enable === false && utils.isValidatable(observable)) {
+
+            if (observable._disposeValidation) {
+                observable._disposeValidation();
+            }
         }
         return observable;
     };

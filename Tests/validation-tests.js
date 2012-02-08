@@ -619,3 +619,30 @@ test('validatedObservable is first Valid then made InValid', function () {
 
 });
 //#endregion
+
+//#region Removing Validation
+module('Removing Validation Tests');
+
+test('Basic Removal', function () {
+    var testObj = ko.observable('')
+                    .extend({ min: 2 });
+
+    testObj(3);
+
+    var testFlag = false;
+
+    equal(testObj(), 3, 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+
+    testObj.isValid.subscribe(function () {
+        testFlag = true;
+    });
+
+    testObj.extend({ validatable: false });
+
+    ok(!testObj.isValid, 'Validation features removed');
+    testObj(1);
+    ok(!testFlag, 'Subscriptions to isValid didnt fire');
+
+});
+//#endregion
