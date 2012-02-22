@@ -35,6 +35,15 @@ test('Zero is a valid value for required', function () {
     equal(testObj.isValid(), true, 'testObj is valid');
 });
 
+test('Empty spaces is not a valid value for required', function () {
+
+    var testObj = ko.observable('  ')
+                    .extend({ required: true });
+
+    equal(testObj(), '  ', 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is valid');
+});
+
 //#endregion
 
 //#region Min Validation

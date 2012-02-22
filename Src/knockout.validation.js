@@ -286,6 +286,9 @@
                     }
                 };
             },
+
+            // loops through all ko.validation.rules and adds them as extenders to 
+            // ko.extenders
             registerExtenders: function () { // root extenders optional, use 'validation' extender if would cause conflicts
                 if (configuration.registerExtenders) {
                     for (var ruleName in ko.validation.rules) {
@@ -297,12 +300,17 @@
                     }
                 }
             },
+
+            //creates a span next to the @element with the specified error class
             insertValidationMessage: function (element) {
                 var span = document.createElement('SPAN');
                 span.className = configuration.errorMessageClass;
                 utils.insertAfter(element, span);
                 return span;
             },
+
+            // if html-5 validation attributes have been specified, this parses
+            // the attributes on @element
 
             parseInputValidationAttributes: function (element, valueAccessor) {
                 ko.utils.arrayForEach(html5Attributes, function (attr) {
@@ -344,10 +352,19 @@
     ko.validation.rules = {};
     ko.validation.rules['required'] = {
         validator: function (val, required) {
+            var stringTrimRegEx = /^\s+|\s+$/g,
+                testVal;
+
             if (val === undefined || val === null) {
                 return !required;
             }
-            return required && (val + '').length > 0;
+
+            testVal = val;
+            if (typeof (val) == "string") {
+                testVal = val.replace(stringTrimRegEx, '');
+            }
+
+            return required && (testVal + '').length > 0;
         },
         message: 'This field is required.'
     };
