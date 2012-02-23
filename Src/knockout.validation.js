@@ -107,12 +107,20 @@
 
     //#region Public API
     ko.validation = (function () {
+
+        var isInitialized = 0;
+
         return {
             utils: utils,
 
             //Call this on startup
             //any config can be overridden with the passed in options
-            init: function (options) {
+            init: function (options, force) {
+                //done run this multiple times if we don't really want to
+                if (isInitialized > 0 && !force) {
+                    return;
+                }
+
                 //becuase we will be accessing options properties it has to be an object at least
                 options = options || {};
                 //if specific error classes are not provided then apply generic errorClass
@@ -126,6 +134,8 @@
                 if (configuration.registerExtenders) {
                     ko.validation.registerExtenders();
                 }
+
+                isInitialized = 1;
             },
             //backwards compatability
             configure: function (options) { ko.validation.init(options); },
@@ -499,6 +509,12 @@
         message: 'Please make sure the value is unique.'
     };
 
+
+    //now register all of these!
+    (function () {
+        ko.validation.registerExtenders();
+    } ());
+
     //#endregion
 
     //#region Knockout Binding Handlers
@@ -792,7 +808,23 @@
 
     //#endregion
 
-    //#region ApplyBindingsWithValidation
+    //#region Localization
+
+    //quick function to override rule messages
+    ko.validation.localize = function (msgTranslations) {
+
+        var msg, rule;
+
+        //loop the properties in the object and assign the msg to the rule
+        for (rule in msgTranslations) {
+            if (ko.validation.rules.hasOwnProperty(rule)) {
+                ko.validation[rule].message = msgTranslations[rule];
+            }
+        }
+    };
+    //#endregion
+
+    //#region ApplyBindings Added Functionality
     ko.applyBindingsWithValidation = function (viewModel, rootNode, options) {
         var len = arguments.length,
             node, config;
@@ -816,6 +848,16 @@
 
         ko.applyBindings(viewModel, rootNode);
     };
+
+    //override the original applyBindings so that we can ensure all new rules and what not are correctly registered
+    var origApplyBindings = ko.applyBindings;
+    ko.applyBindings = function (viewModel, rootNode) {
+
+        ko.validation.init();
+
+        origApplyBindings(viewModel, rootNode);
+    };
+
     //#endregion
 
 })();

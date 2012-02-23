@@ -575,7 +575,7 @@ test('Error Grouping works', function () {
 
     equals(errors().length, 2, 'Grouping correctly finds 2 invalid properties');
 });
-//endregion
+//#endregion
 
 //#region validatedObservable
 module('validatedObservable Tests');
@@ -654,4 +654,65 @@ test('Basic Removal', function () {
     ok(!testFlag, 'Subscriptions to isValid didnt fire');
 
 });
+//#endregion
+
+//#region Async Tests
+module('Async Tests');
+
+asyncTest('Async Rule Is Valid Test', function () {
+
+    ko.validation.rules['mustEqualAsync'] = {
+        async: true,
+        validator: function (val, otherVal, callBack) {
+            var isValid = (val === otherVal);
+            setTimeout(function () {
+                callBack(isValid);
+                doAssertions();
+
+                start();
+            }, 10);
+        },
+        message: 'The field must equal {0}'
+    };
+    ko.validation.registerExtenders(); //make sure the new rule is registered
+
+    var testObj = ko.observable(5);
+
+    var doAssertions = function () {
+        equal(testObj(), 5, 'observable still works');
+        equal(testObj.isValid(), true, 'testObj is valid');
+    };
+
+    testObj.extend({ mustEqualAsync: 5 });
+});
+
+asyncTest('Async Rule Is NOT Valid Test', function () {
+
+    ko.validation.rules['mustEqualAsync'] = {
+        async: true,
+        validator: function (val, otherVal, callBack) {
+            var isValid = (val === otherVal);
+            setTimeout(function () {
+                callBack(isValid);
+                doAssertions();
+
+                start();
+            }, 10);
+        },
+        message: 'The field must equal {0}'
+    };
+    ko.validation.registerExtenders(); //make sure the new rule is registered
+
+
+    var testObj = ko.observable(4);
+
+    var doAssertions = function () {
+        equal(testObj(), 4, 'observable still works');
+        ok(testObj.error, testObj.error);
+        equal(testObj.isValid(), false, 'testObj is not valid');
+    };
+
+    testObj.extend({ mustEqualAsync: 5 });
+});
+
 //#endregion
