@@ -182,8 +182,9 @@
                     traverse(obj);
                     result = ko.dependentObservable(function () {
                         var errors = [];
+                    	failedObservables = [];
+                    	configuration.onValidationStart();
                         ko.utils.arrayForEach(validatables, function (observable) {
-                            configuration.onValidationStart();
 							if (!observable.isValid()) {
 								failedObservables.push(observable);
                                 errors.push(observable.error);
@@ -203,8 +204,9 @@
                         var errors = [];
                         validatables = []; //clear validatables
                         traverse(obj); // and traverse tree again
+                    	failedObservables = [];
+                    	configuration.onValidationStart();
                         ko.utils.arrayForEach(validatables, function (observable) {
-                            configuration.onValidationStart();
 							if (!observable.isValid()) {
                                 failedObservables.push(observable);
                                 errors.push(observable.error);
