@@ -555,10 +555,10 @@
                 async(function () { ko.validation.parseInputValidationAttributes(element, valueAccessor) });
             }
 			
-			addToElementsArray(valueAccessor, element);
+			if(ko.isObservable(valueAccessor)) addToElementsArray(valueAccessor, element)
             
 			//apply bindings
-            if (utils.isValidatable(valueAccessor())) {
+            if (ko.isObservable(valueAccessor) && utils.isValidatable(valueAccessor())) {
                 var validationMessageElement = ko.validation.insertValidationMessage(element);
                 if (config.messageTemplate) {
                     ko.renderTemplate(config.messageTemplate, { field: valueAccessor() }, null, validationMessageElement, 'replaceNode');
@@ -586,7 +586,7 @@
                     configuration.onValidationStart();
 					var valid = obsv.isValid();
                     if(!valid) configuration.onValidationError([obsv]);
-                	//If requested insert messages
+                	//If requestes insert messages
                     var valueToInsert = configuration.insertMessages ? obsv.error : null;
                     return valid ? null : valueToInsert;
                 } else {
