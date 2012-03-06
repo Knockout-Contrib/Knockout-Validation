@@ -18,8 +18,7 @@
             deep: false,        //by default grouping is shallow
             observable: true    //and using observables
         },
-        onValidationError: function(failedObservables){},
-        onValidationStart: function(){}
+        onValidationElementUpdated: function () { }
     };
 
     var html5Attributes = ['required', 'pattern', 'min', 'max', 'step'];
@@ -143,7 +142,6 @@
             configure: function (options) { ko.validation.init(options); },
 
             group: function group(obj, options) { // array of observables or viewModel
-                var failedObservables = [];
                 var options = ko.utils.extend(configuration.grouping, options),
                 validatables = [],
                 result = null,
@@ -182,15 +180,11 @@
                     traverse(obj);
                     result = ko.dependentObservable(function () {
                         var errors = [];
-                    	failedObservables = [];
-                    	configuration.onValidationStart();
                         ko.utils.arrayForEach(validatables, function (observable) {
-							if (!observable.isValid()) {
-								failedObservables.push(observable);
+                            if (!observable.isValid()) {
                                 errors.push(observable.error);
                             }
                         });
-                    	if(failedObservables.length != 0) configuration.onValidationError(failedObservables);
                         return errors;
                     });
 
@@ -204,15 +198,11 @@
                         var errors = [];
                         validatables = []; //clear validatables
                         traverse(obj); // and traverse tree again
-                    	failedObservables = [];
-                    	configuration.onValidationStart();
                         ko.utils.arrayForEach(validatables, function (observable) {
-							if (!observable.isValid()) {
-                                failedObservables.push(observable);
+                            if (!observable.isValid()) {
                                 errors.push(observable.error);
                             }
                         });
-                    	if(failedObservables.length != 0) configuration.onValidationError(failedObservables);
                         return errors;
                     };
 
@@ -223,11 +213,10 @@
                     };
 
                     obj.errors = result;
-                	obj.isValid = function() {
-                		return obj.errors().length === 0;
-                	};
+                    obj.isValid = function () {
+                        return obj.errors().length === 0;
+                    }
                 }
-
                 return result;
             },
 
@@ -533,19 +522,9 @@
     //setup the 'init' bindingHandler override where we inject validation messages
     (function () {
         var init = ko.bindingHandlers.value.init;
-    	
-    	var addToElementsArray = function(observable, element) {
-    		//creates it if it does not exist
-			if(!observable().elements) observable().elements = [];
-			//adds element to elements array on observable
-    		observable().elements.push(element);
-    		//removes the element from the observable's property when the element is destroyed
-    		ko.utils.domNodeDisposal.addDisposeCallback(element, function() {
-    			if (element in observable().elements) ko.utils.arrayRemoveItem(observable().elements, element);
-    		});
-    	};
 
-    	ko.bindingHandlers.value.init = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        ko.bindingHandlers.value.init = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+
             init(element, valueAccessor, allBindingsAccessor);
 
             var config = utils.getConfigOptions(element);
@@ -554,11 +533,9 @@
             if (config.parseInputAttributes) {
                 async(function () { ko.validation.parseInputValidationAttributes(element, valueAccessor) });
             }
-			
-			if(ko.isObservable(valueAccessor)) addToElementsArray(valueAccessor, element)
-            
-			//apply bindings
-            if (ko.isObservable(valueAccessor) && utils.isValidatable(valueAccessor())) {
+
+            //if requested insert message element and apply bindings
+            if (config.insertMessages && utils.isValidatable(valueAccessor())) {
                 var validationMessageElement = ko.validation.insertValidationMessage(element);
                 if (config.messageTemplate) {
                     ko.renderTemplate(config.messageTemplate, { field: valueAccessor() }, null, validationMessageElement, 'replaceNode');
@@ -583,12 +560,7 @@
 
             var errorMsgAccessor = function () {
                 if (!config.messagesOnModified || obsv.isModified()) {
-                    configuration.onValidationStart();
-					var valid = obsv.isValid();
-                    if(!valid) configuration.onValidationError([obsv]);
-                	//If requestes insert messages
-                    var valueToInsert = configuration.insertMessages ? obsv.error : null;
-                    return valid ? null : valueToInsert;
+                    return obsv.isValid() ? null : obsv.error;
                 } else {
                     return null;
                 }
@@ -609,6 +581,8 @@
             var obsv = valueAccessor();
             obsv.extend({ validatable: true }),
                 config = utils.getConfigOptions(element);
+            
+            config.onValidationElementUpdated(obsv, element);
 
             var cssSettingsAccessor = function () {
                 var result = {};
@@ -694,8 +668,6 @@
 
             observable.isModified = ko.observable(false);
 
-            if(!observable.elements) observable.elements = []; // holds an array of elements that are bind to this observable, most likely always 1.
-            
             // we use a computed here to ensure that anytime a dependency changes, the 
             // validation logic evaluates
             var h_obsValidationTrigger = ko.computed(function () {
