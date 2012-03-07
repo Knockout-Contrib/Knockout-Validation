@@ -10,7 +10,7 @@
         messageTemplate: null,
         insertMessages: true,
         parseInputAttributes: false,
-        addClassToField: true,
+        addClassToField: false,
         errorMessageClass: 'validationMessage'
     };
 
@@ -252,9 +252,6 @@
                         ko.renderTemplate(config.messageTemplate, { field: valueAccessor() }, null, validationMessageElement, 'replaceNode');
                     } else {
                         ko.applyBindingsToNode(validationMessageElement, { validationMessage: valueAccessor() });
-                    }
-                    if(config.addClassToField){
-                        ko.applyBindingsToNode(element, { css: { error: valueAccessor() } });
                     }
                 }
             };
