@@ -714,7 +714,7 @@
 
     function validateSync(observable, rule, ctx) {
         //Execute the validator and see if its valid
-        if (!rule.validator(observable(), ctx.params || true)) { // default param is true, eg. required = true
+        if (!rule.validator(observable(), ctx.params === undefined ? true : ctx.params)) { // default param is true, eg. required = true
 
             //not valid, so format the error message and stick it in the 'error' variable
             observable.error = ko.validation.formatMessage(ctx.message || rule.message, ctx.params);
@@ -723,7 +723,7 @@
         } else {
             return true;
         }
-    };
+    }
 
     function validateAsync(observable, rule, ctx) {
         observable.isValidating(true);
@@ -752,11 +752,11 @@
             observable.error = ko.validation.formatMessage(ctx.message || rule.message, ctx.params);
             observable.isValidating(false);
             observable.__valid__(isValid);
-        }
+        };
 
         //fire the validator and hand it the callback
         rule.validator(observable(), ctx.params || true, callBack);
-    };
+    }
 
     ko.validation.validateObservable = function (observable) {
         var i = 0,
@@ -818,7 +818,7 @@
         //loop the properties in the object and assign the msg to the rule
         for (rule in msgTranslations) {
             if (ko.validation.rules.hasOwnProperty(rule)) {
-                ko.validation[rule].message = msgTranslations[rule];
+                ko.validation.rules[rule].message = msgTranslations[rule];
             }
         }
     };
