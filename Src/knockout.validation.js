@@ -749,7 +749,7 @@
             }
 
             //not valid, so format the error message and stick it in the 'error' variable
-            observable.error = ko.validation.formatMessage(ctx.message || rule.message, ctx.params);
+            observable.error = ko.validation.formatMessage(msg || ctx.message || rule.message, ctx.params);
             observable.isValidating(false);
             observable.__valid__(isValid);
         }
