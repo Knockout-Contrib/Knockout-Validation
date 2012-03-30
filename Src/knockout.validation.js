@@ -818,7 +818,7 @@
         //loop the properties in the object and assign the msg to the rule
         for (rule in msgTranslations) {
             if (ko.validation.rules.hasOwnProperty(rule)) {
-                ko.validation[rule].message = msgTranslations[rule];
+                ko.validation.rules[rule].message = msgTranslations[rule];
             }
         }
     };
