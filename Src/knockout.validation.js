@@ -578,12 +578,12 @@
     ko.bindingHandlers['validationElement'] = {
         update: function (element, valueAccessor) {
             var obsv = valueAccessor();
-            obsv.extend({ validatable: true }),
-                config = utils.getConfigOptions(element);
+            obsv.extend({ validatable: true });
+            var config = utils.getConfigOptions(element);
 
             var cssSettingsAccessor = function () {
                 var result = {};
-                result[config.errorElementClass] = !obsv.isValid();
+                result[config.errorElementClass] = obsv.isModified() && !obsv.isValid();
                 return result;
             };
             //add or remove class on the element;
