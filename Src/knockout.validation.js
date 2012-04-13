@@ -10,6 +10,7 @@
         messageTemplate: null,
         insertMessages: true,
         parseInputAttributes: false,
+        addClassToField: false,
         errorMessageClass: 'validationMessage'
     };
 
@@ -232,7 +233,8 @@
         },
 
         registerValueBindingHandler: function () { // parse html5 input validation attributes where value binder, optional feature
-            var init = ko.bindingHandlers.value.init;
+            var init = ko.bindingHandlers.value.init,
+                    update = ko.bindingHandlers.value.update;
 
             ko.bindingHandlers.value.init = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 
@@ -253,6 +255,18 @@
                     }
                 }
             };
+            
+            ko.bindingHandlers.value.update = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+                    update(element, valueAccessor, allBindingsAccessor);
+
+                    var config = utils.extend({}, configuration, bindingContext.$data.$validation);
+
+                    if (config.addClassToField) {
+                        if (valueAccessor().isValid) {
+                            ko.applyBindingsToNode(element, { css: { error: 'valueAccessor().isValid() == false'  } });
+                        }
+                    }
+                };
         }
     };
 
