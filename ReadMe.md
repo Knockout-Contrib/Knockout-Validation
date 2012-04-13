@@ -117,21 +117,7 @@ Pattern: `<input type="text" data-bind="value: myProp" pattern="^[a-z0-9].*" />`
 Step: `<input type="text" data-bind="value: myProp" step="3" />`
 
 **Special Note, the 'MinLength' attribute was removed until the HTML5 spec fully supports it**
-##Configuration Options
-```javascript
-var options = {
-  //default: true
-  insertMessages: true, //this toggles Automatic inserting of validation Messages using a SPAN
-  //default: null
-  messageTemplate: 'myCustomMessageTemplate', //tells the Plugin to use the defined message template as default
-  //default: false
-  parseInputAttributes: true, //tells Plugin to parse the HTML5 INPUT element validation attributes
-  //default: 'validationMessage'
-  errorMessageClass: 'myCustomMessageClass' //tells the Plugin to use this CSS Class by default for validation messages
-}
 
-ko.validation.init(options);
-```
 ##Knockout Bindings
 
 ###ValidationMessage
@@ -143,23 +129,7 @@ If you want to customize the display of your objects validation message, use the
    <p data-bind="validationMessage: someValue"></p>
 <div>
 ```
-###ValidationOptions
-If you have large areas of a form that you would like to change how the Validation Plugin is configured, use the `validationOptions` binding.
-This will cascade your options through the children of the container that you apply this to.
-
-Use this for:
-
-* Custom Message Templates
-* Disabling auto-inserting of messages
-* Changing the Validation Message CSS Class
-
-```html
-<div data-bind='validationOptions: { messageTemplate: "customMessageTemplate" }'>
-    <label>Email: <input data-bind='value: emailAddress' required pattern="@"/></label>
-    <label>Location: <input data-bind='value: location'/></label>
-    <label>Age: <input data-bind='value: age' required/></label>
-</div>
-```
+Check out more on [Validation Bindings](https://github.com/ericmbarnard/Knockout-Validation/wiki/Validation-Bindings)
 
 ##Remote Validation Rules
 we are working more on this, but for now you can create a custom rule and use a synchronous AJAX request in your rule to return `true/false`
