@@ -498,6 +498,39 @@ test("Issue #47 - Validation chaining issue with required and email rules", func
     ok(!testObj.isValid(), testObj.error);
     ok(testObj.error.indexOf('Invalid email') > -1, "Email error is second error");
 });
+
+test("Issue #43 - Error messages are not switched correctly", function () {
+    var testObj = ko.observable().extend({ min: 1, max: 100 });
+
+    testObj(-1); // should invalidate the min rule
+
+    ok(!testObj.isValid(), testObj.error);
+    ok(testObj.error.indexOf('enter a value greater than') > -1, "Min rule was correctly triggered");
+
+    testObj(101); // should invalidate the max rule
+
+    ok(!testObj.isValid(), testObj.error);
+    ok(testObj.error.indexOf('enter a value less than') > -1, "Max rule was correctly triggered");
+});
+
+test("Issue #43 - Grouping - Error messages are not switched correctly", function () {
+    var vm = {
+        testObj : ko.observable().extend({ min: 1, max: 100 }),
+        dummyProp : ko.observable().extend({ required: true })
+    };
+
+    vm.errors = ko.validation.group(vm);
+
+    vm.testObj(-1); // should invalidate the min rule
+
+    ok(!vm.testObj.isValid(), vm.testObj.error);
+    ok(vm.testObj.error.indexOf('enter a value greater than') > -1, "Min rule was correctly triggered");
+
+    vm.testObj(101); // should invalidate the max rule
+
+    ok(!vm.testObj.isValid(), vm.testObj.error);
+    ok(vm.testObj.error.indexOf('enter a value less than') > -1, "Max rule was correctly triggered");
+});
 //#endregion
 
 //#region Equal tests

@@ -562,6 +562,10 @@
 
             obsv.extend({ validatable: true });
 
+            // register this binding handler to update when the value of the obs changes
+            var val = ko.utils.unwrapObservable(obsv);
+
+            // create a handler to correctly return an error message
             var errorMsgAccessor = function () {
                 if (!config.messagesOnModified || obsv.isModified()) {
                     return obsv.isValid() ? null : obsv.error;
