@@ -50,6 +50,13 @@ test('Empty spaces is not a valid value for required', function () {
 
 module('Min Validation');
 
+test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ min: 2 });
+    testObj('');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
 test('Object is Valid and isValid returns True', function () {
     var testObj = ko.observable('')
                     .extend({ min: 2 });
@@ -74,6 +81,14 @@ test('Object is NOT Valid and isValid returns False', function () {
 //#region Max Validation
 
 module('Max Validation');
+test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ max: 2 });
+    testObj('');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+
 test('Object is Valid and isValid returns True', function () {
     var testObj = ko.observable('')
                     .extend({ max: 5 });
@@ -99,6 +114,15 @@ test('Object is NOT Valid and isValid returns False', function () {
 //#region Min Length Validation
 
 module('MinLength Validation');
+
+test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ minLength: 2 });
+    testObj('');
+    ok(testObj.isValid(), 'testObj is Valid');
+
+});
+
 test('Object is Valid and isValid returns True', function () {
     var testObj = ko.observable('')
                     .extend({ minLength: 5 });
@@ -124,6 +148,14 @@ test('Object is NOT Valid and isValid returns False', function () {
 //#region Max Length Validation
 
 module('MaxLength Validation');
+
+test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ maxLength: 2 });
+    testObj('');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
 test('Object is Valid and isValid returns True', function () {
     var testObj = ko.observable('')
                     .extend({ maxLength: 10 });
@@ -149,6 +181,14 @@ test('Object is NOT Valid and isValid returns False', function () {
 //#region Pattern Validation
 
 module('Pattern Validation');
+
+test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ pattern: 'test' });
+    testObj('');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
 test('Object is Valid and isValid returns True', function () {
     var testObj = ko.observable('')
                     .extend({ pattern: 'some' });
@@ -174,6 +214,14 @@ test('Object is NOT Valid and isValid returns False', function () {
 //#region Step Validation
 
 module('Step Validation');
+
+test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ step: 2 });
+    testObj('');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
 test('Object is Valid and isValid returns True', function () {
     var testObj = ko.observable('')
                     .extend({ step: 3 });
@@ -199,6 +247,14 @@ test('Object is NOT Valid and isValid returns False', function () {
 //#region Email Validation
 
 module('Email Validation');
+
+test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ email: true });
+    testObj('');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
 test('Object is Valid and isValid returns True', function () {
     var testObj = ko.observable('').extend({ email: true });
 
@@ -222,6 +278,14 @@ test('Object is NOT Valid and isValid returns False', function () {
 //#region Date Validation
 
 module('Date Validation');
+
+test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ date: 'test' });
+    testObj('');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
 test('Object is Valid and isValid returns True', function () {
     var testObj = ko.observable('').extend({ date: true });
 
@@ -245,6 +309,14 @@ test('Object is NOT Valid and isValid returns False', function () {
 //#region DateISO Validation
 
 module('DateISO Validation');
+
+test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ dateISO: 'test' });
+    testObj('');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
 test('Object is Valid and isValid returns True', function () {
     var testObj = ko.observable('').extend({ dateISO: true }); 
 
@@ -268,6 +340,14 @@ test('Object is NOT Valid and isValid returns False', function () {
 //#region Number Validation
 
 module('Number Validation');
+
+test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ number: true });
+    testObj('');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
 test('Object is Valid and isValid returns True', function () {
     var testObj = ko.observable('').extend({ number: true });
 
@@ -291,8 +371,16 @@ test('Object is NOT Valid and isValid returns False', function () {
 //#region Digit Validation
 
 module('Digit Validation');
+
+test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ digit: true });
+    testObj('');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
 test('Object is Valid and isValid returns True', function () {
-    var testObj = ko.observable('').extend({ number: true });
+    var testObj = ko.observable('').extend({ digit: true });
 
     testObj(2);
 
@@ -301,7 +389,7 @@ test('Object is Valid and isValid returns True', function () {
 });
 
 test('Object is NOT Valid and isValid returns False', function () {
-    var testObj = ko.observable('').extend({ number: true });
+    var testObj = ko.observable('').extend({ digit: true });
 
     testObj('stuff');
 
@@ -312,8 +400,16 @@ test('Object is NOT Valid and isValid returns False', function () {
 //#endregion
 
 //#region PhoneUS Validation
-
 module('PhoneUS Validation');
+
+test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ phoneUS: true });
+    testObj('');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+
 test('Object is Valid and isValid returns True', function () {
     var testObj = ko.observable('').extend({ phoneUS: true });
 
@@ -614,7 +710,7 @@ module('Grouping Tests');
 test('Error Grouping works', function () {
     var vm = {
         firstName: ko.observable().extend({ required: true }),
-        lastName: ko.observable().extend({ minLength: 2 })
+        lastName: ko.observable().extend({ required: 2 })
     };
 
     var errors = ko.validation.group(vm);

@@ -105,6 +105,17 @@
                         break;
                 }
                 return undefined;
+            },
+            isEmptyVal: function (val) {
+                if (val === undefined) {
+                    return true;
+                }
+                if (val === null) {
+                    return true;
+                }
+                if (val === "") {
+                    return true;
+                }
             }
         };
     } ());
@@ -399,42 +410,42 @@
 
     ko.validation.rules['min'] = {
         validator: function (val, min) {
-            return !val || val >= min;
+            return utils.isEmptyVal(val) || val >= min;
         },
         message: 'Please enter a value greater than or equal to {0}.'
     };
 
     ko.validation.rules['max'] = {
         validator: function (val, max) {
-            return !val || val <= max;
+            return utils.isEmptyVal(val) || val <= max;
         },
         message: 'Please enter a value less than or equal to {0}.'
     };
 
     ko.validation.rules['minLength'] = {
         validator: function (val, minLength) {
-            return val && val.length >= minLength;
+            return utils.isEmptyVal(val) || val.length >= minLength;
         },
         message: 'Please enter at least {0} characters.'
     };
 
     ko.validation.rules['maxLength'] = {
         validator: function (val, maxLength) {
-            return !val || val.length <= maxLength;
+            return utils.isEmptyVal(val) || val.length <= maxLength;
         },
         message: 'Please enter no more than {0} characters.'
     };
 
     ko.validation.rules['pattern'] = {
         validator: function (val, regex) {
-            return !val || val.match(regex) != null;
+            return utils.isEmptyVal(val) || val.match(regex) != null;
         },
         message: 'Please check this value.'
     };
 
     ko.validation.rules['step'] = {
         validator: function (val, step) {
-            return val % step === 0;
+            return utils.isEmptyVal(val) || val % step === 0;
         },
         message: 'The value must increment by {0}'
     };
@@ -443,7 +454,7 @@
         validator: function (val, validate) {
             //I think an empty email address is also a valid entry
             //if one want's to enforce entry it should be done with 'required: true'
-            return (!val) || (
+            return utils.isEmptyVal(val) || (
                 validate && /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i.test(val)
             );
         },
@@ -452,28 +463,28 @@
 
     ko.validation.rules['date'] = {
         validator: function (value, validate) {
-            return validate && !/Invalid|NaN/.test(new Date(value));
+            return utils.isEmptyVal(value) || (validate && !/Invalid|NaN/.test(new Date(value)));
         },
         message: 'Please enter a proper date'
     };
 
     ko.validation.rules['dateISO'] = {
         validator: function (value, validate) {
-            return validate && /^\d{4}[\/-]\d{1,2}[\/-]\d{1,2}$/.test(value);
+            return utils.isEmptyVal(value) || (validate && /^\d{4}[\/-]\d{1,2}[\/-]\d{1,2}$/.test(value));
         },
         message: 'Please enter a proper date'
     };
 
     ko.validation.rules['number'] = {
         validator: function (value, validate) {
-            return validate && /^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(value);
+            return utils.isEmptyVal(value) || (validate && /^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(value));
         },
         message: 'Please enter a number'
     };
 
-    ko.validation.rules['digits'] = {
+    ko.validation.rules['digit'] = {
         validator: function (value, validate) {
-            return validate && /^\d+$/.test(value);
+            return utils.isEmptyVal(value) || (validate && /^\d+$/.test(value));
         },
         message: 'Please enter a digit'
     };
@@ -481,6 +492,7 @@
     ko.validation.rules['phoneUS'] = {
         validator: function (phoneNumber, validate) {
             if (typeof (phoneNumber) !== 'string') { return false; }
+            if (utils.isEmptyVal(phoneNumber)) { return true; } // makes it optional, use 'required' rule if it should be required
             phoneNumber = phoneNumber.replace(/\s+/g, "");
             return validate && phoneNumber.length > 9 && phoneNumber.match(/^(1-?)?(\([2-9]\d{2}\)|[2-9]\d{2})-?[2-9]\d{2}-?\d{4}$/);
         },
