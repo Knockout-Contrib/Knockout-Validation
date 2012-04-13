@@ -26,6 +26,24 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
 
+test('Zero is a valid value for required', function () {
+
+    var testObj = ko.observable(0)
+                    .extend({ required: true });
+
+    equal(testObj(), 0, 'observable still works');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Empty spaces is not a valid value for required', function () {
+
+    var testObj = ko.observable('  ')
+                    .extend({ required: true });
+
+    equal(testObj(), '  ', 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is valid');
+});
+
 //#endregion
 
 //#region Min Validation
@@ -469,16 +487,95 @@ test('Object is Valid and isValid returns True', function () {
 });
 //#endregion
 
-module('Utils Tests');
-test('hasAttribute works in old IE', function () {
+//#region Equal tests
+module("Equal Tests");
 
-    var el = document.getElementById('testAgeInput');
+test('Object is Valid and isValid returns True', function () {
+    var compareObj = ko.observable(12);
+    var testObj = ko.observable('').extend({ equal: compareObj });
 
-    ok(el, 'found element');
+    testObj(12);
 
-    ok(ko.validation.utils.hasAttribute(el, 'required'), 'element correctly has html5 input attribute');
-    ok(!ko.validation.utils.hasAttribute(el, 'pattern'), 'element correctly does not have html5 input attribute');
+    equal(testObj(), 12, 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
 });
+
+test('Object is NOT Valid and isValid returns False', function () {
+    var compareObj = ko.observable(12);
+    var testObj = ko.observable('').extend({ equal: compareObj });
+
+    testObj(11);
+
+    equal(testObj(), 11, 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
+//#endregion
+
+//#region NotEqual tests
+module("Not Equal Tests");
+
+test('Object is Valid and isValid returns True', function () {
+    var compareObj = ko.observable(12);
+    var testObj = ko.observable('').extend({ notEqual: compareObj });
+
+    testObj(11);
+
+    equal(testObj(), 11, 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and isValid returns False', function () {
+    var compareObj = ko.observable(12);
+    var testObj = ko.observable('').extend({ notEqual: compareObj });
+
+    testObj(12);
+
+    equal(testObj(), 12, 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
+//#endregion
+
+//#region Unique tests
+module("Unique Tests");
+
+test('Object is Valid and isValid returns True', function () {
+    var compareObj = ko.observableArray([11, 12, 13]);
+    var testObj = ko.observable('').extend({ unique: { collection: compareObj} });
+
+    testObj(11);
+
+    equal(testObj(), 11, 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and isValid returns False', function () {
+    var compareObj = ko.observableArray([11, 12, 13, 13]);
+    var testObj = ko.observable('').extend({ unique: { collection: compareObj} });
+
+    testObj(13);
+
+    equal(testObj(), 13, 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
+//#endregion
+
+//#region Utils Tests
+module('Grouping Tests');
+
+test('Error Grouping works', function () {
+    var vm = {
+        firstName: ko.observable().extend({ required: true }),
+        lastName: ko.observable().extend({ minLength: 2 })
+    };
+
+    var errors = ko.validation.group(vm);
+
+    equals(errors().length, 2, 'Grouping correctly finds 2 invalid properties');
+});
+//#endregion
 
 //#region validatedObservable
 module('validatedObservable Tests');
@@ -530,4 +627,92 @@ test('validatedObservable is first Valid then made InValid', function () {
     ok(!obj.isValid(), obj.errors()[0]);
 
 });
+//#endregion
+
+//#region Removing Validation
+module('Removing Validation Tests');
+
+test('Basic Removal', function () {
+    var testObj = ko.observable('')
+                    .extend({ min: 2 });
+
+    testObj(3);
+
+    var testFlag = false;
+
+    equal(testObj(), 3, 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+
+    testObj.isValid.subscribe(function () {
+        testFlag = true;
+    });
+
+    testObj.extend({ validatable: false });
+
+    ok(!testObj.isValid, 'Validation features removed');
+    testObj(1);
+    ok(!testFlag, 'Subscriptions to isValid didnt fire');
+
+});
+//#endregion
+
+//#region Async Tests
+module('Async Tests');
+
+asyncTest('Async Rule Is Valid Test', function () {
+
+    ko.validation.rules['mustEqualAsync'] = {
+        async: true,
+        validator: function (val, otherVal, callBack) {
+            var isValid = (val === otherVal);
+            setTimeout(function () {
+                callBack(isValid);
+                doAssertions();
+
+                start();
+            }, 10);
+        },
+        message: 'The field must equal {0}'
+    };
+    ko.validation.registerExtenders(); //make sure the new rule is registered
+
+    var testObj = ko.observable(5);
+
+    var doAssertions = function () {
+        equal(testObj(), 5, 'observable still works');
+        equal(testObj.isValid(), true, 'testObj is valid');
+    };
+
+    testObj.extend({ mustEqualAsync: 5 });
+});
+
+asyncTest('Async Rule Is NOT Valid Test', function () {
+
+    ko.validation.rules['mustEqualAsync'] = {
+        async: true,
+        validator: function (val, otherVal, callBack) {
+            var isValid = (val === otherVal);
+            setTimeout(function () {
+                callBack(isValid);
+                doAssertions();
+
+                start();
+            }, 10);
+        },
+        message: 'The field must equal {0}'
+    };
+    ko.validation.registerExtenders(); //make sure the new rule is registered
+
+
+    var testObj = ko.observable(4);
+
+    var doAssertions = function () {
+        equal(testObj(), 4, 'observable still works');
+        ok(testObj.error, testObj.error);
+        equal(testObj.isValid(), false, 'testObj is not valid');
+    };
+
+    testObj.extend({ mustEqualAsync: 5 });
+});
+
 //#endregion
