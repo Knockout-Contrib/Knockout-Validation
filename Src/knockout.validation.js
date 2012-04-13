@@ -1,7 +1,13 @@
 /// <reference path="../Lib/knockout-latest.debug.js" />
-
-
+/*
+*   Knockout Validation
+*   Created By Eric M. Barnard (https://github.com/ericmbarnard)
+*
+*   Source: https://github.com/ericmbarnard/Knockout-Validation
+*   MIT License: http://www.opensource.org/licenses/MIT
+*/
 (function () {
+
     if (typeof (ko) === undefined) { throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in'; }
 
     var configuration = {
@@ -321,7 +327,6 @@
 
             // if html-5 validation attributes have been specified, this parses
             // the attributes on @element
-
             parseInputValidationAttributes: function (element, valueAccessor) {
                 ko.utils.arrayForEach(html5Attributes, function (attr) {
                     if (utils.hasAttribute(element, attr)) {
