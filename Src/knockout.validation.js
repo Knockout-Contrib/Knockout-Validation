@@ -474,7 +474,7 @@
             var otherValue = params;
             return val === utils.getValue(otherValue);
         },
-        message: 'values must equal'
+        message: 'Values must equal'
     };
 
     ko.validation.rules['notEqual'] = {
@@ -482,7 +482,7 @@
             var otherValue = params;
             return val !== utils.getValue(otherValue);
         },
-        message: 'please choose another value.'
+        message: 'Please choose another value.'
     };
 
     //unique in collection
