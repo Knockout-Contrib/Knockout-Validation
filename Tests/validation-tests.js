@@ -143,6 +143,21 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
 
+test('Issue #33 - Arrays - Valid', function () {
+    var testObj = ko.observableArray()
+                    .extend({ minLength: 2 });
+
+    testObj(['one', 'two', 'three']);
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Issue #33 - Arrays - Invalid', function () {
+    var testObj = ko.observableArray()
+                    .extend({ minLength: 4 });
+
+    testObj(['one', 'two', 'three']);
+    ok(!testObj.isValid(), testObj.error);
+});
 //#endregion
 
 //#region Max Length Validation
@@ -176,6 +191,21 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
 
+test('Issue #33 - Arrays - Valid', function () {
+    var testObj = ko.observableArray()
+                    .extend({ maxLength: 4 });
+
+    testObj(['one', 'two', 'three']);
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Issue #33 - Arrays - Invalid', function () {
+    var testObj = ko.observableArray()
+                    .extend({ maxLength: 2 });
+
+    testObj(['one', 'two', 'three']);
+    ok(!testObj.isValid(), testObj.error);
+});
 //#endregion
 
 //#region Pattern Validation
