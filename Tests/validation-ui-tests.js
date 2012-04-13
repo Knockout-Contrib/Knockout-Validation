@@ -202,4 +202,50 @@ test("Issue #43 & #47 - Error messages are not switched correctly", function () 
     ok(!vm.testObj.isValid(), vm.testObj.error);
     equals(vm.testObj.error, $msg.text(), "Max rule was correctly triggered");
 });
+
+test("Issue #44 - Validation Element - Is Valid Test", function () {
+    var vm = {
+        testObj: ko.observable().extend({ min: 1, max: 100 })
+    };
+
+    // setup the html
+    addTestHtml('<input type="text" id="testElement" data-bind="value: testObj, validationElement: testObj"/>');
+
+    // make sure we allow element decorations
+    ko.validation.init({ decorateElement: true }, true);
+
+    applyTestBindings(vm);
+
+    var $el = $('#testElement');
+    ok(!$el.hasClass('validationElement'), 'Does not have the validation class');
+
+    vm.testObj(2); // should validate the min rule
+
+    ok(vm.testObj.isValid(), "Object is valid");
+    ok(!$el.hasClass('validationElement'), 'Correctly does not have the validation class');
+
+});
+
+test("Issue #44 - Validation Element - Is Invalid Test", function () {
+    var vm = {
+        testObj: ko.observable().extend({ min: 1, max: 100 })
+    };
+
+    // setup the html
+    addTestHtml('<input type="text" id="testElement" data-bind="value: testObj, validationElement: testObj"/>');
+
+    // make sure we allow element decorations
+    ko.validation.init({ decorateElement: true }, true);
+
+    applyTestBindings(vm);
+
+    var $el = $('#testElement');
+    ok(!$el.hasClass('validationElement'), 'Does not have the validation class');
+
+    vm.testObj(-1); // should invalidate the min rule
+
+    ok(!vm.testObj.isValid(), "Object is not valid");
+    ok($el.hasClass('validationElement'), 'Correctly does have the validation class');
+
+});
 //#endregion

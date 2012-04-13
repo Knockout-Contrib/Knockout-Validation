@@ -558,17 +558,21 @@
     ko.bindingHandlers['validationMessage'] = { // individual error message, if modified or post binding
         update: function (element, valueAccessor) {
             var obsv = valueAccessor(),
-                config = utils.getConfigOptions(element);
-
+                config = utils.getConfigOptions(element),
+                val = ko.utils.unwrapObservable(obsv),
+                msg = null,
+                isModified = false,
+                isValid = false;
+                
             obsv.extend({ validatable: true });
 
-            // register this binding handler to update when the value of the obs changes
-            var val = ko.utils.unwrapObservable(obsv);
-
+            isModified = obsv.isModified();
+            isValid = obsv.isValid();
+            
             // create a handler to correctly return an error message
             var errorMsgAccessor = function () {
-                if (!config.messagesOnModified || obsv.isModified()) {
-                    return obsv.isValid() ? null : obsv.error;
+                if (!config.messagesOnModified || isModified) {
+                    return isValid ? null : obsv.error;
                 } else {
                     return null;
                 }
@@ -576,7 +580,7 @@
 
             //toggle visibility on validation messages when validation hasn't been evaluated, or when the object isValid
             var visiblityAccessor = function () {
-                return obsv.isModified() ? !obsv.isValid() : false;
+                return isModified ? !isValid : false;
             };
 
             ko.bindingHandlers.text.update(element, errorMsgAccessor);
@@ -586,15 +590,33 @@
 
     ko.bindingHandlers['validationElement'] = {
         update: function (element, valueAccessor) {
-            var obsv = valueAccessor();
-            obsv.extend({ validatable: true }),
-                config = utils.getConfigOptions(element);
+            var obsv = valueAccessor(),
+                config = utils.getConfigOptions(element),
+                val = ko.utils.unwrapObservable(obsv),
+                msg = null,
+                isModified = false,
+                isValid = false;
 
+            obsv.extend({ validatable: true });
+
+            isModified = obsv.isModified();
+            isValid = obsv.isValid();
+
+            // create an evaluator function that will return something like:
+            // css: { validationElement: true }
             var cssSettingsAccessor = function () {
-                var result = {};
-                result[config.errorElementClass] = !obsv.isValid();
-                return result;
+                var css = {};
+
+                var shouldShow = (isModified ? !isValid : false);
+
+                if (!config.decorateElement) { shouldShow = false; }
+
+                // css: { validationElement: false }
+                css[config.errorElementClass] = shouldShow;
+
+                return css;
             };
+
             //add or remove class on the element;
             ko.bindingHandlers.css.update(element, cssSettingsAccessor);
         }
