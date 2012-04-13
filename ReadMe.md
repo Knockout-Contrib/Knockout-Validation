@@ -3,17 +3,15 @@ A KnockoutJS Plugin for model and property validation
 
 Contributors:
 
-* [Andy Booth](https://github.com/andybooth)
 * [Eric Barnard](https://github.com/ericmbarnard)
+* [Andy Booth](https://github.com/andybooth)
+* [Michal Poreba](https://github.com/michalporeba)
 
 License: [MIT](http://www.opensource.org/licenses/mit-license.php)
 
 Tested in IE 6+, FF7, Chrome 15
 ##Getting Started
 ```javascript
-//setup the validation library, you can optionally pass in an 'options' object to configure the plug-in
-ko.validation.init();
-
 //start using it!
 var myValue = ko.observable().extend({ required: true });
 
