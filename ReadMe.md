@@ -77,41 +77,13 @@ var myObj = ko.observable('').extend({ minLength: 3 });
 ```javascript
 var myObj = ko.observable('').extend({ maxLength: 12 });
 ```
-**Pattern**:
-
-```javascript
-var myObj = ko.observable('').extend({ pattern: '^[a-z0-9].$' });
-```
-**Step**:
-
-```javascript
-var myObj = ko.observable('').extend({ step: 3 });
-```
 **Email**:
 
 ```javascript
 var myObj = ko.observable('').extend({ email: true });
 ```
-**Date**:
 
-```javascript
-var myObj = ko.observable('').extend({ date: true });
-```
-**DateISO**:
-
-```javascript
-var myObj = ko.observable('').extend({ dateISO: true });
-```
-**Number**:
-
-```javascript
-var myObj = ko.observable('').extend({ number: true });
-```
-**Digit**:
-
-```javascript
-var myObj = ko.observable('').extend({ digit: true });
-```
+... and [MANY MORE](https://github.com/ericmbarnard/Knockout-Validation/wiki/Native-Rules)
 
 _Much thanks to the [jQuery Validation Plug-In](https://github.com/jzaefferer/jquery-validation) team for their work on many of the rules_
 ##Custom Validation Rules
