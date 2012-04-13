@@ -26,6 +26,14 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
 
+test('Object is Undefined and isValid returns False', function() {
+	var testObj = ko.observable()
+                    .extend({ required: true });
+
+    equal(typeof(testObj()), "undefined", 'observable is undefined');
+    equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
 //#endregion
 
 //#region Min Validation
@@ -50,6 +58,22 @@ test('Object is NOT Valid and isValid returns False', function () {
 
     equal(testObj(), 1, 'observable still works');
     equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
+test('Object is Undefined and isValid returns True', function () {
+    var testObj = ko.observable()
+                    .extend({ min: 2 });
+
+    equal(typeof(testObj()), "undefined", 'observable is undefined');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Object is Empty and isValid returns True', function () {
+    var testObj = ko.observable("")
+                    .extend({ min: 2 });
+
+    equal(testObj(), "", 'observable is empty');
+    equal(testObj.isValid(), true, 'testObj is valid');
 });
 //#endregion
 
@@ -76,6 +100,21 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
 
+test('Object is Undefined and isValid returns True', function () {
+    var testObj = ko.observable()
+                    .extend({ max: 5 });
+
+    equal(typeof(testObj()), "undefined", 'observable is undefined');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Object is Empty and isValid returns True', function () {
+    var testObj = ko.observable("")
+                    .extend({ max: 5 });
+
+    equal(testObj(), "", 'observable is empty');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
 //#endregion
 
 //#region Min Length Validation
@@ -101,6 +140,21 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
 
+test('Object is Undefined and isValid returns True', function () {
+    var testObj = ko.observable()
+                    .extend({ minLength: 2 });
+
+    equal(typeof(testObj()), "undefined", 'observable is undefined');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Object is Empty and isValid returns True', function () {
+    var testObj = ko.observable("")
+                    .extend({ minLength: 2 });
+
+    equal(testObj(), "", 'observable is empty');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
 //#endregion
 
 //#region Max Length Validation
@@ -126,6 +180,21 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
 
+test('Object is Undefined and isValid returns True', function () {
+    var testObj = ko.observable()
+                    .extend({ maxLength: 6 });
+
+    equal(typeof(testObj()), "undefined", 'observable is undefined');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Object is Empty and isValid returns True', function () {
+    var testObj = ko.observable("")
+                    .extend({ maxLength: 6 });
+
+    equal(testObj(), "", 'observable is empty');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
 //#endregion
 
 //#region Pattern Validation
@@ -151,6 +220,21 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
 
+test('Object is Undefined and isValid returns True', function () {
+    var testObj = ko.observable()
+                    .extend({ pattern: 'none' });
+
+    equal(typeof(testObj()), "undefined", 'observable is undefined');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Object is Empty and isValid returns True', function () {
+    var testObj = ko.observable("")
+                    .extend({ pattern: 'none' });
+
+    equal(testObj(), "", 'observable is empty');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
 //#endregion
 
 //#region Step Validation
@@ -176,6 +260,21 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
 
+test('Object is Undefined and isValid returns True', function () {
+    var testObj = ko.observable()
+                    .extend({ step: 2 });
+
+    equal(typeof(testObj()), "undefined", 'observable is undefined');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Object is Empty and isValid returns True', function () {
+    var testObj = ko.observable("")
+                    .extend({ step: 2 });
+
+    equal(testObj(), "", 'observable is empty');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
 //#endregion
 
 //#region Email Validation
@@ -199,6 +298,21 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, testObj.error);
 });
 
+test('Object is Undefined and isValid returns True', function () {
+    var testObj = ko.observable()
+                    .extend({ email: true });
+
+    equal(typeof(testObj()), "undefined", 'observable is undefined');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Object is Empty and isValid returns True', function () {
+    var testObj = ko.observable("")
+                    .extend({ email: true });
+
+    equal(testObj(), "", 'observable is empty');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
 //#endregion
 
 //#region Date Validation
@@ -220,6 +334,22 @@ test('Object is NOT Valid and isValid returns False', function () {
 
     equal(testObj(), 'stuff', 'observable still works');
     equal(testObj.isValid(), false, testObj.error);
+});
+
+test('Object is Undefined and isValid returns True', function () {
+    var testObj = ko.observable()
+                    .extend({ date: 2 });
+
+    equal(typeof(testObj()), "undefined", 'observable is undefined');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Object is Empty and isValid returns True', function () {
+    var testObj = ko.observable("")
+                    .extend({ date: 2 });
+
+    equal(testObj(), "", 'observable is empty');
+    equal(testObj.isValid(), true, 'testObj is valid');
 });
 
 //#endregion
@@ -245,6 +375,21 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, testObj.error);
 });
 
+test('Object is Undefined and isValid returns True', function () {
+    var testObj = ko.observable()
+                    .extend({ dateISO: true });
+
+    equal(typeof(testObj()), "undefined", 'observable is undefined');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Object is Empty and isValid returns True', function () {
+    var testObj = ko.observable("")
+                    .extend({ dateISO: true });
+
+    equal(testObj(), "", 'observable is empty');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
 //#endregion
 
 //#region Number Validation
@@ -268,13 +413,28 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, testObj.error);
 });
 
+test('Object is Undefined and isValid returns True', function () {
+    var testObj = ko.observable()
+                    .extend({ number: true });
+
+    equal(typeof(testObj()), "undefined", 'observable is undefined');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Object is Empty and isValid returns True', function () {
+    var testObj = ko.observable("")
+                    .extend({ number: true });
+
+    equal(testObj(), "", 'observable is empty');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
 //#endregion
 
 //#region Digit Validation
 
 module('Digit Validation');
 test('Object is Valid and isValid returns True', function () {
-    var testObj = ko.observable('').extend({ number: true });
+    var testObj = ko.observable('').extend({ digits: true });
 
     testObj(2);
 
@@ -283,7 +443,7 @@ test('Object is Valid and isValid returns True', function () {
 });
 
 test('Object is NOT Valid and isValid returns False', function () {
-    var testObj = ko.observable('').extend({ number: true });
+    var testObj = ko.observable('').extend({ digits: true });
 
     testObj('stuff');
 
@@ -291,6 +451,21 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, testObj.error);
 });
 
+test('Object is Undefined and isValid returns True', function () {
+    var testObj = ko.observable()
+                    .extend({ digits: true });
+
+    equal(typeof(testObj()), "undefined", 'observable is undefined');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Object is Empty and isValid returns True', function () {
+    var testObj = ko.observable("")
+                    .extend({ digits: true });
+
+    equal(testObj(), "", 'observable is empty');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
 //#endregion
 
 //#region PhoneUS Validation
@@ -312,6 +487,22 @@ test('Object is NOT Valid and isValid returns False', function () {
 
     equal(testObj(), 5, 'observable still works');
     equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
+test('Object is Undefined and isValid returns True', function () {
+    var testObj = ko.observable()
+                    .extend({ phoneUS: true });
+
+    equal(typeof(testObj()), "undefined", 'observable is undefined');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Object is Empty and isValid returns True', function () {
+    var testObj = ko.observable("")
+                    .extend({ phoneUS: true });
+
+    equal(testObj(), "", 'observable is empty');
+    equal(testObj.isValid(), true, 'testObj is valid');
 });
 
 //#endregion
@@ -346,7 +537,6 @@ test('Custom Rule Is NOT Valid Test', function () {
         message: 'The field must equal {0}'
     };
     ko.validation.registerExtenders(); //make sure the new rule is registered
-
 
     var testObj = ko.observable(4).extend({ mustEqual: 5 });
 
@@ -466,6 +656,33 @@ test('Object is Valid and isValid returns True', function () {
     ok(!testObj.isValid(), testObj.error);
     ok(testObj.error.indexOf('must contain') > -1, "Doesn't match required pattern");
 
+});
+
+test('Object is Undefined and NOT required returns True', function () {
+    var testObj = ko.observable().extend({ 
+                    minLength: 2, 
+					pattern: {
+                        message: 'It must contain some',
+                        params: 'some'
+                    }
+                });
+
+    equal(typeof(testObj()), "undefined", 'observable is undefined');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Object is Undefined and IS required returns False', function () {
+    var testObj = ko.observable().extend({ 
+					required: true,
+                    minLength: 2, 
+					pattern: {
+                        message: 'It must contain some',
+                        params: 'some'
+                    }
+                });
+
+    equal(typeof(testObj()), "undefined", 'observable is undefined');
+    equal(testObj.isValid(), false, 'testObj is valid');
 });
 //#endregion
 
