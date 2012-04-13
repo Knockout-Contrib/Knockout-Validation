@@ -104,6 +104,8 @@ var myCustomObj = ko.observable().extend({ mustEqual: 5 });
 ```
 Learn more about Custom Rules on the [WIKI](https://github.com/ericmbarnard/Knockout-Validation/wiki/Custom-Validation-Rules)
 
+###Or Check out our [User-Contributed Custom Rules](https://github.com/ericmbarnard/Knockout-Validation/wiki/User-Contributed-Rules)!###
+
 ##HTML5 Validation Attributes
 
 Required: `<input type="text" data-bind="value: myProp" required />`
