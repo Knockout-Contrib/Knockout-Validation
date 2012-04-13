@@ -485,6 +485,19 @@ test('Object is Valid and isValid returns True', function () {
     ok(testObj.error.indexOf('must contain') > -1, "Doesn't match required pattern");
 
 });
+
+test("Issue #47 - Validation chaining issue with required and email rules", function () {
+    var testObj = ko.observable()
+                    .extend({ required: true })
+                    .extend({ email: { message: 'Invalid email address.' } });
+
+    ok(!testObj.isValid(), testObj.error);
+    ok(testObj.error.indexOf('required') > -1, "required is first error");
+
+    testObj('s'); // an invalid email address
+    ok(!testObj.isValid(), testObj.error);
+    ok(testObj.error.indexOf('Invalid email') > -1, "Email error is second error");
+});
 //#endregion
 
 //#region Equal tests
