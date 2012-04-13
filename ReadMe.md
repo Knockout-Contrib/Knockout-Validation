@@ -134,29 +134,4 @@ If you want to customize the display of your objects validation message, use the
 Check out more on [Validation Bindings](https://github.com/ericmbarnard/Knockout-Validation/wiki/Validation-Bindings)
 
 ##Remote Validation Rules
-we are working more on this, but for now you can create a custom rule and use a synchronous AJAX request in your rule to return `true/false`
-
-```javascript
-ko.validation.rules['myRemoteValidation'] = {
-     validator: function(val, param){
-          var isValid = true;
-          
-          //this library doesn't depend on jQuery/Zepto, so you'll need to include it separately
-          $.ajax({
-              async: false,
-              url: '/remoteValidation',
-              type: 'POST',
-              data: { value: val, param: param },
-              success: function(response){
-                     isValid = response === true;              
-              },
-              error: function(){
-                     isValid = false; //however you would like to handle this              
-              }
-           });
-           
-           return isValid;
-      },
-      message: 'This is InValid'
-};                      
-```
+Check out our [Async Validation](https://github.com/ericmbarnard/Knockout-Validation/wiki/Async-Rules) and [jQuery AJAX Validation](https://github.com/ericmbarnard/Knockout-Validation/wiki/Async-Rules)
