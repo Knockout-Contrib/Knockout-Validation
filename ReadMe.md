@@ -99,28 +99,10 @@ ko.validation.rules['mustEqual'] = {
     message: 'The field must equal {0}'
 };
 
-ko.validation.init();
-
-var myCustomObj = ko.observable().extend({ mustEqual: 5 }); //the value '5' is the second arg ('otherVal') that is passed to the validator
+//the value '5' is the second arg ('otherVal') that is passed to the validator
+var myCustomObj = ko.observable().extend({ mustEqual: 5 });
 ```
-All Validation Messages can be formatted to use the passed in `params` to produce a custom message. 
-`message: 'The field must equal {0}'` will be formatted with the `5` during actual validation so the user sees:
-`'The field must equal 5'`
-
-####'Anonymous' or Single-Use Custom Rules
-Anonymous rules are validation rules that are usually specific to only one object and might be determined on the fly.
-
-```javascript
-var testObj = ko.observable(3).extend({
-        validation: {
-            validator: function (val, someOtherVal) {
-                return val === someOtherVal;
-            },
-            message: 'Must Equal 5',
-            params: 5
-        }
-    });
-```
+Learn more about Custom Rules on the [WIKI](https://github.com/ericmbarnard/Knockout-Validation/wiki/Custom-Validation-Rules)
 
 ##HTML5 Validation Attributes
 
