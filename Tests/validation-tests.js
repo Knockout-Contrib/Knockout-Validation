@@ -621,6 +621,135 @@ test('Error Grouping works', function () {
 
     equals(errors().length, 2, 'Grouping correctly finds 2 invalid properties');
 });
+
+test('Nested Grouping works - Observable', function () {
+    var vm = {
+       one: ko.observable().extend({ required: true }),
+       two: {
+           one: ko.observable().extend({ required: true })
+       },
+       three: {
+           two: {
+               one: ko.observable().extend({ required: true })
+           }
+       }
+    };
+
+    var errors = ko.validation.group(vm, { deep: true, observable: true });
+
+    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+});
+
+test('Nested Grouping works - Not Observable', function () {
+    var vm = {
+        one: ko.observable().extend({ required: true }),
+        two: {
+            one: ko.observable().extend({ required: true })
+        },
+        three: {
+            two: {
+                one: ko.observable().extend({ required: true })
+            }
+        }
+    };
+
+    var errors = ko.validation.group(vm, { deep: true, observable: false });
+
+    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+});
+
+test('Issue #31 - Recursively Show All Messages', function () {
+    var vm = {
+        one: ko.observable().extend({ required: true }),
+        two: {
+            one: ko.observable().extend({ required: true })
+        },
+        three: {
+            two: {
+                one: ko.observable().extend({ required: true })
+            }
+        }
+    };
+
+    var errors = ko.validation.group(vm, { deep: true, observable: false });
+
+    ok(!vm.one.isModified(), "Level 1 is not modified");
+    ok(!vm.two.one.isModified(), "Level 2 is not modified");
+    ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
+    
+    // now show all the messages
+    errors.showAllMessages();
+
+    ok(vm.one.isModified(), "Level 1 is modified");
+    ok(vm.two.one.isModified(), "Level 2 is modified");
+    ok(vm.three.two.one.isModified(), "Level 3 is modified");
+
+    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+});
+
+test('Issue #31 - Recursively Show All Messages - using computed', function () {
+    var vm = {
+        one: ko.observable().extend({ required: true }),
+        two: {
+            one: ko.observable().extend({ required: true })
+        },
+        three: {
+            two: {
+                one: ko.observable().extend({ required: true })
+            }
+        }
+    };
+
+    var errors = ko.validation.group(vm, { deep: true, observable: true });
+
+    ok(!vm.one.isModified(), "Level 1 is not modified");
+    ok(!vm.two.one.isModified(), "Level 2 is not modified");
+    ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
+
+    // now show all the messages
+    errors.showAllMessages();
+
+    ok(vm.one.isModified(), "Level 1 is modified");
+    ok(vm.two.one.isModified(), "Level 2 is modified");
+    ok(vm.three.two.one.isModified(), "Level 3 is modified");
+
+    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+});
+
+test('Issue #37 - Toggle ShowAllMessages', function () {
+    var vm = {
+        one: ko.observable().extend({ required: true }),
+        two: {
+            one: ko.observable().extend({ required: true })
+        },
+        three: {
+            two: {
+                one: ko.observable().extend({ required: true })
+            }
+        }
+    };
+
+    var errors = ko.validation.group(vm, { deep: true, observable: true });
+
+    ok(!vm.one.isModified(), "Level 1 is not modified");
+    ok(!vm.two.one.isModified(), "Level 2 is not modified");
+    ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
+
+    // now show all the messages
+    errors.showAllMessages();
+
+    ok(vm.one.isModified(), "Level 1 is modified");
+    ok(vm.two.one.isModified(), "Level 2 is modified");
+    ok(vm.three.two.one.isModified(), "Level 3 is modified");
+
+    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+
+    // now shut them off
+    errors.showAllMessages(false);
+    ok(!vm.one.isModified(), "Level 1 is not modified");
+    ok(!vm.two.one.isModified(), "Level 2 is not modified");
+    ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
+});
 //#endregion
 
 //#region validatedObservable

@@ -148,21 +148,26 @@
 
             group: function group(obj, options) { // array of observables or viewModel
                 var options = ko.utils.extend(configuration.grouping, options),
-                validatables = [],
+                validatables = ko.observableArray([]),
                 result = null,
 
-                //anonymous, immediate function to travers objects hierarchically
+                //anonymous, immediate function to traverse objects hierarchically
                 //if !options.deep then it will stop on top level
                 traverse = function traverse(obj, level) {
-                    var objValues = [], val = ko.utils.unwrapObservable(obj);
+                    var objValues = [],
+                        val = ko.utils.unwrapObservable(obj);
+
                     //default level value depends on deep option. 
                     level = (level !== undefined ? level : options.deep ? 1 : -1);
+
                     // if object is observable then add it to the list
                     if (ko.isObservable(obj)) {
+
                         //make sure it is validatable object
                         if (!obj.isValid) obj.extend({ validatable: true });
                         validatables.push(obj);
                     }
+
                     //get list of values either from array or object but ignore non-objects
                     if (val) {
                         if (utils.isArray(val)) {
@@ -171,9 +176,11 @@
                             objValues = utils.values(val);
                         }
                     }
+
                     //process recurisvely if it is deep grouping
                     if (level !== 0) {
                         ko.utils.arrayForEach(objValues, function (observable) {
+
                             //but not falsy things and not HTML Elements
                             if (observable && !observable.nodeType) traverse(observable, level + 1);
                         });
@@ -182,10 +189,12 @@
 
                 //if using observables then traverse structure once and add observables
                 if (options.observable) {
+
                     traverse(obj);
-                    result = ko.dependentObservable(function () {
+
+                    result = ko.computed(function () {
                         var errors = [];
-                        ko.utils.arrayForEach(validatables, function (observable) {
+                        ko.utils.arrayForEach(validatables(), function (observable) {
                             if (!observable.isValid()) {
                                 errors.push(observable.error);
                             }
@@ -193,17 +202,12 @@
                         return errors;
                     });
 
-                    result.showAllMessages = function () {
-                        ko.utils.arrayForEach(validatables, function (observable) {
-                            observable.isModified(true);
-                        });
-                    };
                 } else { //if not using observables then every call to error() should traverse the structure
                     result = function () {
                         var errors = [];
-                        validatables = []; //clear validatables
+                        validatables([]); //clear validatables
                         traverse(obj); // and traverse tree again
-                        ko.utils.arrayForEach(validatables, function (observable) {
+                        ko.utils.arrayForEach(validatables(), function (observable) {
                             if (!observable.isValid()) {
                                 errors.push(observable.error);
                             }
@@ -211,22 +215,31 @@
                         return errors;
                     };
 
-                    result.showAllMessages = function () {
-                        ko.utils.arrayForEach(validatables, function (observable) {
-                            observable.isModified(true);
-                        });
-                    };
 
-                    obj.errors = result;
-                    obj.isValid = function () {
-                        return obj.errors().length === 0;
-                    }
                 }
+
+                result.showAllMessages = function (show) { // thanks @heliosPortal
+                    if (show == undefined) //default to true
+                        show = true;
+
+                    // ensure we have latest changes
+                    result();
+
+                    ko.utils.arrayForEach(validatables(), function (observable) {
+                        observable.isModified(show);
+                    });
+                };
+
+                obj.errors = result;
+                obj.isValid = function () {
+                    return obj.errors().length === 0;
+                }
+
                 return result;
             },
 
             formatMessage: function (message, params) {
-                return message.replace('{0}', params);
+                return message.replace(/\{0\}/gi, params);
             },
 
             // addRule: 
