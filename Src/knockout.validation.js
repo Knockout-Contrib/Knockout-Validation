@@ -141,8 +141,8 @@
                 //becuase we will be accessing options properties it has to be an object at least
                 options = options || {};
                 //if specific error classes are not provided then apply generic errorClass
-                //it has to be done on option so that options.errorClass can override default 
-                //errorElementClass and errorMessage class but not those provided in options            
+                //it has to be done on option so that options.errorClass can override default
+                //errorElementClass and errorMessage class but not those provided in options
                 options.errorElementClass = options.errorElementClass || options.errorClass || configuration.errorElementClass;
                 options.errorMessageClass = options.errorMessageClass || options.errorClass || configuration.errorMessageClass;
 
@@ -168,7 +168,7 @@
                     var objValues = [],
                         val = ko.utils.unwrapObservable(obj);
 
-                    //default level value depends on deep option. 
+                    //default level value depends on deep option.
                     level = (level !== undefined ? level : options.deep ? 1 : -1);
 
                     // if object is observable then add it to the list
@@ -253,7 +253,7 @@
                 return message.replace(/\{0\}/gi, params);
             },
 
-            // addRule: 
+            // addRule:
             // This takes in a ko.observable and a Rule Context - which is just a rule name and params to supply to the validator
             // ie: ko.validation.addRule(myObservable, {
             //          rule: 'required',
@@ -327,7 +327,7 @@
                 };
             },
 
-            // loops through all ko.validation.rules and adds them as extenders to 
+            // loops through all ko.validation.rules and adds them as extenders to
             // ko.extenders
             registerExtenders: function () { // root extenders optional, use 'validation' extender if would cause conflicts
                 if (configuration.registerExtenders) {
@@ -369,8 +369,8 @@
 
     //Validation Rules:
     // You can view and override messages or rules via:
-    // ko.validation.rules[ruleName] 
-    // 
+    // ko.validation.rules[ruleName]
+    //
     // To implement a custom Rule, simply use this template:
     // ko.validation.rules['<custom rule name>'] = {
     //      validator: function (val, param) {
@@ -384,7 +384,7 @@
     // ko.validation.rules['mustEqual'] = {
     //      validator: function( val, mustEqualVal ){
     //          return val === mustEqualVal;
-    //      }, 
+    //      },
     //      message: 'This field must equal {0}'
     // };
     //
@@ -517,7 +517,7 @@
 
     //unique in collection
     // options are:
-    //    collection: array or function returning (observable) array 
+    //    collection: array or function returning (observable) array
     //              in which the value has to be unique
     //    valueAccessor: function that returns value from an object stored in collection
     //              if it is null the value is compared directly
@@ -572,7 +572,7 @@
                     ko.applyBindingsToNode(validationMessageElement, { validationMessage: valueAccessor() });
                 }
             }
-            //if requested add binding to decorate element	
+            //if requested add binding to decorate element
             if (config.decorateElement && utils.isValidatable(valueAccessor())) {
                 ko.applyBindingsToNode(element, { validationElement: valueAccessor() });
             }
@@ -699,7 +699,7 @@
     //examples include:
     // 1. var test = ko.observable('something').extend({validatable: true});
     // this will ensure that the Observable object is setup properly to respond to rules
-    // 
+    //
     // 2. test.extend({validatable: false});
     // this will remove the validation properties from the Observable object should you need to do that.
     ko.extenders['validatable'] = function (observable, enable) {
@@ -710,7 +710,7 @@
             // observable.rules:
             // ObservableArray of Rule Contexts, where a Rule Context is simply the name of a rule and the params to supply to it
             //
-            // Rule Context = { rule: '<rule name>', params: '<passed in params>', message: '<Override of default Message>' }            
+            // Rule Context = { rule: '<rule name>', params: '<passed in params>', message: '<Override of default Message>' }
             observable.rules = ko.observableArray(); //holds the rule Contexts to use as part of validation
 
             //in case async validation is occuring
@@ -721,7 +721,7 @@
 
             observable.isModified = ko.observable(false);
 
-            // we use a computed here to ensure that anytime a dependency changes, the 
+            // we use a computed here to ensure that anytime a dependency changes, the
             // validation logic evaluates
             var h_obsValidationTrigger = ko.computed(function () {
                 var obs = observable(),
@@ -732,7 +732,7 @@
                 return true;
             });
 
-            // a semi-protected observable  
+            // a semi-protected observable
             observable.isValid = ko.computed(function () {
                 return observable.__valid__();
             });
@@ -770,7 +770,7 @@
 
     function validateSync(observable, rule, ctx) {
         //Execute the validator and see if its valid
-        if (!rule.validator(observable(), ctx.params || true)) { // default param is true, eg. required = true
+        if (!rule.validator(observable(), ctx.params === undefined ? true : ctx.params)) { // default param is true, eg. required = true
 
             //not valid, so format the error message and stick it in the 'error' variable
             observable.error = ko.validation.formatMessage(ctx.message || rule.message, ctx.params);
@@ -779,7 +779,7 @@
         } else {
             return true;
         }
-    };
+    }
 
     function validateAsync(observable, rule, ctx) {
         observable.isValidating(true);
@@ -808,18 +808,18 @@
             observable.error = ko.validation.formatMessage(msg || ctx.message || rule.message, ctx.params);
             observable.isValidating(false);
             observable.__valid__(isValid);
-        }
+        };
 
         //fire the validator and hand it the callback
         rule.validator(observable(), ctx.params || true, callBack);
-    };
+    }
 
     ko.validation.validateObservable = function (observable) {
         var i = 0,
             rule, // the rule validator to execute
             ctx, // the current Rule Context for the loop
             ruleContexts = observable.rules(), //cache for iterator
-            len = ruleContexts.length; //cache for iterator  
+            len = ruleContexts.length; //cache for iterator
 
         for (; i < len; i++) {
 
