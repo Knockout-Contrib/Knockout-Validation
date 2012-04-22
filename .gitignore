@@ -10,3 +10,8 @@
 *.user
 *.config
 *.suo
+*.idea
+*.iml
+*.ipr
+*.iws
+target
