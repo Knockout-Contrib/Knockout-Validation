@@ -98,6 +98,7 @@ ko.validation.rules['mustEqual'] = {
     },
     message: 'The field must equal {0}'
 };
+ko.validation.registerExtenders();
 
 //the value '5' is the second arg ('otherVal') that is passed to the validator
 var myCustomObj = ko.observable().extend({ mustEqual: 5 });
