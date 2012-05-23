@@ -245,7 +245,7 @@
                 obj.isValid = function () {
                     return obj.errors().length === 0;
                 };
-                obj.showValidationMessage = function() {
+                obj.isAnyMessageShown = function() {
                     var invalidAndModifiedPresent = false;
                     
                     // ensure we have latest changes
@@ -253,7 +253,7 @@
                     
                     ko.utils.arrayForEach(validatables(), function (observable) {
                         if (!observable.isValid() && observable.isModified()) {
-                        	invalidAndModifiedPresent = true;
+                            invalidAndModifiedPresent = true;
                         }
                     });
                     return invalidAndModifiedPresent;
@@ -871,8 +871,8 @@
         obsv.isValid = ko.computed(function () {
             return obsv.errors().length === 0;
         });
-        obsv.showValidationMessage = ko.computed(function () {
-            return initialValue.showValidationMessage();
+        obsv.isAnyMessageShown = ko.computed(function () {
+            return initialValue.isAnyMessageShown();
         });
 
         return obsv;
