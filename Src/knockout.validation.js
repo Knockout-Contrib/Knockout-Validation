@@ -244,7 +244,20 @@
                 obj.errors = result;
                 obj.isValid = function () {
                     return obj.errors().length === 0;
-                }
+                };
+                obj.showValidationMessage = function() {
+                    var invalidAndModifiedPresent = false;
+                    
+                    // ensure we have latest changes
+                    result();
+                    
+                    ko.utils.arrayForEach(validatables(), function (observable) {
+                        if (!observable.isValid() && observable.isModified()) {
+                        	invalidAndModifiedPresent = true;
+                        }
+                    });
+                    return invalidAndModifiedPresent;
+                };
 
                 return result;
             },
