@@ -947,8 +947,8 @@ test('validatedObservable does not show error message when modified but correct'
         testObj2: ko.observable('').extend({ required: true })
     });
 
-	obj().testObj('12345');
-	obj().testObj2('a');
+    obj().testObj('12345');
+    obj().testObj2('a');
 
     ok(obj(), 'observable works');
     ok(!obj.showValidationMessage(), 'validation error message is hidden');
@@ -961,7 +961,7 @@ test('validatedObservable show error message when at least one invalid and modif
         testObj2: ko.observable('').extend({ required: true })
     });
 
-	obj().testObj.isModified(true);
+    obj().testObj.isModified(true);
 
     ok(obj(), 'observable works');
     ok(obj.showValidationMessage(), 'validation error message is shown');

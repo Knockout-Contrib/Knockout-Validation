@@ -872,7 +872,7 @@
             return obsv.errors().length === 0;
         });
         obsv.showValidationMessage = ko.computed(function () {
-        	return initialValue.showValidationMessage();
+            return initialValue.showValidationMessage();
         });
 
         return obsv;
