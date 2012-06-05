@@ -67,6 +67,16 @@ test('Object is Valid and isValid returns True', function () {
     ok(testObj.isValid(), 'testObj is Valid');
 });
 
+test('Object is Valid and isValid returns True (with min: 0)', function () {
+    testObj = ko.observable('')
+            .extend({ min: 0 });
+
+    testObj("0");
+
+    equal(testObj(), "0", 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
 test('Object is NOT Valid and isValid returns False', function () {
     var testObj = ko.observable('')
                     .extend({ min: 2 });
