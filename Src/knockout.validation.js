@@ -774,6 +774,7 @@
 
             //not valid, so format the error message and stick it in the 'error' variable
             observable.error = ko.validation.formatMessage(ctx.message || rule.message, ctx.params);
+            observable.errorRule = rule;
             observable.__valid__(false);
             return false;
         } else {
@@ -835,7 +836,16 @@
 
             } else {
                 //run normal sync validation
-                if (!validateSync(observable, rule, ctx)) {
+                var originalRule = observable.errorRule;
+                
+                // if the original rule is valid then we should set the error to be null and observable to be valid
+    			var validated = validateSync(observable, rule, ctx);
+				if (rule == originalRule && validated) {
+					// the rule that had caused the error is valid
+					observable.error = null;
+					observable.__valid__(true);
+				}
+                else if (!validated) {
                     return false; //break out of the loop
                 }
             }
