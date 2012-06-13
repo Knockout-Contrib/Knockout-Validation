@@ -445,7 +445,7 @@
 
     ko.validation.rules['step'] = {
         validator: function (val, step) {
-            return utils.isEmptyVal(val) || val % step === 0;
+            return utils.isEmptyVal(val) || (val * 10 ) % (step * 10)=== 0;
         },
         message: 'The value must increment by {0}'
     };
