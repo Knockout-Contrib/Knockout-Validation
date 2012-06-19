@@ -801,6 +801,7 @@
             }
 
             if (isValid) {//its VALID, so don't mess up anything that may have happened synchronously earlier on
+                observable.isValidating(false);
                 return;
             }
 
