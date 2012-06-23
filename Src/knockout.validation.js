@@ -303,20 +303,25 @@
                     //params can come in a few flavors
                     // 1. Just the params to be passed to the validator
                     // 2. An object containing the Message to be used and the Params to pass to the validator
+                    // 3. A condition when the validation rule to be applied
                     //
                     // Example:
                     // var test = ko.observable(3).extend({
                     //      max: {
                     //          message: 'This special field has a Max of {0}',
-                    //          params: 2
+                    //          params: 2,
+                    //          onlyIf: function() {
+                    //                      return specialField.IsVisible();
+                    //                  }  
                     //      }
                     //  )};
                     //
-                    if (params.message) { //if it has a message object, then its an object literal to use
+                    if (params.message || params.onlyIf) { //if it has a message object or condition, then its an object literal to use
                         return ko.validation.addRule(observable, {
                             rule: ruleName,
                             message: params.message,
-                            params: params.params || true
+                            params: params.params || true,
+                            condition: params.onlyIf
                         });
                     } else {
                         return ko.validation.addRule(observable, {
@@ -828,6 +833,8 @@
 
             //get the core Rule to use for validation
             rule = ko.validation.rules[ctx.rule];
+
+            if(ctx.condition && !ctx.condition()) continue;
 
             if (rule['async'] || ctx['async']) {
                 //run async validation
