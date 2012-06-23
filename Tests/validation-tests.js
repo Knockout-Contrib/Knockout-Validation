@@ -46,6 +46,7 @@ test('Empty spaces is not a valid value for required', function () {
 
 //#endregion
 
+
 //#region Min Validation
 
 module('Min Validation');
@@ -532,6 +533,56 @@ test('Custom Message Correctly appears', function () {
 });
 
 //#endregion
+
+
+//#region Conditional Validation
+
+module('Conditional Validation in a rule');
+test('isValid always returns True when onlyIf Condition evaluates to false', function () {
+
+    var testObj = ko.observable('something').extend({
+        required: {
+            onlyIf: function() { return false; }
+        }
+    });
+
+    testObj('');
+
+    equal(testObj(), '', 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('isValid returns False When onlyIf Condition evaluates to true and Value is invalid', function () {
+
+    var testObj = ko.observable('something').extend({
+        required: {
+            onlyIf: function() { return true; }
+        }
+    });
+
+    testObj('');
+
+    equal(testObj(), '', 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is not Valid');
+});
+
+test('Changing the value of observable used in onlyIf condition triggers validation', function () {
+    var person = {
+        isMarried: ko.observable(false).extend({ required: true }),
+    };
+    person.spouseName = ko.observable('').extend({ 
+                          required: { onlyIf: person.isMarried } 
+                        });
+    
+    person.isMarried(false);
+    ok(person.spouseName.isValid(), 'Unmarried person is valid without spouse name')
+
+    person.isMarried(true);   
+    equal(person.spouseName.isValid(), false, 'Married person is not valid without spouse name')    
+});
+
+//#endregion
+
 
 //#region Anonymous Rule Validation
 
