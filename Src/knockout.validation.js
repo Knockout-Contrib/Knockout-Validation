@@ -871,9 +871,6 @@
         obsv.isValid = ko.computed(function () {
             return obsv.errors().length === 0;
         });
-        obsv.isAnyMessageShown = ko.computed(function () {
-            return initialValue.isAnyMessageShown();
-        });
 
         return obsv;
     };
