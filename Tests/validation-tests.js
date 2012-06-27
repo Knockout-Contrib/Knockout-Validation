@@ -1027,3 +1027,65 @@ asyncTest('Async Rule Is NOT Valid Test', function () {
 });
 
 //#endregion
+
+//#region error details
+
+module('error details');
+
+test('errorDetails property is filled when not valid', function () {
+    var testObj = ko.observable('').extend({ required: true });
+
+    equal(testObj.isValid(), false);
+    equal(testObj.error, ko.validation.rules.required.message);
+
+    ok(testObj.hasOwnProperty('errorDetails'), 'errorDetails property does not exist.');
+    equal(testObj.errorDetails.rule, ko.validation.rules.required);
+    equal(testObj.errorDetails.params, true);
+    equal(testObj.errorDetails.observable, testObj);
+    equal(testObj.errorDetails.message, ko.validation.rules.required.message)
+});
+
+test('errorDetails property is null when valid', function () {
+    var testObj = ko.observable('').extend({ required: true });
+    equal(testObj.isValid(), false);
+
+    testObj('a value');
+
+    equal(testObj.isValid(), true);
+    equal(testObj.errorDetails.rule, null);
+});
+
+asyncTest('errorDetails property is filled when not valid async', function () {
+
+    ko.validation.rules['mustEqualAsync'] = {
+        async: true,
+        validator: function (val, otherVal, callBack) {
+            var isValid = (val === otherVal);
+            setTimeout(function () {
+                callBack(isValid);
+                doAssertions();
+
+                start();
+            }, 10);
+        },
+        message: 'The field must equal {0}'
+    };
+    ko.validation.registerExtenders(); //make sure the new rule is registered
+
+
+    var testObj = ko.observable(4);
+
+    var doAssertions = function () {
+        ok(testObj.hasOwnProperty('errorDetails'), 'errorDetails property does not exist.');
+        equal(testObj.errorDetails.rule, ko.validation.rules['mustEqualAsync']);
+        equal(testObj.errorDetails.params, 5);
+        equal(testObj.errorDetails.observable, testObj);
+        equal(testObj.errorDetails.message, 'The field must equal 5')
+    };
+
+    testObj.extend({ mustEqualAsync: 5 });
+
+
+});
+
+//#endregion
