@@ -21,8 +21,9 @@
         errorElementClass: 'validationElement',  //class to decorate error element
         errorMessageClass: 'validationMessage',  //class to decorate error message
         grouping: {
-            deep: false,        //by default grouping is shallow
-            observable: true    //and using observables
+            deep: false,            //by default grouping is shallow
+            observable: true,       //and using observables
+            errorDetails: false     //insert plain error messages
         }
     };
 
@@ -207,7 +208,7 @@
                         var errors = [];
                         ko.utils.arrayForEach(validatables(), function (observable) {
                             if (!observable.isValid()) {
-                                errors.push(observable.error);
+                                errors.push(options.errorDetails ? observable.errorDetails : observable.error);
                             }
                         });
                         return errors;
@@ -220,7 +221,7 @@
                         traverse(obj); // and traverse tree again
                         ko.utils.arrayForEach(validatables(), function (observable) {
                             if (!observable.isValid()) {
-                                errors.push(observable.error);
+                                errors.push(options.errorDetails ? observable.errorDetails : observable.error);
                             }
                         });
                         return errors;

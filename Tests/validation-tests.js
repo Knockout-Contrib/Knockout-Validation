@@ -1052,7 +1052,7 @@ test('errorDetails property is null when valid', function () {
     testObj('a value');
 
     equal(testObj.isValid(), true);
-    equal(testObj.errorDetails.rule, null);
+    equal(testObj.errorDetails, null);
 });
 
 asyncTest('errorDetails property is filled when not valid async', function () {
@@ -1084,8 +1084,31 @@ asyncTest('errorDetails property is filled when not valid async', function () {
     };
 
     testObj.extend({ mustEqualAsync: 5 });
-
-
 });
 
+test('group with errorDetails options works - Not Observable', function () {
+    var vm = {
+        firstName: ko.observable().extend({ required: true }),
+        lastName: ko.observable().extend({ required: 2 })
+    };
+
+    var errors = ko.validation.group(vm, { errorDetails: true, observable: false });
+
+    equals(errors().length, 2, 'Grouping correctly finds 2 invalid properties');
+    equals(errors()[0], vm.firstName.errorDetails, 'group with errorDetails returns list of errorDetails');
+    equals(errors()[1], vm.lastName.errorDetails, 'group with errorDetails returns list of errorDetails');
+});
+
+test('group with errorDetails options works - Observable', function () {
+    var vm = {
+        firstName: ko.observable().extend({ required: true }),
+        lastName: ko.observable().extend({ required: 2 })
+    };
+
+    var errors = ko.validation.group(vm, { errorDetails: true, observable: true });
+
+    equals(errors().length, 2, 'Grouping correctly finds 2 invalid properties');
+    equals(errors()[0], vm.firstName.errorDetails, 'group with errorDetails returns list of errorDetails');
+    equals(errors()[1], vm.lastName.errorDetails, 'group with errorDetails returns list of errorDetails');
+});
 //#endregion
