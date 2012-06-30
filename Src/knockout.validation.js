@@ -788,6 +788,9 @@
             var isValid = false,
                 msg = '';
 
+            // tell it that we're done
+            observable.isValidating(false);
+
             if (!observable.__valid__()) {
                 return; //if its already NOT valid, don't add to that
             }
@@ -806,7 +809,6 @@
 
             //not valid, so format the error message and stick it in the 'error' variable
             observable.error = ko.validation.formatMessage(msg || ctx.message || rule.message, ctx.params);
-            observable.isValidating(false);
             observable.__valid__(isValid);
         };
 
