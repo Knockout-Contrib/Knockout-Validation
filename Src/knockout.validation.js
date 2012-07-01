@@ -10,21 +10,25 @@
 
     if (typeof (ko) === undefined) { throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in'; }
 
-    var configuration = {
+    var defaults = {
         registerExtenders: true,
         messagesOnModified: true,
-        messageTemplate: null, 
-        insertMessages: true,
-        parseInputAttributes: false,
-        decorateElement: false,         //false to keep backward compatibility
-        errorClass: null,               //single class for error message and element
-        errorElementClass: 'validationElement',  //class to decorate error element
-        errorMessageClass: 'validationMessage',  //class to decorate error message
+        messageTemplate: null,
+        insertMessages: true,           // automatically inserts validation messages as <span></span>
+        parseInputAttributes: false,    // parses the HTML5 validation attribute from a form element and adds that to the object
+        writeInputAttributes: false,    // adds HTML5 input validation attributes to form elements that ko observable's are bound to
+        decorateElement: false,         // false to keep backward compatibility
+        errorClass: null,               // single class for error message and element
+        errorElementClass: 'validationElement',  // class to decorate error element
+        errorMessageClass: 'validationMessage',  // class to decorate error message
         grouping: {
             deep: false,        //by default grouping is shallow
             observable: true    //and using observables
         }
     };
+
+    // make a copy  so we can use 'reset' later
+    var configuration = $.extend({}, defaults);
 
     var html5Attributes = ['required', 'pattern', 'min', 'max', 'step'];
 
@@ -154,9 +158,19 @@
 
                 isInitialized = 1;
             },
-            //backwards compatability
+            // backwards compatability
             configure: function (options) { ko.validation.init(options); },
 
+            // resets the config back to its original state
+            reset: function () { configuration = $.extend(configuration, defaults); },
+
+            // recursivly walks a viewModel and creates an object that
+            // provides validation information for the entire viewModel
+            // obj -> the viewModel to walk
+            // options -> {
+            //      deep: false, // if true, will walk past the first level of viewModel properties
+            //      observable: false // if true, returns a computed observable indicating if the viewModel is valid
+            // }
             group: function group(obj, options) { // array of observables or viewModel
                 var options = ko.utils.extend(configuration.grouping, options),
                 validatables = ko.observableArray([]),
@@ -378,6 +392,36 @@
                         });
                     }
                 });
+            },
+
+            // writes html5 validation attributes on the element passed in
+            writeInputValidationAttributes: function (element, valueAccessor) {
+                var observable = valueAccessor();
+
+                if (!observable || !observable.rules) {
+                    return;
+                }
+
+                var contexts = observable.rules(); // observable array
+                var $el = $(element);
+
+                // loop through the attributes and add the information needed
+                ko.utils.arrayForEach(html5Attributes, function (attr) {
+
+                    var ctx = ko.utils.arrayFirst(contexts, function(ctx){
+                        return ctx.rule.toLowerCase() === attr.toLowerCase();
+                    });
+
+                    if (!ctx)
+                        return;
+
+                    // we have a rule matching a validation attribute at this point
+                    // so lets add it to the element along with the params
+                    $el.attr(attr, ctx.params);
+                });
+
+                contexts = null;
+                $el = null;
             }
         };
     } ());
@@ -569,34 +613,63 @@
     //#endregion
 
     //#region Knockout Binding Handlers
-    //setup the 'init' bindingHandler override where we inject validation messages
-    (function () {
-        var init = ko.bindingHandlers.value.init;
 
-        ko.bindingHandlers.value.init = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+    // The core binding handler
+    // this allows us to setup any value binding that internally always
+    // performs the same functionality
+    ko.bindingHandlers['validationCore'] = (function () {
+
+        return {
+            init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+                var config = utils.getConfigOptions(element);
+
+                // parse html5 input validation attributes, optional feature
+                if (config.parseInputAttributes) {
+                    async(function () { ko.validation.parseInputValidationAttributes(element, valueAccessor) });
+                }
+
+                // if requested insert message element and apply bindings
+                if (config.insertMessages && utils.isValidatable(valueAccessor())) {
+
+                    // insert the <span></span>
+                    var validationMessageElement = ko.validation.insertValidationMessage(element);
+
+                    // if we're told to use a template, make sure that gets rendered
+                    if (config.messageTemplate) {
+                        ko.renderTemplate(config.messageTemplate, { field: valueAccessor() }, null, validationMessageElement, 'replaceNode');
+                    } else {
+                        ko.applyBindingsToNode(validationMessageElement, { validationMessage: valueAccessor() });
+                    }
+                }
+
+                // write the html5 attributes if indicated by the config
+                if (config.writeInputAttributes && utils.isValidatable(valueAccessor())) {
+
+                    ko.validation.writeInputValidationAttributes(element, valueAccessor);
+                }
+
+                // if requested, add binding to decorate element
+                if (config.decorateElement && utils.isValidatable(valueAccessor())) {
+                    ko.applyBindingsToNode(element, { validationElement: valueAccessor() });
+                }
+            },
+
+            update: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+                // hook for future extensibility
+            }
+        };
+
+    }());
+
+    // override for KO's default 'value' binding
+    (function () {
+        var init = ko.bindingHandlers['value'].init;
+
+        ko.bindingHandlers['value'].init = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 
             init(element, valueAccessor, allBindingsAccessor);
 
-            var config = utils.getConfigOptions(element);
-
-            // parse html5 input validation attributes, optional feature
-            if (config.parseInputAttributes) {
-                async(function () { ko.validation.parseInputValidationAttributes(element, valueAccessor) });
-            }
-
-            //if requested insert message element and apply bindings
-            if (config.insertMessages && utils.isValidatable(valueAccessor())) {
-                var validationMessageElement = ko.validation.insertValidationMessage(element);
-                if (config.messageTemplate) {
-                    ko.renderTemplate(config.messageTemplate, { field: valueAccessor() }, null, validationMessageElement, 'replaceNode');
-                } else {
-                    ko.applyBindingsToNode(validationMessageElement, { validationMessage: valueAccessor() });
-                }
-            }
-            //if requested add binding to decorate element
-            if (config.decorateElement && utils.isValidatable(valueAccessor())) {
-                ko.applyBindingsToNode(element, { validationElement: valueAccessor() });
-            }
+            return ko.bindingHandlers['validationCore'].init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
         };
     } ());
 
