@@ -329,7 +329,7 @@
                         return ko.validation.addRule(observable, {
                             rule: ruleName,
                             message: params.message,
-                            params: params.params || true
+                            params: utils.isEmptyVal(params.params) ? true : params.params
                         });
                     } else {
                         return ko.validation.addRule(observable, {

@@ -667,6 +667,28 @@ test("Issue #43 - Grouping - Error messages are not switched correctly", functio
     ok(!vm.testObj.isValid(), vm.testObj.error);
     ok(vm.testObj.error.indexOf('enter a value less than') > -1, "Max rule was correctly triggered");
 });
+
+test('Issue #78 - Falsy Params', function () {
+    var testObj = ko.observable('')
+                    .extend({
+                        min: {
+                            message: 'something',
+                            params: 0
+                        }
+                    });
+
+    testObj(1);
+
+    equal(testObj(), 1, 'observable still works');
+    equal(testObj.isValid(), true, 'testObj is valid');
+
+    testObj(0);
+    equal(testObj.isValid(), true, 'testObj is valid');
+
+    testObj(-1);
+    equal(testObj.isValid(), false, 'testObj is not valid');
+
+});
 //#endregion
 
 //#region Equal tests
