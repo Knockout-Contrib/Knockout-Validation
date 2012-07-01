@@ -344,6 +344,15 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, testObj.error);
 });
 
+test('Object is NOT Valid and isValid returns False when domain is invalid', function () {
+    var testObj = ko.observable('').extend({ email: true });
+
+    testObj('text@example_new.com');
+
+    equal(testObj(), 'text@example_new.com', 'observable still works');
+    equal(testObj.isValid(), false, testObj.error);
+});
+
 //#endregion
 
 //#region Date Validation
