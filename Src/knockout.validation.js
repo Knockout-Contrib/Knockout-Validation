@@ -458,7 +458,10 @@
 
     ko.validation.rules['step'] = {
         validator: function (val, step) {
-            return utils.isEmptyVal(val) || val % step === 0;
+
+            // in order to handle steps of .1 & .01 etc.. Modulus won't work
+            // if the value is a decimal, so we have to correct for that
+            return utils.isEmptyVal(val) || (val * 100) % (step * 100) === 0;
         },
         message: 'The value must increment by {0}'
     };

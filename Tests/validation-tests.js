@@ -282,6 +282,37 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
 
+test('Issue 74 - Object is Valid with a step of 0.1 and isValid returns True', function () {
+    var testObj = ko.observable('')
+                    .extend({ step: 0.1 });
+
+    testObj(6);
+
+    equal(testObj(), 6, 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+
+test('Issue 74 - Object is Valid with a step of 0.1 and incremented by 0.1 and isValid returns True', function () {
+    var testObj = ko.observable(6)
+                    .extend({ step: 0.1 });
+
+    testObj(6.1);
+
+    equal(testObj(), 6.1, 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Issue 74 - Object is NOT Valid with a step of 0.1 and isValid returns False', function () {
+    var testObj = ko.observable('')
+                    .extend({ step: 0.1 });
+
+    testObj(5);
+    testObj(5.15);
+
+    equal(testObj(), 5.15, 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is not valid');
+});
 //#endregion
 
 //#region Email Validation
