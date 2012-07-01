@@ -938,6 +938,46 @@ test('validatedObservable is first Valid then made InValid', function () {
     ok(!obj.isValid(), obj.errors()[0]);
 
 });
+
+test('validatedObservable does not show error message when not modified', function () {
+    var obj = ko.validatedObservable({
+        testObj: ko.observable('a').extend({ minLength: 5 }),
+        testObj2: ko.observable('').extend({ required: true })
+    });
+
+    ok(obj(), 'observable works');
+    ok(!obj().isAnyMessageShown(), 'validation error message is hidden');
+
+});
+
+
+test('validatedObservable does not show error message when modified but correct', function () {
+    var obj = ko.validatedObservable({
+        testObj: ko.observable('a').extend({ minLength: 5 }),
+        testObj2: ko.observable('').extend({ required: true })
+    });
+
+    obj().testObj('12345');
+    obj().testObj2('a');
+
+    ok(obj(), 'observable works');
+    ok(!obj().isAnyMessageShown(), 'validation error message is hidden');
+
+});
+
+test('validatedObservable show error message when at least one invalid and modified', function () {
+    var obj = ko.validatedObservable({
+        testObj: ko.observable('a').extend({ minLength: 5 }),
+        testObj2: ko.observable('').extend({ required: true })
+    });
+
+    obj().testObj.isModified(true);
+
+    ok(obj(), 'observable works');
+    ok(obj().isAnyMessageShown(), 'validation error message is shown');
+
+});
+
 //#endregion
 
 //#region Removing Validation
