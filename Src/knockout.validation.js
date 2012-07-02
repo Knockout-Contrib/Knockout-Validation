@@ -403,7 +403,6 @@
                 }
 
                 var contexts = observable.rules(); // observable array
-                var $el = $(element);
 
                 // loop through the attributes and add the information needed
                 ko.utils.arrayForEach(html5Attributes, function (attr) {
@@ -426,11 +425,10 @@
 
                     // we have a rule matching a validation attribute at this point
                     // so lets add it to the element along with the params
-                    $el.attr(attr, params);
+                    element.setAttribute(attr, params);
                 });
 
                 contexts = null;
-                $el = null;
             }
         };
     } ());
