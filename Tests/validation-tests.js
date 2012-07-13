@@ -332,7 +332,7 @@ test('Object is Valid and isValid returns True', function () {
     testObj('test@example.com');
 
     equal(testObj(), 'test@example.com', 'observable still works');
-    ok(testObj.isValid(), 'testObj is Valid');
+    ok( testObj.isValid(), 'testObj is Valid' );
 });
 
 test('Object is NOT Valid and isValid returns False', function () {
@@ -341,7 +341,8 @@ test('Object is NOT Valid and isValid returns False', function () {
     testObj('text#example.com');
 
     equal(testObj(), 'text#example.com', 'observable still works');
-    equal(testObj.isValid(), false, testObj.error);
+    equal( testObj.isValid(), false, testObj.error );
+    equal( testObj.error, 'Please enter a proper email address', "Error Message Needs to be formatted correctly" );
 });
 
 //#endregion
