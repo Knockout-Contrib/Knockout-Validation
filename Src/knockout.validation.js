@@ -1,4 +1,3 @@
-/// <reference path="../Lib/knockout-latest.debug.js" />
 /*
 *   Knockout Validation
 *   Created By Eric M. Barnard (https://github.com/ericmbarnard)
@@ -28,7 +27,7 @@
     };
 
     // make a copy  so we can use 'reset' later
-    var configuration = $.extend({}, defaults);
+    var configuration = ko.utils.extend({}, defaults);
 
     var html5Attributes = ['required', 'pattern', 'min', 'max', 'step'];
 
