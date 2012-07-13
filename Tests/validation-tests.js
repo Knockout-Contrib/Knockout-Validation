@@ -629,6 +629,47 @@ test( 'Issue #81 - Dynamic messages', function () {
     equal( testObj.error, 'after', 'testObj changes messages dynamically' );
 });
 
+test( 'Dynamic messages with subscribe to isValid observable', function() {
+    var CustomRule = function() {
+        var self = this;
+        
+        this.message = 'before';
+        this.params = 0;
+        
+        this.validator = function ( val, params ) {
+            if( val == 0 )
+            	return true;
+            if( val == 1 )
+                self.message = 'one';
+            if( val == 2 )
+            	self.message = 'two';
+            	
+            return false;
+        };
+    };
+    
+    var testObj = ko.observable( 0 ).extend( {
+    	validation: new CustomRule()
+    });
+    
+    var newMsg = '';
+    testObj.isValid.subscribe(function() {
+    	newMsg = testObj.error;
+    });
+    
+    equal( testObj.isValid(), true, 'testObj is valid' );
+    
+    testObj( 1 );
+    
+    equal( testObj.isValid(), false, 'testObj is not valid' );
+    equal( newMsg, testObj.error, 'message changed to one when isValid changed' );
+        
+    testObj( 2 );
+
+    equal( testObj.isValid(), false, 'testObj is not valid' );
+    equal( newMsg, testObj.error, 'message changed to two when isValid changed');
+});
+
 //#endregion
 
 //#region Anonymous Rule Validation
