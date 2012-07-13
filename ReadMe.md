@@ -6,8 +6,11 @@ Contributors:
 * [Eric Barnard](https://github.com/ericmbarnard)
 * [Andy Booth](https://github.com/andybooth)
 * [Michal Poreba](https://github.com/michalporeba)
+* and many others!
 
 License: [MIT](http://www.opensource.org/licenses/mit-license.php)
+
+###NuGet: [Knockout.Validation](http://nuget.org/packages/Knockout.Validation)
 
 Tested in IE 6+, FF7, Chrome 15
 ##Getting Started
