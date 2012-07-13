@@ -603,6 +603,32 @@ test('Object is Valid and isValid returns True', function () {
     equal(testObj.error, 'Must Equal 5', 'Error Message Matches');
 });
 
+
+test( 'Issue #81 - Dynamic messages', function () {
+
+    var CustomRule = function () {
+        var self = this;
+        
+        this.message = 'before';
+        this.params = 0;
+
+        this.validator = function ( val, params ) {
+            self.message = 'after';
+
+            return false;
+        };
+    };
+
+    var testObj = ko.observable( 3 ).extend( {
+        validation: new CustomRule()
+    });
+
+    testObj( 4 );
+
+    equal( testObj.isValid(), false, 'testObj is not valid' );
+    equal( testObj.error, 'after', 'testObj changes messages dynamically' );
+});
+
 //#endregion
 
 //#region Anonymous Rule Validation
