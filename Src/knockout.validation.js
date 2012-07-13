@@ -889,10 +889,11 @@
             var isValid = false,
                 msg = '';
 
-            // tell it that we're done
-            observable.isValidating(false);
-
             if (!observable.__valid__()) {
+
+                // since we're returning early, make sure we turn this off
+                observable.isValidating(false);
+
                 return; //if its already NOT valid, don't add to that
             }
 
@@ -904,13 +905,14 @@
                 isValid = valObj;
             }
 
-            if (isValid) {//its VALID, so don't mess up anything that may have happened synchronously earlier on
-                return;
+            if (!isValid) {
+                //not valid, so format the error message and stick it in the 'error' variable
+                observable.error = ko.validation.formatMessage(msg || ctx.message || rule.message, ctx.params);
+                observable.__valid__(isValid);
             }
 
-            //not valid, so format the error message and stick it in the 'error' variable
-            observable.error = ko.validation.formatMessage(msg || ctx.message || rule.message, ctx.params);
-            observable.__valid__(isValid);
+            // tell it that we're done
+            observable.isValidating(false);
         };
 
         //fire the validator and hand it the callback
