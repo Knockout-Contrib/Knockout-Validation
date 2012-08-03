@@ -345,6 +345,14 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal( testObj.error, 'Please enter a proper email address', "Error Message Needs to be formatted correctly" );
 });
 
+test('Email with invalid domain', function(){
+    var testObj = ko.observable().extend({ email: true });
+
+    testObj("john@abc.com123");
+
+    equal( testObj.isValid(), false, testObj.error );
+    equal( testObj.error, 'Please enter a proper email address');
+})
 //#endregion
 
 //#region Date Validation
