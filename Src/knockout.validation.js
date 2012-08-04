@@ -67,7 +67,7 @@
                 return node.getAttribute(attr) !== null;
             },
             isValidatable: function (o) {
-                return o.rules && o.isValid && o.isModified;
+                return o && o.rules && o.isValid && o.isModified;
             },
             insertAfter: function (node, newNode) {
                 node.parentNode.insertBefore(newNode, node.nextSibling);
@@ -690,12 +690,12 @@
                 msg = null,
                 isModified = false,
                 isValid = false;
-                
+
             obsv.extend({ validatable: true });
 
             isModified = obsv.isModified();
             isValid = obsv.isValid();
-            
+
             // create a handler to correctly return an error message
             var errorMsgAccessor = function () {
                 if (!config.messagesOnModified || isModified) {
@@ -876,6 +876,8 @@
 
             //not valid, so format the error message and stick it in the 'error' variable
             observable.error = ko.validation.formatMessage(ctx.message || rule.message, ctx.params);
+            observable.errorRule = rule;
+            observable.errorContext = ctx;
             observable.__valid__(false);
             return false;
         } else {
@@ -926,6 +928,14 @@
             ctx, // the current Rule Context for the loop
             ruleContexts = observable.rules(), //cache for iterator
             len = ruleContexts.length; //cache for iterator
+        
+            // If there is an assigned error rule then check to see if it is still an error, if it isn't reset the valid status
+            if(observable.errorRule) {
+                if(validateSync(observable,observable.errorRule,observable.errorContext)) {
+                    observable.error = null;
+                    observable.__valid__(true);
+                }
+            }
 
         for (; i < len; i++) {
 
