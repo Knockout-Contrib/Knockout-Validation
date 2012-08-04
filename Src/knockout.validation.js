@@ -807,7 +807,7 @@
     ko.extenders['validatable'] = function (observable, enable) {
         if (enable && !utils.isValidatable(observable)) {
 
-            observable.error = null; // holds the error message, we only need one since we stop processing validators when one is invalid
+            observable.error = ko.observable(null); // holds the error message, we only need one since we stop processing validators when one is invalid
 
             // observable.rules:
             // ObservableArray of Rule Contexts, where a Rule Context is simply the name of a rule and the params to supply to it
@@ -875,7 +875,7 @@
         if (!rule.validator(observable(), ctx.params === undefined ? true : ctx.params)) { // default param is true, eg. required = true
 
             //not valid, so format the error message and stick it in the 'error' variable
-            observable.error = ko.validation.formatMessage(ctx.message || rule.message, ctx.params);
+            observable.error(ko.validation.formatMessage(ctx.message || rule.message, ctx.params));
             observable.__valid__(false);
             return false;
         } else {
@@ -908,7 +908,7 @@
 
             if (!isValid) {
                 //not valid, so format the error message and stick it in the 'error' variable
-                observable.error = ko.validation.formatMessage(msg || ctx.message || rule.message, ctx.params);
+                observable.error(ko.validation.formatMessage(msg || ctx.message || rule.message, ctx.params));
                 observable.__valid__(isValid);
             }
 
@@ -951,7 +951,7 @@
             }
         }
         //finally if we got this far, make the observable valid again!
-        observable.error = null;
+        observable.error(null);
         observable.__valid__(true);
         return true;
     };
