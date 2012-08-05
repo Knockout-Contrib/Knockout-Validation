@@ -1004,14 +1004,14 @@ test('Changing the value of observable used in onlyIf condition triggers validat
     var person = {
         isMarried: ko.observable(false).extend({ required: true }),
     };
-    person.spouseName = ko.observable('').extend({ 
-                          required: { onlyIf: person.isMarried } 
+    person.spouseName = ko.observable('').extend({
+                          required: { onlyIf: person.isMarried }
                         });
     person.isMarried(false);
     ok(person.spouseName.isValid(), 'Unmarried person is valid without spouse name')
 
-    person.isMarried(true);   
-    equal(person.spouseName.isValid(), false, 'Married person is not valid without spouse name')    
+    person.isMarried(true);
+    equal(person.spouseName.isValid(), false, 'Married person is not valid without spouse name')
 });
 //#endregion
 
