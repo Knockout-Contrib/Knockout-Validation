@@ -312,7 +312,7 @@
                 var ruleName = utils.newId();
 
                 if ( ruleObj['message'] === undefined ) {
-                    rulesObj['message'] = 'Error';
+                    ruleObj['message'] = 'Error';
                 }
 
                 //Create an anonymous rule to reference
