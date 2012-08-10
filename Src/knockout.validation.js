@@ -276,6 +276,8 @@
             },
 
             formatMessage: function (message, params) {
+                if (typeof (message) === 'function')
+                    return message(params);
                 return message.replace(/\{0\}/gi, params);
             },
 
