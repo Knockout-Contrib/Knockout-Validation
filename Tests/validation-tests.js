@@ -386,6 +386,76 @@ test('Object is NOT Valid and isValid returns False', function () {
 
 //#endregion
 
+//#region futureDate Validation
+
+module('Future Date Validation');
+
+test('Future date valid', function () {
+    var testObj = ko.observable().extend({
+        futureDate: { format: 'dmy', delimiter: '/' }
+    });
+    var now = new Date();
+    var futureDate = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+    var futureDateString = futureDate.getDate() + "/" + (futureDate.getMonth() + 1) + "/" + futureDate.getFullYear();
+
+    testObj(futureDateString);
+
+    equal(testObj(), futureDateString, "Future date format preserved");
+    ok(testObj.isValid(), "Future date validation failed");
+
+});
+
+test('Future date invalid', function () {
+    var testObj = ko.observable().extend({
+        futureDate: { format: 'dmy', delimiter: '/' }
+    });
+    var now = new Date();
+    var previousDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+    var previousDateString = previousDate.getDate() + "/" + (previousDate.getMonth() + 1) + "/" + previousDate.getFullYear();
+    
+    testObj(previousDateString);
+
+    equal(testObj.isValid(), false, "Future date validation failed for an historic date");
+
+});
+
+//#endregion
+
+//#region historicDate Validation
+
+module('Historic Date Validation');
+
+test('Historic date valid', function () {
+    var testObj = ko.observable().extend({
+        historicDate: { format: 'dmy', delimiter: '/' }
+    });
+    var now = new Date();
+    var futureDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+    var futureDateString = futureDate.getDate() + "/" + (futureDate.getMonth() + 1) + "/" + futureDate.getFullYear();
+
+    testObj(futureDateString);
+
+    equal(testObj(), futureDateString, "Historic date format preserved");
+    ok(testObj.isValid(), "Historic date validation failed");
+
+});
+
+test('Historic date invalid', function () {
+    var testObj = ko.observable().extend({
+        historicDate: { format: 'dmy', delimiter: '/' }
+    });
+    var now = new Date();
+    var previousDate = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+    var previousDateString = previousDate.getDate() + "/" + (previousDate.getMonth() + 1) + "/" + previousDate.getFullYear();
+    
+    testObj(previousDateString);
+
+    equal(testObj.isValid(), false, "Historic date validation failed for a future date");
+
+});
+
+//#endregion
+
 //#region formattedDate Validation
 
 module('Formatted Date Validation');

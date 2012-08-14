@@ -121,7 +121,7 @@
                 }
             },
             parseDate: function (dateToValidate, dateFormat, delimiter) {
-                
+
                 // Parses a date string in a given format and returns
                 // a Date object if the parsing was successful, or null
                 // if parsing failed
@@ -206,7 +206,7 @@
                 var parsedDate = new Date(
                     yearNumber,
                     monthNumber - 1,
-                    dayNumber);                
+                    dayNumber);
 
                 if (parsedDate == "Invalid Date") {
                     // The date is invalid
@@ -218,7 +218,7 @@
                 }
             }
         };
-    }());
+    } ());
 
     //#endregion
 
@@ -528,7 +528,7 @@
                 contexts = null;
             }
         };
-    }());
+    } ());
     //#endregion
 
     //#region Core Validation Rules
@@ -624,7 +624,7 @@
             //I think an empty email address is also a valid entry
             //if one want's to enforce entry it should be done with 'required: true'
             return utils.isEmptyVal(val) || (
-                // jquery validate regex - thanks Scott Gonzalez
+            // jquery validate regex - thanks Scott Gonzalez
                 validate && /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i.test(val)
             );
         },
@@ -638,6 +638,26 @@
         message: 'Please enter a proper date'
     };
 
+    ko.validation.rules['futureDate'] = {
+        validator: function (dateToValidate, dateFormat) {
+            var now = new Date();
+            
+            var parsedDate = utils.parseDate(dateToValidate, dateFormat.format, dateFormat.delimiter);
+            return utils.isEmptyVal(dateToValidate) || parsedDate > now;
+        },
+        message: 'The date must be in the future'
+    };
+
+    ko.validation.rules['historicDate'] = {
+        validator: function (dateToValidate, dateFormat) {
+            var now = new Date();
+
+            var parsedDate = utils.parseDate(dateToValidate, dateFormat.format, dateFormat.delimiter);
+            return utils.isEmptyVal(dateToValidate) || parsedDate < now;
+        },
+        message: 'The date must be before today'
+    };
+
     ko.validation.rules['formattedDate'] = {
         validator: function (dateToValidate, dateFormat) {
 
@@ -645,10 +665,10 @@
 
             The dateFormat argument must be in the following format:
 
-                { 
-                    format: 'dmy', 
-                    delimiter: '/' 
-                }
+            { 
+            format: 'dmy', 
+            delimiter: '/' 
+            }
 
             The format propery specified the order of the day, month
             and year components of the date.
@@ -658,10 +678,10 @@
 
             The above example will accept dates in the following formats:
 
-                dd/mm/yy
-                dd/mm/yyyy
-                d/m/yy
-                d/m/yyyy
+            dd/mm/yy
+            dd/mm/yyyy
+            d/m/yy
+            d/m/yyyy
 
             *********************************************************/
             var parsedDate = utils.parseDate(dateToValidate, dateFormat.format, dateFormat.delimiter);
@@ -746,7 +766,7 @@
     //now register all of these!
     (function () {
         ko.validation.registerExtenders();
-    }());
+    } ());
 
     //#endregion
 
@@ -797,7 +817,7 @@
             }
         };
 
-    }());
+    } ());
 
     // override for KO's default 'value' binding
     (function () {
@@ -809,7 +829,7 @@
 
             return ko.bindingHandlers['validationCore'].init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
         };
-    }());
+    } ());
 
 
     ko.bindingHandlers['validationMessage'] = { // individual error message, if modified or post binding
@@ -900,7 +920,7 @@
                 }
             }
         };
-    }());
+    } ());
     //#endregion
 
     //#region Knockout Extenders
