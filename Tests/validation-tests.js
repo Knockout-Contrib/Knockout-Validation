@@ -396,8 +396,17 @@ test('Object is Valid and isValid returns True', function () {
         formattedDate: { format: 'dmy', delimiter: '/' }
     });
 
-    equal(testObj(), '14/08/2012', 'observable still works');    
+    equal(testObj(), '14/08/2012', 'observable still works');
     equal(testObj.isValid(), true, testObj.error);
+});
+
+test('Leap year valid', function () {
+
+    var testObj = ko.observable('29/02/2012').extend({
+        formattedDate: { format: 'dmy', delimiter: '/' }
+    });
+    
+    ok(testObj.isValid(), 'Leap year is invalid');
 });
 
 //#endregion
