@@ -390,7 +390,7 @@ test('Object is NOT Valid and isValid returns False', function () {
 
 module('Formatted Date Validation');
 
-test('Object is Valid and isValid returns True', function () {
+test('Valid dd/mm/yyyy date', function () {
 
     var testObj = ko.observable('14/08/2012').extend({
         formattedDate: { format: 'dmy', delimiter: '/' }
@@ -400,13 +400,87 @@ test('Object is Valid and isValid returns True', function () {
     equal(testObj.isValid(), true, testObj.error);
 });
 
+test('Valid d/m/yy date', function () {
+
+    var testObj = ko.observable('5/9/12').extend({
+        formattedDate: { format: 'dmy', delimiter: '/' }
+    });
+
+    equal(testObj(), '5/9/12', 'observable still works');
+    equal(testObj.isValid(), true, testObj.error);
+});
+
+test('Valid mm/dd/yyyy date', function () {
+
+    var testObj = ko.observable('08/14/2012').extend({
+        formattedDate: { format: 'mdy', delimiter: '/' }
+    });
+
+    equal(testObj(), '08/14/2012', 'observable still works');
+    equal(testObj.isValid(), true, testObj.error);
+});
+
+test('Valid yyyy-mm-dd date', function () {
+
+    var testObj = ko.observable('2012-08-14').extend({
+        formattedDate: { format: 'ymd', delimiter: '-' }
+    });
+
+    equal(testObj.isValid(), true, testObj.error);
+});
+
 test('Leap year valid', function () {
 
-    var testObj = ko.observable('29/02/2012').extend({
+    var testObj = ko.observable('29/02/2016').extend({
         formattedDate: { format: 'dmy', delimiter: '/' }
     });
     
-    ok(testObj.isValid(), 'Leap year is invalid');
+    ok(testObj.isValid(), 'Valid leap year');
+});
+
+test('Leap year invalid', function () {
+
+    var testObj = ko.observable('29/02/2017').extend({
+        formattedDate: { format: 'dmy', delimiter: '/' }
+    });
+    
+    equals(testObj.isValid(), false, 'Invalid leap year');
+});
+
+test('Invalid April date', function () {
+
+    var testObj = ko.observable('31/04/2017').extend({
+        formattedDate: { format: 'dmy', delimiter: '/' }
+    });
+    
+    equals(testObj.isValid(), false, 'Invalid April date');
+});
+
+test('Invalid June date', function () {
+
+    var testObj = ko.observable('31/06/2017').extend({
+        formattedDate: { format: 'dmy', delimiter: '/' }
+    });
+    
+    equals(testObj.isValid(), false, 'Invalid June date');
+});
+
+test('Invalid September date', function () {
+
+    var testObj = ko.observable('31/09/2017').extend({
+        formattedDate: { format: 'dmy', delimiter: '/' }
+    });
+    
+    equals(testObj.isValid(), false, 'Invalid September date');
+});
+
+test('Invalid November date', function () {
+
+    var testObj = ko.observable('31/11/2017').extend({
+        formattedDate: { format: 'dmy', delimiter: '/' }
+    });
+    
+    equals(testObj.isValid(), false, 'Invalid November date');
 });
 
 //#endregion
