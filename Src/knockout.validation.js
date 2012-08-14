@@ -141,6 +141,11 @@
                 var yearIndex = dateFormat.format.indexOf("y");
                 var dateParts = dateToValidate.split(dateFormat.delimiter);
 
+                if (dayIndex < 0 || monthIndex < 0 || yearIndex < 0 || dateParts.length < 3) {
+                    // The supplied date format is incorrect
+                    return false;
+                }
+
                 // Convert the date component parts to numbers
                 var dayNumber = parseInt(dateParts[dayIndex], 10);
                 var monthNumber = parseInt(dateParts[monthIndex], 10);
