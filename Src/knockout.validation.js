@@ -120,7 +120,8 @@
                     return true;
                 }
             },
-            parseDate: function (dateString, dateFormat, delimiter) {
+            parseDate: function (dateToValidate, dateFormat, delimiter) {
+                
                 // Parses a date string in a given format and returns
                 // a Date object if the parsing was successful, or null
                 // if parsing failed
@@ -129,21 +130,21 @@
                 // The example above passes a date in day, month, year format
                 // delimited by a forward slash
 
-                var invalidCharsRegEx = new RegExp("[^0-9" + dateFormat.delimiter + "]");
+                var invalidCharsRegEx = new RegExp("[^0-9" + delimiter + "]");
 
                 if (invalidCharsRegEx.test(dateToValidate)) {
-                    // The given date contains invalid characters
+                    // The given date contains invalid characters                    
                     return false;
                 }
 
-                var dayIndex = dateFormat.format.indexOf("d");
-                var monthIndex = dateFormat.format.indexOf("m");
-                var yearIndex = dateFormat.format.indexOf("y");
-                var dateParts = dateToValidate.split(dateFormat.delimiter);
+                var dayIndex = dateFormat.indexOf("d");
+                var monthIndex = dateFormat.indexOf("m");
+                var yearIndex = dateFormat.indexOf("y");
+                var dateParts = dateToValidate.split(delimiter);
 
                 if (dayIndex < 0 || monthIndex < 0 || yearIndex < 0 || dateParts.length < 3) {
                     // The supplied date format is incorrect
-                    return false;
+                    return null;
                 }
 
                 // Convert the date component parts to numbers
@@ -152,18 +153,18 @@
                 var yearNumber = parseInt(dateParts[yearIndex], 10);
 
                 if (isNaN(dayNumber) || isNaN(monthNumber) || isNaN(yearNumber)) {
-                    // The day, month or year cannot be determined
-                    return false;
+                    // The day, month or year cannot be determined                    
+                    return null;
                 }
 
                 if (dayNumber < 1 || dayNumber > 31) {
-                    // Invalid day
-                    return false;
+                    // Invalid day                    
+                    return null;
                 }
 
                 if (monthNumber < 1 || monthNumber > 12) {
-                    // Invalid month
-                    return false;
+                    // Invalid month                    
+                    return null;
                 }
 
                 if (monthNumber == 2) {
@@ -175,15 +176,15 @@
                     if (leapYear) {
                         // It is a leap year, so there's 29 days
                         if (dayNumber > 29) {
-                            // Invalid day in Feb
-                            return false;
+                            // Invalid day in Feb                            
+                            return null;
                         }
                     }
                     else {
                         // Not a leap year
                         if (dayNumber > 28) {
-                            // It's not a leap year
-                            return false;
+                            // It's not a leap year                            
+                            return null;
                         }
                     }
                 }
@@ -195,8 +196,8 @@
                             monthNumber == 6 ||
                             monthNumber == 9 ||
                             monthNumber == 11) {
-                            // The 31st is invalid
-                            return false;
+                            // The 31st is invalid                            
+                            return null;
                         }
                     }
                 }
@@ -205,12 +206,14 @@
                 var parsedDate = new Date(
                     yearNumber,
                     monthNumber - 1,
-                    dayNumber);
+                    dayNumber);                
 
-                if (parsedDate != "Invalid Date") {
+                if (parsedDate == "Invalid Date") {
+                    // The date is invalid
                     return null;
                 }
                 else {
+                    // The date is valid
                     return parsedDate;
                 }
             }
@@ -661,8 +664,9 @@
                 d/m/yyyy
 
             *********************************************************/
+            var parsedDate = utils.parseDate(dateToValidate, dateFormat.format, dateFormat.delimiter);
 
-            return utils.parseDate(dateToValidate, dateFormat.format, dateFormat.delimiter) != null;
+            return utils.isEmptyVal(dateToValidate) || parsedDate != null;
         },
         message: 'Invalid date'
     };
