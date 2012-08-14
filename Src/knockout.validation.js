@@ -119,9 +119,98 @@
                 if (val === "") {
                     return true;
                 }
+            },
+            parseDate: function (dateString, dateFormat, delimiter) {
+                // Parses a date string in a given format and returns
+                // a Date object if the parsing was successful, or null
+                // if parsing failed
+
+                // Usage: parseDate("14/08/12", "dmy", "/")
+                // The example above passes a date in day, month, year format
+                // delimited by a forward slash
+
+                var invalidCharsRegEx = new RegExp("[^0-9" + dateFormat.delimiter + "]");
+
+                if (invalidCharsRegEx.test(dateToValidate)) {
+                    // The given date contains invalid characters
+                    return false;
+                }
+
+                var dayIndex = dateFormat.format.indexOf("d");
+                var monthIndex = dateFormat.format.indexOf("m");
+                var yearIndex = dateFormat.format.indexOf("y");
+                var dateParts = dateToValidate.split(dateFormat.delimiter);
+
+                // Convert the date component parts to numbers
+                var dayNumber = parseInt(dateParts[dayIndex], 10);
+                var monthNumber = parseInt(dateParts[monthIndex], 10);
+                var yearNumber = parseInt(dateParts[yearIndex], 10);
+
+                if (isNaN(dayNumber) || isNaN(monthNumber) || isNaN(yearNumber)) {
+                    // The day, month or year cannot be determined
+                    return false;
+                }
+
+                if (dayNumber < 1 || dayNumber > 31) {
+                    // Invalid day
+                    return false;
+                }
+
+                if (monthNumber < 1 || monthNumber > 12) {
+                    // Invalid month
+                    return false;
+                }
+
+                if (monthNumber == 2) {
+                    // The month is Feb; see if it's a leap year
+                    var leapYear = (yearNumber % 4 == 0 &&
+                                    (yearNumber % 100 != 0 ||
+                                     yearNumber % 400 == 0));
+
+                    if (leapYear) {
+                        // It is a leap year, so there's 29 days
+                        if (dayNumber > 29) {
+                            // Invalid day in Feb
+                            return false;
+                        }
+                    }
+                    else {
+                        // Not a leap year
+                        if (dayNumber > 28) {
+                            // It's not a leap year
+                            return false;
+                        }
+                    }
+                }
+                else {
+                    // Not February
+                    if (dayNumber == 31) {
+                        // It's the 31st day
+                        if (monthNumber == 4 ||
+                            monthNumber == 6 ||
+                            monthNumber == 9 ||
+                            monthNumber == 11) {
+                            // The 31st is invalid
+                            return false;
+                        }
+                    }
+                }
+
+                // Try to create a new dateobject
+                var parsedDate = new Date(
+                    yearNumber,
+                    monthNumber - 1,
+                    dayNumber);
+
+                if (parsedDate != "Invalid Date") {
+                    return null;
+                }
+                else {
+                    return parsedDate;
+                }
             }
         };
-    } ());
+    }());
 
     //#endregion
 
@@ -258,12 +347,12 @@
                 obj.isValid = function () {
                     return obj.errors().length === 0;
                 };
-                obj.isAnyMessageShown = function() {
+                obj.isAnyMessageShown = function () {
                     var invalidAndModifiedPresent = false;
-                    
+
                     // ensure we have latest changes
                     result();
-                    
+
                     ko.utils.arrayForEach(validatables(), function (observable) {
                         if (!observable.isValid() && observable.isModified()) {
                             invalidAndModifiedPresent = true;
@@ -311,7 +400,7 @@
             addAnonymousRule: function (observable, ruleObj) {
                 var ruleName = utils.newId();
 
-                if ( ruleObj['message'] === undefined ) {
+                if (ruleObj['message'] === undefined) {
                     rulesObj['message'] = 'Error';
                 }
 
@@ -431,7 +520,7 @@
                 contexts = null;
             }
         };
-    } ());
+    }());
     //#endregion
 
     //#region Core Validation Rules
@@ -568,80 +657,7 @@
 
             *********************************************************/
 
-            var invalidCharsRegEx = new RegExp("[^0-9" + dateFormat.delimiter + "]");
-
-            if (invalidCharsRegEx.test(dateToValidate)) {
-                // The given date contains invalid characters
-                return false;
-            }
-
-            var dayIndex = dateFormat.format.indexOf("d");
-            var monthIndex = dateFormat.format.indexOf("m");
-            var yearIndex = dateFormat.format.indexOf("y");
-            var dateParts = dateToValidate.split(dateFormat.delimiter);
-
-            // Convert the date component parts to numbers
-            var dayNumber = parseInt(dateParts[dayIndex], 10);
-            var monthNumber = parseInt(dateParts[monthIndex], 10);
-            var yearNumber = parseInt(dateParts[yearIndex], 10);
-
-            if (isNaN(dayNumber) || isNaN(monthNumber) || isNaN(yearNumber)) {
-                // The day, month or year cannot be determined
-                return false;
-            }
-
-            if (dayNumber < 1 || dayNumber > 31) {
-                // Invalid day
-                return false;
-            }
-
-            if (monthNumber < 1 || monthNumber > 12) {
-                // Invalid month
-                return false;
-            }
-
-            if (monthNumber == 2) {
-                // The month is Feb; see if it's a leap year
-                var leapYear = (yearNumber % 4 == 0 &&
-                                (yearNumber % 100 != 0 ||
-                                 yearNumber % 400 == 0));
-
-                if (leapYear) {
-                    // It is a leap year, so there's 29 days
-                    if (dayNumber > 29) {
-                        // Invalid day in Feb
-                        return false;
-                    }
-                }
-                else {
-                    // Not a leap year
-                    if (dayNumber > 28) {
-                        // It's not a leap year
-                        return false;
-                    }
-                }
-            }
-            else {
-                // Not February
-                if (dayNumber == 31) {
-                    // It's the 31st day
-                    if (monthNumber == 4 ||
-                        monthNumber == 6 ||
-                        monthNumber == 9 ||
-                        monthNumber == 11) {
-                        // The 31st is invalid
-                        return false;
-                    }
-                }
-            }
-
-            // Try to create a new dateobject
-            var parsedDate = new Date(
-                yearNumber,
-                monthNumber - 1,
-                dayNumber);
-
-            return parsedDate != "Invalid Date";
+            return utils.parseDate(dateToValidate, dateFormat.format, dateFormat.delimiter) != null;
         },
         message: 'Invalid date'
     };
@@ -721,7 +737,7 @@
     //now register all of these!
     (function () {
         ko.validation.registerExtenders();
-    } ());
+    }());
 
     //#endregion
 
@@ -784,7 +800,7 @@
 
             return ko.bindingHandlers['validationCore'].init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
         };
-    } ());
+    }());
 
 
     ko.bindingHandlers['validationMessage'] = { // individual error message, if modified or post binding
@@ -795,12 +811,12 @@
                 msg = null,
                 isModified = false,
                 isValid = false;
-                
+
             obsv.extend({ validatable: true });
 
             isModified = obsv.isModified();
             isValid = obsv.isValid();
-            
+
             // create a handler to correctly return an error message
             var errorMsgAccessor = function () {
                 if (!config.messagesOnModified || isModified) {
@@ -875,7 +891,7 @@
                 }
             }
         };
-    } ());
+    }());
     //#endregion
 
     //#region Knockout Extenders
