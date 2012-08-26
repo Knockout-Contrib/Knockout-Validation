@@ -44,6 +44,20 @@ test('Empty spaces is not a valid value for required', function () {
     equal(testObj.isValid(), false, 'testObj is valid');
 });
 
+test('Issue #90 - "required: false" doesnt force validation', function () {
+
+    var testObj = ko.observable()
+                    .extend({ required: false });
+
+    equal(testObj.isValid(), true, 'testObj is valid without value');
+    
+    testObj('blah');
+    equal(testObj.isValid(), true, 'testObj is valid with value');
+
+    testObj(null);
+    equal(testObj.isValid(), true, 'testObj is valid without value after set/unset');
+});
+
 //#endregion
 
 //#region Min Validation

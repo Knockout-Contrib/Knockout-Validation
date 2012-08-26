@@ -474,7 +474,10 @@
                 testVal = val.replace(stringTrimRegEx, '');
             }
 
-            return required && (testVal + '').length > 0;
+            if (!required) // if they passed: { required: false }, then don't require this
+                return true;
+
+            return ((testVal + '').length > 0);
         },
         message: 'This field is required.'
     };
@@ -526,6 +529,8 @@
 
     ko.validation.rules['email'] = {
         validator: function (val, validate) {
+            if (!validate) return true;
+
             //I think an empty email address is also a valid entry
             //if one want's to enforce entry it should be done with 'required: true'
             return utils.isEmptyVal(val) || (
@@ -538,6 +543,7 @@
 
     ko.validation.rules['date'] = {
         validator: function (value, validate) {
+            if (!validate) return true;
             return utils.isEmptyVal(value) || (validate && !/Invalid|NaN/.test(new Date(value)));
         },
         message: 'Please enter a proper date'
@@ -545,6 +551,7 @@
 
     ko.validation.rules['dateISO'] = {
         validator: function (value, validate) {
+            if (!validate) return true;
             return utils.isEmptyVal(value) || (validate && /^\d{4}[\/-]\d{1,2}[\/-]\d{1,2}$/.test(value));
         },
         message: 'Please enter a proper date'
@@ -552,6 +559,7 @@
 
     ko.validation.rules['number'] = {
         validator: function (value, validate) {
+            if (!validate) return true;
             return utils.isEmptyVal(value) || (validate && /^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(value));
         },
         message: 'Please enter a number'
@@ -559,6 +567,7 @@
 
     ko.validation.rules['digit'] = {
         validator: function (value, validate) {
+            if (!validate) return true;
             return utils.isEmptyVal(value) || (validate && /^\d+$/.test(value));
         },
         message: 'Please enter a digit'
@@ -566,6 +575,7 @@
 
     ko.validation.rules['phoneUS'] = {
         validator: function (phoneNumber, validate) {
+            if (!validate) return true;
             if (typeof (phoneNumber) !== 'string') { return false; }
             if (utils.isEmptyVal(phoneNumber)) { return true; } // makes it optional, use 'required' rule if it should be required
             phoneNumber = phoneNumber.replace(/\s+/g, "");
