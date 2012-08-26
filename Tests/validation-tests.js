@@ -332,7 +332,7 @@ test('Object is Valid and isValid returns True', function () {
     testObj('test@example.com');
 
     equal(testObj(), 'test@example.com', 'observable still works');
-    ok( testObj.isValid(), 'testObj is Valid' );
+    ok(testObj.isValid(), 'testObj is Valid');
 });
 
 test('Object is NOT Valid and isValid returns False', function () {
@@ -341,17 +341,17 @@ test('Object is NOT Valid and isValid returns False', function () {
     testObj('text#example.com');
 
     equal(testObj(), 'text#example.com', 'observable still works');
-    equal( testObj.isValid(), false, testObj.error );
-    equal( testObj.error, 'Please enter a proper email address', "Error Message Needs to be formatted correctly" );
+    equal(testObj.isValid(), false, testObj.error);
+    equal(testObj.error, 'Please enter a proper email address', "Error Message Needs to be formatted correctly");
 });
 
-test('Email with invalid domain', function(){
+test('Email with invalid domain', function () {
     var testObj = ko.observable().extend({ email: true });
 
     testObj("john@abc.com123");
 
-    equal( testObj.isValid(), false, testObj.error );
-    equal( testObj.error, 'Please enter a proper email address');
+    equal(testObj.isValid(), false, testObj.error);
+    equal(testObj.error, 'Please enter a proper email address');
 })
 //#endregion
 
@@ -386,6 +386,175 @@ test('Object is NOT Valid and isValid returns False', function () {
 
 //#endregion
 
+//#region futureDate Validation
+
+module('Future Date Validation');
+
+test('Future date valid', function () {
+    var testObj = ko.observable().extend({
+        futureDate: { format: 'dmy', delimiter: '/' }
+    });
+    var now = new Date();
+    var futureDate = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+    var futureDateString = futureDate.getDate() + "/" + (futureDate.getMonth() + 1) + "/" + futureDate.getFullYear();
+
+    testObj(futureDateString);
+
+    equal(testObj(), futureDateString, "Future date format preserved");
+    ok(testObj.isValid(), "Future date validation failed");
+
+});
+
+test('Future date invalid', function () {
+    var testObj = ko.observable().extend({
+        futureDate: { format: 'dmy', delimiter: '/' }
+    });
+    var now = new Date();
+    var previousDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+    var previousDateString = previousDate.getDate() + "/" + (previousDate.getMonth() + 1) + "/" + previousDate.getFullYear();
+    
+    testObj(previousDateString);
+
+    equal(testObj.isValid(), false, "Future date validation failed for an historic date");
+
+});
+
+//#endregion
+
+//#region historicDate Validation
+
+module('Historic Date Validation');
+
+test('Historic date valid', function () {
+    var testObj = ko.observable().extend({
+        historicDate: { format: 'dmy', delimiter: '/' }
+    });
+    var now = new Date();
+    var futureDate = new Date(now.getFullYear() - 1, now.getMonth(), now.getDate());
+    var futureDateString = futureDate.getDate() + "/" + (futureDate.getMonth() + 1) + "/" + futureDate.getFullYear();
+
+    testObj(futureDateString);
+
+    equal(testObj(), futureDateString, "Historic date format preserved");
+    ok(testObj.isValid(), "Historic date validation failed");
+
+});
+
+test('Historic date invalid', function () {
+    var testObj = ko.observable().extend({
+        historicDate: { format: 'dmy', delimiter: '/' }
+    });
+    var now = new Date();
+    var previousDate = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate());
+    var previousDateString = previousDate.getDate() + "/" + (previousDate.getMonth() + 1) + "/" + previousDate.getFullYear();
+    
+    testObj(previousDateString);
+
+    equal(testObj.isValid(), false, "Historic date validation failed for a future date");
+
+});
+
+//#endregion
+
+//#region formattedDate Validation
+
+module('Formatted Date Validation');
+
+test('Valid dd/mm/yyyy date', function () {
+
+    var testObj = ko.observable('14/08/2012').extend({
+        formattedDate: { format: 'dmy', delimiter: '/' }
+    });
+
+    equal(testObj(), '14/08/2012', 'observable still works');
+    equal(testObj.isValid(), true, testObj.error);
+});
+
+test('Valid d/m/yy date', function () {
+
+    var testObj = ko.observable('5/9/12').extend({
+        formattedDate: { format: 'dmy', delimiter: '/' }
+    });
+
+    equal(testObj(), '5/9/12', 'observable still works');
+    equal(testObj.isValid(), true, testObj.error);
+});
+
+test('Valid mm/dd/yyyy date', function () {
+
+    var testObj = ko.observable('08/14/2012').extend({
+        formattedDate: { format: 'mdy', delimiter: '/' }
+    });
+
+    equal(testObj(), '08/14/2012', 'observable still works');
+    equal(testObj.isValid(), true, testObj.error);
+});
+
+test('Valid yyyy-mm-dd date', function () {
+
+    var testObj = ko.observable('2012-08-14').extend({
+        formattedDate: { format: 'ymd', delimiter: '-' }
+    });
+
+    equal(testObj.isValid(), true, testObj.error);
+});
+
+test('Leap year valid', function () {
+
+    var testObj = ko.observable('29/02/2016').extend({
+        formattedDate: { format: 'dmy', delimiter: '/' }
+    });
+    
+    ok(testObj.isValid(), 'Valid leap year');
+});
+
+test('Leap year invalid', function () {
+
+    var testObj = ko.observable('29/02/2017').extend({
+        formattedDate: { format: 'dmy', delimiter: '/' }
+    });
+    
+    equals(testObj.isValid(), false, 'Invalid leap year');
+});
+
+test('Invalid April date', function () {
+
+    var testObj = ko.observable('31/04/2017').extend({
+        formattedDate: { format: 'dmy', delimiter: '/' }
+    });
+    
+    equals(testObj.isValid(), false, 'Invalid April date');
+});
+
+test('Invalid June date', function () {
+
+    var testObj = ko.observable('31/06/2017').extend({
+        formattedDate: { format: 'dmy', delimiter: '/' }
+    });
+    
+    equals(testObj.isValid(), false, 'Invalid June date');
+});
+
+test('Invalid September date', function () {
+
+    var testObj = ko.observable('31/09/2017').extend({
+        formattedDate: { format: 'dmy', delimiter: '/' }
+    });
+    
+    equals(testObj.isValid(), false, 'Invalid September date');
+});
+
+test('Invalid November date', function () {
+
+    var testObj = ko.observable('31/11/2017').extend({
+        formattedDate: { format: 'dmy', delimiter: '/' }
+    });
+    
+    equals(testObj.isValid(), false, 'Invalid November date');
+});
+
+//#endregion
+
 //#region DateISO Validation
 
 module('DateISO Validation');
@@ -398,7 +567,7 @@ test('Object is Valid when no value is present - Preserves Optional Properties',
 });
 
 test('Object is Valid and isValid returns True', function () {
-    var testObj = ko.observable('').extend({ dateISO: true }); 
+    var testObj = ko.observable('').extend({ dateISO: true });
 
     testObj('2011-11-18');
 
@@ -612,29 +781,29 @@ test('Object is Valid and isValid returns True', function () {
 });
 
 
-test( 'Issue #81 - Dynamic messages', function () {
+test('Issue #81 - Dynamic messages', function () {
 
     var CustomRule = function () {
         var self = this;
-        
+
         this.message = 'before';
         this.params = 0;
 
-        this.validator = function ( val, params ) {
+        this.validator = function (val, params) {
             self.message = 'after';
 
             return false;
         };
     };
 
-    var testObj = ko.observable( 3 ).extend( {
+    var testObj = ko.observable(3).extend({
         validation: new CustomRule()
     });
 
-    testObj( 4 );
+    testObj(4);
 
-    equal( testObj.isValid(), false, 'testObj is not valid' );
-    equal( testObj.error, 'after', 'testObj changes messages dynamically' );
+    equal(testObj.isValid(), false, 'testObj is not valid');
+    equal(testObj.error, 'after', 'testObj changes messages dynamically');
 });
 
 //#endregion
@@ -646,10 +815,11 @@ test('Object is Valid and isValid returns True', function () {
     var testObj = ko.observable();
     testObj.extend({ required: true })
            .extend({ minLength: 2 })
-           .extend({ pattern: {
-                message: 'It must contain some',
-                params: 'some'
-            }
+           .extend({
+               pattern: {
+                   message: 'It must contain some',
+                   params: 'some'
+               }
            });
 
     ok(!testObj.isValid(), testObj.error);
@@ -666,14 +836,14 @@ test('Object is Valid and isValid returns True', function () {
 });
 
 test('Object is Valid and isValid returns True', function () {
-    var testObj = ko.observable().extend({ 
-                    required: true,
-                    minLength: 2, 
-                    pattern: {
-                        message: 'It must contain some',
-                        params: 'some'
-                    }
-                });
+    var testObj = ko.observable().extend({
+        required: true,
+        minLength: 2,
+        pattern: {
+            message: 'It must contain some',
+            params: 'some'
+        }
+    });
 
     ok(!testObj.isValid(), testObj.error);
     ok(testObj.error.indexOf('required') > -1, "required is first error");
@@ -717,8 +887,8 @@ test("Issue #43 - Error messages are not switched correctly", function () {
 
 test("Issue #43 - Grouping - Error messages are not switched correctly", function () {
     var vm = {
-        testObj : ko.observable().extend({ min: 1, max: 100 }),
-        dummyProp : ko.observable().extend({ required: true })
+        testObj: ko.observable().extend({ min: 1, max: 100 }),
+        dummyProp: ko.observable().extend({ required: true })
     };
 
     vm.errors = ko.validation.group(vm);
@@ -812,7 +982,7 @@ module("Unique Tests");
 
 test('Object is Valid and isValid returns True', function () {
     var compareObj = ko.observableArray([11, 12, 13]);
-    var testObj = ko.observable('').extend({ unique: { collection: compareObj} });
+    var testObj = ko.observable('').extend({ unique: { collection: compareObj } });
 
     testObj(11);
 
@@ -822,7 +992,7 @@ test('Object is Valid and isValid returns True', function () {
 
 test('Object is NOT Valid and isValid returns False', function () {
     var compareObj = ko.observableArray([11, 12, 13, 13]);
-    var testObj = ko.observable('').extend({ unique: { collection: compareObj} });
+    var testObj = ko.observable('').extend({ unique: { collection: compareObj } });
 
     testObj(13);
 
@@ -848,15 +1018,15 @@ test('Error Grouping works', function () {
 
 test('Nested Grouping works - Observable', function () {
     var vm = {
-       one: ko.observable().extend({ required: true }),
-       two: {
-           one: ko.observable().extend({ required: true })
-       },
-       three: {
-           two: {
-               one: ko.observable().extend({ required: true })
-           }
-       }
+        one: ko.observable().extend({ required: true }),
+        two: {
+            one: ko.observable().extend({ required: true })
+        },
+        three: {
+            two: {
+                one: ko.observable().extend({ required: true })
+            }
+        }
     };
 
     var errors = ko.validation.group(vm, { deep: true, observable: true });
@@ -900,7 +1070,7 @@ test('Issue #31 - Recursively Show All Messages', function () {
     ok(!vm.one.isModified(), "Level 1 is not modified");
     ok(!vm.two.one.isModified(), "Level 2 is not modified");
     ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
-    
+
     // now show all the messages
     errors.showAllMessages();
 
@@ -981,7 +1151,7 @@ module('Conditional Validation in a rule');
 test('isValid always returns True when onlyIf Condition evaluates to false', function () {
     var testObj = ko.observable('something').extend({
         required: {
-            onlyIf: function() { return false; }
+            onlyIf: function () { return false; }
         }
     });
     testObj('');
@@ -992,7 +1162,7 @@ test('isValid always returns True when onlyIf Condition evaluates to false', fun
 test('isValid returns False When onlyIf Condition evaluates to true and Value is invalid', function () {
     var testObj = ko.observable('something').extend({
         required: {
-            onlyIf: function() { return true; }
+            onlyIf: function () { return true; }
         }
     });
     testObj('');
@@ -1004,14 +1174,14 @@ test('Changing the value of observable used in onlyIf condition triggers validat
     var person = {
         isMarried: ko.observable(false).extend({ required: true }),
     };
-    person.spouseName = ko.observable('').extend({ 
-                          required: { onlyIf: person.isMarried } 
-                        });
+    person.spouseName = ko.observable('').extend({
+        required: { onlyIf: person.isMarried }
+    });
     person.isMarried(false);
     ok(person.spouseName.isValid(), 'Unmarried person is valid without spouse name')
 
-    person.isMarried(true);   
-    equal(person.spouseName.isValid(), false, 'Married person is not valid without spouse name')    
+    person.isMarried(true);
+    equal(person.spouseName.isValid(), false, 'Married person is not valid without spouse name')
 });
 //#endregion
 

@@ -119,6 +119,103 @@
                 if (val === "") {
                     return true;
                 }
+            },
+            parseDate: function (dateToValidate, dateFormat, delimiter) {
+
+                // Parses a date string in a given format and returns
+                // a Date object if the parsing was successful, or null
+                // if parsing failed
+
+                // Usage: parseDate("14/08/12", "dmy", "/")
+                // The example above passes a date in day, month, year format
+                // delimited by a forward slash
+
+                var invalidCharsRegEx = new RegExp("[^0-9" + delimiter + "]");
+
+                if (invalidCharsRegEx.test(dateToValidate)) {
+                    // The given date contains invalid characters                    
+                    return false;
+                }
+
+                var dayIndex = dateFormat.indexOf("d");
+                var monthIndex = dateFormat.indexOf("m");
+                var yearIndex = dateFormat.indexOf("y");
+                var dateParts = dateToValidate.split(delimiter);
+
+                if (dayIndex < 0 || monthIndex < 0 || yearIndex < 0 || dateParts.length < 3) {
+                    // The supplied date format is incorrect
+                    return null;
+                }
+
+                // Convert the date component parts to numbers
+                var dayNumber = parseInt(dateParts[dayIndex], 10);
+                var monthNumber = parseInt(dateParts[monthIndex], 10);
+                var yearNumber = parseInt(dateParts[yearIndex], 10);
+
+                if (isNaN(dayNumber) || isNaN(monthNumber) || isNaN(yearNumber)) {
+                    // The day, month or year cannot be determined                    
+                    return null;
+                }
+
+                if (dayNumber < 1 || dayNumber > 31) {
+                    // Invalid day                    
+                    return null;
+                }
+
+                if (monthNumber < 1 || monthNumber > 12) {
+                    // Invalid month                    
+                    return null;
+                }
+
+                if (monthNumber == 2) {
+                    // The month is Feb; see if it's a leap year
+                    var leapYear = (yearNumber % 4 == 0 &&
+                                    (yearNumber % 100 != 0 ||
+                                     yearNumber % 400 == 0));
+
+                    if (leapYear) {
+                        // It is a leap year, so there's 29 days
+                        if (dayNumber > 29) {
+                            // Invalid day in Feb                            
+                            return null;
+                        }
+                    }
+                    else {
+                        // Not a leap year
+                        if (dayNumber > 28) {
+                            // It's not a leap year                            
+                            return null;
+                        }
+                    }
+                }
+                else {
+                    // Not February
+                    if (dayNumber == 31) {
+                        // It's the 31st day
+                        if (monthNumber == 4 ||
+                            monthNumber == 6 ||
+                            monthNumber == 9 ||
+                            monthNumber == 11) {
+                            // The 31st is invalid                            
+                            return null;
+                        }
+                    }
+                }
+
+                // Try to create a new dateobject
+                var parsedDate = new Date(
+                    yearNumber,
+                    monthNumber - 1,
+                    dayNumber);
+
+                if (parsedDate == "Invalid Date") {
+                    // The date is invalid
+                    return null;
+                }
+                else {
+                    // The date is valid
+                    return parsedDate;
+                }
             }
         };
     } ());
@@ -258,12 +355,12 @@
                 obj.isValid = function () {
                     return obj.errors().length === 0;
                 };
-                obj.isAnyMessageShown = function() {
+                obj.isAnyMessageShown = function () {
                     var invalidAndModifiedPresent = false;
-                    
+
                     // ensure we have latest changes
                     result();
-                    
+
                     ko.utils.arrayForEach(validatables(), function (observable) {
                         if (!observable.isValid() && observable.isModified()) {
                             invalidAndModifiedPresent = true;
@@ -313,7 +410,7 @@
             addAnonymousRule: function (observable, ruleObj) {
                 var ruleName = utils.newId();
 
-                if ( ruleObj['message'] === undefined ) {
+                if (ruleObj['message'] === undefined) {
                     rulesObj['message'] = 'Error';
                 }
 
@@ -529,7 +626,7 @@
             //I think an empty email address is also a valid entry
             //if one want's to enforce entry it should be done with 'required: true'
             return utils.isEmptyVal(val) || (
-                // jquery validate regex - thanks Scott Gonzalez
+            // jquery validate regex - thanks Scott Gonzalez
                 validate && /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i.test(val)
             );
         },
@@ -541,6 +638,59 @@
             return utils.isEmptyVal(value) || (validate && !/Invalid|NaN/.test(new Date(value)));
         },
         message: 'Please enter a proper date'
+    };
+
+    ko.validation.rules['futureDate'] = {
+        validator: function (dateToValidate, dateFormat) {
+            var now = new Date();
+            
+            var parsedDate = utils.parseDate(dateToValidate, dateFormat.format, dateFormat.delimiter);
+            return utils.isEmptyVal(dateToValidate) || parsedDate > now;
+        },
+        message: 'The date must be in the future'
+    };
+
+    ko.validation.rules['historicDate'] = {
+        validator: function (dateToValidate, dateFormat) {
+            var now = new Date();
+
+            var parsedDate = utils.parseDate(dateToValidate, dateFormat.format, dateFormat.delimiter);
+            return utils.isEmptyVal(dateToValidate) || parsedDate < now;
+        },
+        message: 'The date must be before today'
+    };
+
+    ko.validation.rules['formattedDate'] = {
+        validator: function (dateToValidate, dateFormat) {
+
+            /********************************************************
+
+            The dateFormat argument must be in the following format:
+
+            { 
+            format: 'dmy', 
+            delimiter: '/' 
+            }
+
+            The format propery specified the order of the day, month
+            and year components of the date.
+
+            The delimiter property specified the delimiter used by
+            the date.
+
+            The above example will accept dates in the following formats:
+
+            dd/mm/yy
+            dd/mm/yyyy
+            d/m/yy
+            d/m/yyyy
+
+            *********************************************************/
+            var parsedDate = utils.parseDate(dateToValidate, dateFormat.format, dateFormat.delimiter);
+
+            return utils.isEmptyVal(dateToValidate) || parsedDate != null;
+        },
+        message: 'Invalid date'
     };
 
     ko.validation.rules['dateISO'] = {
@@ -669,7 +819,7 @@
             }
         };
 
-    }());
+    } ());
 
     // override for KO's default 'value' binding
     (function () {
@@ -692,12 +842,12 @@
                 msg = null,
                 isModified = false,
                 isValid = false;
-                
+
             obsv.extend({ validatable: true });
 
             isModified = obsv.isModified();
             isValid = obsv.isValid();
-            
+
             // create a handler to correctly return an error message
             var errorMsgAccessor = function () {
                 if (!config.messagesOnModified || isModified) {
