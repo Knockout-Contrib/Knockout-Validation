@@ -855,7 +855,8 @@
                     ruleContexts = observable.rules();
 
                 ko.validation.validateObservable(observable);
-
+				observable.__valid__.valueHasMutated();
+				
                 return true;
             });
 
