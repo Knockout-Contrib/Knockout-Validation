@@ -5,7 +5,20 @@
 *   Source: https://github.com/ericmbarnard/Knockout-Validation
 *   MIT License: http://www.opensource.org/licenses/MIT
 */
-(function () {
+(function (factory) {
+    // Module systems magic dance.
+
+    if (typeof require === "function" && typeof exports === "object" && typeof module === "object") {
+        // CommonJS or Node: hard-coded dependency on "knockout"
+        factory(require("knockout"), exports);
+    } else if (typeof define === "function" && define["amd"]) {
+        // AMD anonymous module with hard-coded dependency on "knockout"
+        define(["knockout", "exports"], factory);
+    } else {
+        // <script> tag: use the global `ko` object, attaching a `mapping` property
+        factory(ko, ko.validation = {});
+    }
+}(function ( ko, exports ) {
 
     if (typeof (ko) === undefined) { throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in'; }
 
@@ -126,7 +139,7 @@
     //#endregion
 
     //#region Public API
-    ko.validation = (function () {
+    var validation = (function () {
 
         var isInitialized = 0;
 
@@ -459,8 +472,8 @@
     //      message: 'This field must equal {0}'
     // };
     //
-    ko.validation.rules = {};
-    ko.validation.rules['required'] = {
+    validation.rules = {};
+    validation.rules['required'] = {
         validator: function (val, required) {
             var stringTrimRegEx = /^\s+|\s+$/g,
                 testVal;
@@ -482,42 +495,42 @@
         message: 'This field is required.'
     };
 
-    ko.validation.rules['min'] = {
+    validation.rules['min'] = {
         validator: function (val, min) {
             return utils.isEmptyVal(val) || val >= min;
         },
         message: 'Please enter a value greater than or equal to {0}.'
     };
 
-    ko.validation.rules['max'] = {
+    validation.rules['max'] = {
         validator: function (val, max) {
             return utils.isEmptyVal(val) || val <= max;
         },
         message: 'Please enter a value less than or equal to {0}.'
     };
 
-    ko.validation.rules['minLength'] = {
+    validation.rules['minLength'] = {
         validator: function (val, minLength) {
             return utils.isEmptyVal(val) || val.length >= minLength;
         },
         message: 'Please enter at least {0} characters.'
     };
 
-    ko.validation.rules['maxLength'] = {
+    validation.rules['maxLength'] = {
         validator: function (val, maxLength) {
             return utils.isEmptyVal(val) || val.length <= maxLength;
         },
         message: 'Please enter no more than {0} characters.'
     };
 
-    ko.validation.rules['pattern'] = {
+    validation.rules['pattern'] = {
         validator: function (val, regex) {
             return utils.isEmptyVal(val) || val.match(regex) != null;
         },
         message: 'Please check this value.'
     };
 
-    ko.validation.rules['step'] = {
+    validation.rules['step'] = {
         validator: function (val, step) {
 
             // in order to handle steps of .1 & .01 etc.. Modulus won't work
@@ -527,7 +540,7 @@
         message: 'The value must increment by {0}'
     };
 
-    ko.validation.rules['email'] = {
+    validation.rules['email'] = {
         validator: function (val, validate) {
             if (!validate) return true;
 
@@ -541,7 +554,7 @@
         message: 'Please enter a proper email address'
     };
 
-    ko.validation.rules['date'] = {
+    validation.rules['date'] = {
         validator: function (value, validate) {
             if (!validate) return true;
             return utils.isEmptyVal(value) || (validate && !/Invalid|NaN/.test(new Date(value)));
@@ -549,7 +562,7 @@
         message: 'Please enter a proper date'
     };
 
-    ko.validation.rules['dateISO'] = {
+    validation.rules['dateISO'] = {
         validator: function (value, validate) {
             if (!validate) return true;
             return utils.isEmptyVal(value) || (validate && /^\d{4}[\/-]\d{1,2}[\/-]\d{1,2}$/.test(value));
@@ -557,7 +570,7 @@
         message: 'Please enter a proper date'
     };
 
-    ko.validation.rules['number'] = {
+    validation.rules['number'] = {
         validator: function (value, validate) {
             if (!validate) return true;
             return utils.isEmptyVal(value) || (validate && /^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(value));
@@ -565,7 +578,7 @@
         message: 'Please enter a number'
     };
 
-    ko.validation.rules['digit'] = {
+    validation.rules['digit'] = {
         validator: function (value, validate) {
             if (!validate) return true;
             return utils.isEmptyVal(value) || (validate && /^\d+$/.test(value));
@@ -573,7 +586,7 @@
         message: 'Please enter a digit'
     };
 
-    ko.validation.rules['phoneUS'] = {
+    validation.rules['phoneUS'] = {
         validator: function (phoneNumber, validate) {
             if (!validate) return true;
             if (typeof (phoneNumber) !== 'string') { return false; }
@@ -584,7 +597,7 @@
         message: 'Please specify a valid phone number'
     };
 
-    ko.validation.rules['equal'] = {
+    validation.rules['equal'] = {
         validator: function (val, params) {
             var otherValue = params;
             return val === utils.getValue(otherValue);
@@ -592,7 +605,7 @@
         message: 'Values must equal'
     };
 
-    ko.validation.rules['notEqual'] = {
+    validation.rules['notEqual'] = {
         validator: function (val, params) {
             var otherValue = params;
             return val !== utils.getValue(otherValue);
@@ -607,7 +620,7 @@
     //    valueAccessor: function that returns value from an object stored in collection
     //              if it is null the value is compared directly
     //    external: set to true when object you are validating is automatically updating collection
-    ko.validation.rules['unique'] = {
+    validation.rules['unique'] = {
         validator: function (val, options) {
             var c = utils.getValue(options.collection),
                 external = utils.getValue(options.externalValue),
@@ -627,7 +640,7 @@
 
     //now register all of these!
     (function () {
-        ko.validation.registerExtenders();
+        validation.registerExtenders();
     } ());
 
     //#endregion
@@ -932,7 +945,7 @@
         rule.validator(observable(), ctx.params || true, callBack);
     }
 
-    ko.validation.validateObservable = function (observable) {
+    validation.validateObservable = function (observable) {
         var i = 0,
             rule, // the rule validator to execute
             ctx, // the current Rule Context for the loop
@@ -989,7 +1002,7 @@
     //#region Localization
 
     //quick function to override rule messages
-    ko.validation.localize = function (msgTranslations) {
+    validation.localize = function (msgTranslations) {
 
         var msg, rule;
 
@@ -1038,4 +1051,7 @@
 
     //#endregion
 
-})();
+    /// apply our public api to the public object
+    ko.utils.extend(exports, validation);
+
+}));
