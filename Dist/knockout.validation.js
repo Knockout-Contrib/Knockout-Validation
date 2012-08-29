@@ -1,10 +1,12 @@
 /*
-*   Knockout Validation
-*   Created By Eric M. Barnard (https://github.com/ericmbarnard)
-*
-*   Source: https://github.com/ericmbarnard/Knockout-Validation
-*   MIT License: http://www.opensource.org/licenses/MIT
+===============================================================================
+    Author:     Eric M. Barnard - @ericmbarnard                                
+    License:    MIT (http://opensource.org/licenses/mit-license.php)           
+                                                                               
+    Description: Validation Library for KnockoutJS                             
+===============================================================================
 */
+
 (function (factory) {
     // Module systems magic dance.
 
@@ -34,9 +36,8 @@
         errorElementClass: 'validationElement',  // class to decorate error element
         errorMessageClass: 'validationMessage',  // class to decorate error message
         grouping: {
-            deep: false,            //by default grouping is shallow
-            observable: true,       //and using observables
-            errorDetails: false     //insert plain error messages
+            deep: false,        //by default grouping is shallow
+            observable: true    //and using observables
         }
     };
 
@@ -234,7 +235,7 @@
                         var errors = [];
                         ko.utils.arrayForEach(validatables(), function (observable) {
                             if (!observable.isValid()) {
-                                errors.push(options.errorDetails ? observable.errorDetails : observable.error);
+                                errors.push(observable.error);
                             }
                         });
                         return errors;
@@ -247,7 +248,7 @@
                         traverse(obj); // and traverse tree again
                         ko.utils.arrayForEach(validatables(), function (observable) {
                             if (!observable.isValid()) {
-                                errors.push(options.errorDetails ? observable.errorDetails : observable.error);
+                                errors.push(observable.error);
                             }
                         });
                         return errors;
@@ -716,12 +717,12 @@
                 msg = null,
                 isModified = false,
                 isValid = false;
-
+                
             obsv.extend({ validatable: true });
 
             isModified = obsv.isModified();
             isValid = obsv.isValid();
-
+            
             // create a handler to correctly return an error message
             var errorMsgAccessor = function () {
                 if (!config.messagesOnModified || isModified) {
@@ -834,7 +835,7 @@
         if (enable && !utils.isValidatable(observable)) {
 
             observable.error = null; // holds the error message, we only need one since we stop processing validators when one is invalid
-            observable.errorDetails = null; // 
+
             // observable.rules:
             // ObservableArray of Rule Contexts, where a Rule Context is simply the name of a rule and the params to supply to it
             //
@@ -902,13 +903,6 @@
 
             //not valid, so format the error message and stick it in the 'error' variable
             observable.error = ko.validation.formatMessage(ctx.message || rule.message, ctx.params);
-            //make a details object summary
-            observable.errorDetails = {
-                rule: rule,
-                params: ctx.params,
-                observable: observable,
-                message: observable.error
-            };
             observable.__valid__(false);
             return false;
         } else {
@@ -944,16 +938,6 @@
                 observable.error = ko.validation.formatMessage(msg || ctx.message || rule.message, ctx.params);
                 observable.__valid__(isValid);
             }
-
-            //not valid, so format the error message and stick it in the 'error' variable
-            observable.error = ko.validation.formatMessage(msg || ctx.message || rule.message, ctx.params);
-            //make a details object summary
-            observable.errorDetails = {
-                rule: rule,
-                params: ctx.params,
-                observable: observable,
-                message: observable.error
-            };
 
             // tell it that we're done
             observable.isValidating(false);
@@ -995,7 +979,6 @@
         }
         //finally if we got this far, make the observable valid again!
         observable.error = null;
-        observable.errorDetails = null;
         observable.__valid__(true);
         return true;
     };

@@ -10,6 +10,7 @@ module('UI Tests', {
     teardown: function () {
         ko.cleanNode($('#testContainer')[0]);
         $('#testContainer').empty();
+        ko.validation.reset();
     }
 });
 
@@ -60,7 +61,7 @@ test('Inserting Messages Works', function () {
 
     var msg = $testInput.siblings().first().text();
 
-    equals(msg, 'This field is required.', msg);
+    equal(msg, 'This field is required.', msg);
 });
 
 //#endregion
@@ -93,7 +94,7 @@ test('Validation Options - Basic Tests', function () {
 
     var noMsgs = $testInput.siblings().length;
 
-    equals(noMsgs, 0, 'No Messages were inserted');
+    equal(noMsgs, 0, 'No Messages were inserted');
 
 });
 
@@ -128,7 +129,7 @@ test('Validation Options - Nested Test', function () {
 
     var noMsgs = $testInput.siblings().length;
 
-    equals(noMsgs, 0, 'No Messages were inserted');
+    equal(noMsgs, 0, 'No Messages were inserted');
 
 });
 
@@ -165,7 +166,7 @@ test('Validation Options - Options only apply to their HTML Contexts', function 
 
     var noMsgs = $testInput.siblings().length;
 
-    equals(noMsgs, 0, 'No Messages were inserted');
+    equal(noMsgs, 0, 'No Messages were inserted');
 
     var $firstName = $('#myFirstName');
     $firstName.val(""); //set it 
@@ -174,7 +175,7 @@ test('Validation Options - Options only apply to their HTML Contexts', function 
     ok(!vm.firstName.isValid(), 'Validation Still works correctly');
 
     var insertMsgCt = $firstName.siblings('span').length;
-    equals(insertMsgCt, 1, 'Should have inserted 1 message beside the first name!');
+    equal(insertMsgCt, 1, 'Should have inserted 1 message beside the first name!');
 
 });
 
@@ -195,12 +196,12 @@ test("Issue #43 & #47 - Error messages are not switched correctly", function () 
     vm.testObj(-1); // should invalidate the min rule
 
     ok(!vm.testObj.isValid(), vm.testObj.error);
-    equals(vm.testObj.error, $msg.text(), "Min rule was correctly triggered");
+    equal(vm.testObj.error, $msg.text(), "Min rule was correctly triggered");
 
     vm.testObj(101); // should invalidate the max rule
 
     ok(!vm.testObj.isValid(), vm.testObj.error);
-    equals(vm.testObj.error, $msg.text(), "Max rule was correctly triggered");
+    equal(vm.testObj.error, $msg.text(), "Max rule was correctly triggered");
 });
 
 test("Issue #44 - Validation Element - Is Valid Test", function () {
@@ -248,4 +249,73 @@ test("Issue #44 - Validation Element - Is Invalid Test", function () {
     ok($el.hasClass('validationElement'), 'Correctly does have the validation class');
 
 });
+
+test("Issue #80 - Write HTML5 Validation Attributes programmatically", function () {
+
+    var vm = {
+        testObj: ko.observable(15).extend({ min: 1, max: 100, required: true, step: 2, pattern: /blah/i })
+    };
+
+    // setup the html
+    addTestHtml('<input type="text" id="testElement" data-bind="value: testObj"/>');
+
+    // make sure we allow element decorations
+    ko.validation.init({
+        decorateElement: true,
+        writeInputAttributes: true
+    }, true);
+
+    applyTestBindings(vm);
+
+    var $el = $('#testElement');
+    var tests = {};
+
+    ko.utils.arrayForEach(['required', 'min', 'max', 'step', 'pattern'], function (attr) {
+        tests[attr] = $el.attr(attr);
+    });
+
+    ok(tests.required, "Required Found");
+    strictEqual(tests.min, "1", "Min Found");
+    strictEqual(tests.max, "100", "Max Found");
+    strictEqual(tests.step, "2", "Step Found");
+    strictEqual(tests.pattern, "blah", "Pattern Found");
+
+});
+
+test("Issue #80 - HTML5 attributes - pattern", function () {
+
+    var pattern = /something/i;
+    var patternString = "something";
+
+    var vm = {
+        testObj: ko.observable('something').extend({
+            pattern: pattern
+        })
+    };
+
+    // setup the html
+    addTestHtml('<input type="text" id="testElement" data-bind="value: testObj"/>');
+
+    // make sure we allow element decorations
+    ko.validation.init({
+        decorateElement: true,
+        writeInputAttributes: true
+    }, true);
+
+    applyTestBindings(vm);
+
+    var $el = $('#testElement');
+    var el = $el.get(0);
+    
+    var param = $el.attr('pattern');
+
+    // fire the validity check event
+    el.checkValidity();
+
+    strictEqual(param, patternString, "Patterns Match");
+    ok(vm.testObj.isValid(), 'Observable is valid');
+    ok(el.validity.valid, "Element is showing it is valid");
+    strictEqual(vm.testObj(), 'something', 'Observable still works');
+});
+
 //#endregion
