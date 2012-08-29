@@ -750,7 +750,6 @@
 
             // should return either attr: {title: errormsg} or attr: {title: null}
             var errorMsgTitleAccessor = function () {
-                console.log(config.errorsAsTitleOnModified)
                 if (!config.errorsAsTitleOnModified || isModified) {
                     return { title: isValid ? null : obsv.error };
                 } else {
