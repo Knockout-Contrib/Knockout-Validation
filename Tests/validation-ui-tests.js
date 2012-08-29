@@ -66,6 +66,43 @@ test('Inserting Messages Works', function () {
 
 //#endregion
 
+//#region Showing errors as titles works
+
+test('Showing Errors As Titles Works', function () {
+
+    addTestHtml('<input id="myTestInput" data-bind="value: firstName" type="text" />');
+
+    var vm = {
+        firstName: ko.observable('').extend({ required: true })
+    };
+
+    // make sure the options are ok.
+    ko.validation.init({
+        errorsAsTitleOnModified: true,
+        decorateElement: true
+    }, true);
+
+    applyTestBindings(vm);
+
+    var $testInput = $('#myTestInput');
+
+    $testInput.val("a"); //set it 
+    $testInput.change(); //trigger change event
+
+    $testInput.val(""); //set it 
+    $testInput.change(); //trigger change event
+
+    var isValid = vm.firstName.isValid();
+
+    ok(!isValid, 'First Name is NOT Valid');
+    console.log($testInput)
+    var msg = $testInput.attr('title');
+
+    equal(msg, 'This field is required.', msg);
+});
+
+//#endregion
+
 //#region Validation Option Tests
 
 test('Validation Options - Basic Tests', function () {

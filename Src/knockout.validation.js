@@ -12,6 +12,7 @@
     var defaults = {
         registerExtenders: true,
         messagesOnModified: true,
+        errorsAsTitleOnModified: false, // shows the error when hovering the input field (decorateElement must be true)
         messageTemplate: null,
         insertMessages: true,           // automatically inserts validation messages as <span></span>
         parseInputAttributes: false,    // parses the HTML5 validation attribute from a form element and adds that to the object
@@ -746,6 +747,17 @@
 
             //add or remove class on the element;
             ko.bindingHandlers.css.update(element, cssSettingsAccessor);
+
+            // should return either attr: {title: errormsg} or attr: {title: null}
+            var errorMsgTitleAccessor = function () {
+                console.log(config.errorsAsTitleOnModified)
+                if (!config.errorsAsTitleOnModified || isModified) {
+                    return { title: isValid ? null : obsv.error };
+                } else {
+                    return { title: null };
+                }
+            };
+            ko.bindingHandlers.attr.update(element, errorMsgTitleAccessor);
         }
     };
 
