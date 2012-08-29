@@ -896,6 +896,15 @@ test('Nested Grouping works - Not Observable', function () {
     equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
 });
 
+test('Nested grouping finds items in observableArrays - observable', function () {
+    var vm = { array: ko.observableArray( [ { one: ko.observable().extend( { required: true } ) } ]) };
+    
+    var errors = ko.validation.group(vm, { deep: true, observable: true });
+    
+    equals(errors().length, 1, 'Grouping finds property on object in observableArray');
+    
+});
+
 test('Issue #31 - Recursively Show All Messages', function () {
     var vm = {
         one: ko.observable().extend({ required: true }),
