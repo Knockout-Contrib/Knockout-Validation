@@ -27,6 +27,7 @@
     var defaults = {
         registerExtenders: true,
         messagesOnModified: true,
+        errorsAsTitleOnModified: false, // shows the error when hovering the input field (decorateElement must be true)
         messageTemplate: null,
         insertMessages: true,           // automatically inserts validation messages as <span></span>
         parseInputAttributes: false,    // parses the HTML5 validation attribute from a form element and adds that to the object
@@ -773,6 +774,21 @@
 
             //add or remove class on the element;
             ko.bindingHandlers.css.update(element, cssSettingsAccessor);
+
+            var origTitle = element.getAttribute('data-orig-title');
+            var elementTitle = element.title;
+            var titleIsErrorMsg = element.getAttribute('data-orig-title') == "true"
+
+            var errorMsgTitleAccessor = function () {
+                if (!config.errorsAsTitleOnModified || isModified) {
+                    if (!isValid) {
+                        return { title: obsv.error, 'data-orig-title': origTitle || elementTitle };
+                    } else {
+                        return { title: origTitle || elementTitle, 'data-orig-title': null };
+                    }
+                }
+            };
+            ko.bindingHandlers.attr.update(element, errorMsgTitleAccessor);
         }
     };
 
