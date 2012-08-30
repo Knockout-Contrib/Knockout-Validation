@@ -748,12 +748,17 @@
             //add or remove class on the element;
             ko.bindingHandlers.css.update(element, cssSettingsAccessor);
 
-            // should return either attr: {title: errormsg} or attr: {title: null}
+            var origTitle = element.getAttribute('data-orig-title');
+            var elementTitle = element.title;
+            var titleIsErrorMsg = element.getAttribute('data-orig-title') == "true"
+
             var errorMsgTitleAccessor = function () {
                 if (!config.errorsAsTitleOnModified || isModified) {
-                    return { title: isValid ? null : obsv.error };
-                } else {
-                    return { title: null };
+                    if (!isValid) {
+                        return { title: obsv.error, 'data-orig-title': origTitle || elementTitle };
+                    } else {
+                        return { title: origTitle || elementTitle, 'data-orig-title': null };
+                    }
                 }
             };
             ko.bindingHandlers.attr.update(element, errorMsgTitleAccessor);
