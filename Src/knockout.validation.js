@@ -35,7 +35,8 @@
         errorMessageClass: 'validationMessage',  // class to decorate error message
         grouping: {
             deep: false,        //by default grouping is shallow
-            observable: true    //and using observables
+            observable: true,    //and using observables
+            live: false          //react to changes to observableArrays if observable === true
         }
     };
 
@@ -132,6 +133,10 @@
                 if (val === "") {
                     return true;
                 }
+            },
+            //created issue to solve that in ko https://github.com/SteveSanderson/knockout/issues/619
+            isObservableArray: function (obj) {
+                return ko.isObservable(obj) && !(obj.destroyAll === undefined);
             }
         };
     } ());
@@ -228,6 +233,14 @@
                 if (options.observable) {
 
                     traverse(obj);
+
+                    if (options.live) {
+                        ko.utils.arrayForEach(validatables(), function (observable) {
+                            if (utils.isObservableArray(observable)) {
+                                observable.subscribe(function () { traverse(obj); })
+                            }
+                        });
+                    }
 
                     result = ko.computed(function () {
                         var errors = [];

@@ -902,7 +902,26 @@ test('Nested grouping finds items in observableArrays - observable', function ()
     var errors = ko.validation.group(vm, { deep: true, observable: true });
     
     equals(errors().length, 1, 'Grouping finds property on object in observableArray');
+});
+
+test('Nested grouping does not add newly items newly inserted into observableArrays to result - observable, not live', function () {
+    var vm = { array: ko.observableArray() };
     
+    var errors = ko.validation.group(vm, { deep: true, observable: true, live: false }); 
+
+    vm.array.push( { one:  ko.observable().extend( { required: true } ) });
+    
+    equals(errors().length, 0, 'grouping does not add newly items newly inserted into observableArrays to result');
+});
+
+test('Nested grouping adds items newly inserted into observableArrays to result - observable, live', function () {
+    var vm = { array: ko.observableArray() };
+    
+    var errors = ko.validation.group(vm, { deep: true, observable: true, live: true });
+
+    vm.array.push( { one:  ko.observable().extend( { required: true } ) });
+    
+    equals(errors().length, 1, 'grouping adds newly items newly inserted into observableArrays to result');
 });
 
 test('Issue #31 - Recursively Show All Messages', function () {
