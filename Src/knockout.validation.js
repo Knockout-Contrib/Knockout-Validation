@@ -1,10 +1,12 @@
 /*
-*   Knockout Validation
-*   Created By Eric M. Barnard (https://github.com/ericmbarnard)
-*
-*   Source: https://github.com/ericmbarnard/Knockout-Validation
-*   MIT License: http://www.opensource.org/licenses/MIT
+===============================================================================
+    Author:     Eric M. Barnard - @ericmbarnard                                
+    License:    MIT (http://opensource.org/licenses/mit-license.php)           
+                                                                               
+    Description: Validation Library for KnockoutJS                             
+===============================================================================
 */
+
 (function (factory) {
     // Module systems magic dance.
 
@@ -25,6 +27,7 @@
     var defaults = {
         registerExtenders: true,
         messagesOnModified: true,
+        errorsAsTitleOnModified: false, // shows the error when hovering the input field (decorateElement must be true)
         messageTemplate: null,
         insertMessages: true,           // automatically inserts validation messages as <span></span>
         parseInputAttributes: false,    // parses the HTML5 validation attribute from a form element and adds that to the object
@@ -166,13 +169,13 @@
                 ko.utils.extend(configuration, options);
 
                 if (configuration.registerExtenders) {
-                    ko.validation.registerExtenders();
+                    exports.registerExtenders();
                 }
 
                 isInitialized = 1;
             },
             // backwards compatability
-            configure: function (options) { ko.validation.init(options); },
+            configure: function (options) { exports.init(options); },
 
             // resets the config back to its original state
             reset: function () { configuration = $.extend(configuration, defaults); },
@@ -332,10 +335,10 @@
                 }
 
                 //Create an anonymous rule to reference
-                ko.validation.rules[ruleName] = ruleObj;
+                exports.rules[ruleName] = ruleObj;
 
                 //add the anonymous rule to the observable
-                ko.validation.addRule(observable, {
+                exports.addRule(observable, {
                     rule: ruleName,
                     params: ruleObj.params
                 });
@@ -360,14 +363,14 @@
                     //  )};
                     //
                     if (params.message || params.onlyIf) { //if it has a message or condition object, then its an object literal to use
-                        return ko.validation.addRule(observable, {
+                        return exports.addRule(observable, {
                             rule: ruleName,
                             message: params.message,
                             params: utils.isEmptyVal(params.params) ? true : params.params,
                             condition: params.onlyIf
                         });
                     } else {
-                        return ko.validation.addRule(observable, {
+                        return exports.addRule(observable, {
                             rule: ruleName,
                             params: params
                         });
@@ -379,10 +382,10 @@
             // ko.extenders
             registerExtenders: function () { // root extenders optional, use 'validation' extender if would cause conflicts
                 if (configuration.registerExtenders) {
-                    for (var ruleName in ko.validation.rules) {
-                        if (ko.validation.rules.hasOwnProperty(ruleName)) {
+                    for (var ruleName in exports.rules) {
+                        if (exports.rules.hasOwnProperty(ruleName)) {
                             if (!ko.extenders[ruleName]) {
-                                ko.validation.addExtender(ruleName);
+                                exports.addExtender(ruleName);
                             }
                         }
                     }
@@ -402,7 +405,7 @@
             parseInputValidationAttributes: function (element, valueAccessor) {
                 ko.utils.arrayForEach(html5Attributes, function (attr) {
                     if (utils.hasAttribute(element, attr)) {
-                        ko.validation.addRule(valueAccessor(), {
+                        exports.addRule(valueAccessor(), {
                             rule: attr,
                             params: element.getAttribute(attr) || true
                         });
@@ -659,14 +662,14 @@
 
                 // parse html5 input validation attributes, optional feature
                 if (config.parseInputAttributes) {
-                    async(function () { ko.validation.parseInputValidationAttributes(element, valueAccessor) });
+                    async(function () { exports.parseInputValidationAttributes(element, valueAccessor) });
                 }
 
                 // if requested insert message element and apply bindings
                 if (config.insertMessages && utils.isValidatable(valueAccessor())) {
 
                     // insert the <span></span>
-                    var validationMessageElement = ko.validation.insertValidationMessage(element);
+                    var validationMessageElement = exports.insertValidationMessage(element);
 
                     // if we're told to use a template, make sure that gets rendered
                     if (config.messageTemplate) {
@@ -679,7 +682,7 @@
                 // write the html5 attributes if indicated by the config
                 if (config.writeInputAttributes && utils.isValidatable(valueAccessor())) {
 
-                    ko.validation.writeInputValidationAttributes(element, valueAccessor);
+                    exports.writeInputValidationAttributes(element, valueAccessor);
                 }
 
                 // if requested, add binding to decorate element
@@ -772,6 +775,21 @@
 
             //add or remove class on the element;
             ko.bindingHandlers.css.update(element, cssSettingsAccessor);
+
+            var origTitle = element.getAttribute('data-orig-title');
+            var elementTitle = element.title;
+            var titleIsErrorMsg = element.getAttribute('data-orig-title') == "true"
+
+            var errorMsgTitleAccessor = function () {
+                if (!config.errorsAsTitleOnModified || isModified) {
+                    if (!isValid) {
+                        return { title: obsv.error, 'data-orig-title': origTitle || elementTitle };
+                    } else {
+                        return { title: origTitle || elementTitle, 'data-orig-title': null };
+                    }
+                }
+            };
+            ko.bindingHandlers.attr.update(element, errorMsgTitleAccessor);
         }
     };
 
@@ -818,7 +836,7 @@
             // the 'rule' being passed in here has no name to identify a core Rule,
             // so we add it as an anonymous rule
             // If the developer is wanting to use a core Rule, but use a different message see the 'addExtender' logic for examples
-            ko.validation.addAnonymousRule(observable, rule);
+            exports.addAnonymousRule(observable, rule);
         });
         return observable;
     };
@@ -855,7 +873,7 @@
                 var obs = observable(),
                     ruleContexts = observable.rules();
 
-                ko.validation.validateObservable(observable);
+                exports.validateObservable(observable);
 
                 return true;
             });
@@ -909,6 +927,7 @@
                 observable: observable,
                 message: observable.error
             };
+            observable.error = exports.formatMessage(ctx.message || rule.message, ctx.params);
             observable.__valid__(false);
             return false;
         } else {
@@ -941,7 +960,7 @@
 
             if (!isValid) {
                 //not valid, so format the error message and stick it in the 'error' variable
-                observable.error = ko.validation.formatMessage(msg || ctx.message || rule.message, ctx.params);
+                observable.error = exports.formatMessage(msg || ctx.message || rule.message, ctx.params);
                 observable.__valid__(isValid);
             }
 
@@ -980,7 +999,7 @@
                 continue;
 
             //get the core Rule to use for validation
-            rule = ko.validation.rules[ctx.rule];
+            rule = exports.rules[ctx.rule];
 
             if (rule['async'] || ctx['async']) {
                 //run async validation
@@ -1005,10 +1024,10 @@
     //#region Validated Observable
 
     ko.validatedObservable = function (initialValue) {
-        if (!ko.validation.utils.isObject(initialValue)) { return ko.observable(initialValue).extend({ validatable: true }); }
+        if (!exports.utils.isObject(initialValue)) { return ko.observable(initialValue).extend({ validatable: true }); }
 
         var obsv = ko.observable(initialValue);
-        obsv.errors = ko.validation.group(initialValue);
+        obsv.errors = exports.group(initialValue);
         obsv.isValid = ko.computed(function () {
             return obsv.errors().length === 0;
         });
@@ -1027,8 +1046,8 @@
 
         //loop the properties in the object and assign the msg to the rule
         for (rule in msgTranslations) {
-            if (ko.validation.rules.hasOwnProperty(rule)) {
-                ko.validation.rules[rule].message = msgTranslations[rule];
+            if (exports.rules.hasOwnProperty(rule)) {
+                exports.rules[rule].message = msgTranslations[rule];
             }
         }
     };
@@ -1052,9 +1071,9 @@
             }
         }
 
-        ko.validation.init();
+        exports.init();
 
-        if (config) { ko.validation.utils.setDomData(node, config); }
+        if (config) { exports.utils.setDomData(node, config); }
 
         ko.applyBindings(viewModel, rootNode);
     };
@@ -1063,7 +1082,7 @@
     var origApplyBindings = ko.applyBindings;
     ko.applyBindings = function (viewModel, rootNode) {
 
-        ko.validation.init();
+        exports.init();
 
         origApplyBindings(viewModel, rootNode);
     };
