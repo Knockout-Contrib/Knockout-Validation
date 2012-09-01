@@ -214,7 +214,8 @@
                     }
 
                     //get list of values either from array or object but ignore non-objects
-                    if (val) {
+                    // and destroyed objects
+                    if (val && !val._destroy) {
                         if (utils.isArray(val)) {
                             objValues = val;
                         } else if (utils.isObject(val)) {
