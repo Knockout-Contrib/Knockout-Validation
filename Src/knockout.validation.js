@@ -241,7 +241,10 @@
                     if (options.live) {
                         ko.utils.arrayForEach(validatables(), function (observable) {
                             if (utils.isObservableArray(observable)) {
-                                observable.subscribe(function () { traverse(obj); })
+                                observable.subscribe(function () {
+                                    validatables([]); //clear validatables
+                                    traverse(obj);
+                                })
                             }
                         });
                     }
