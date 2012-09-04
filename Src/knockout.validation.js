@@ -974,7 +974,11 @@
 
             //get the Rule Context info to give to the core Rule
             ctx = ruleContexts[i];
-
+            
+            // checks if rule is disabled.
+            if (utils.getValue(ctx.enabled) === false || utils.getValue(ctx.disabled) === true)
+                continue;
+                
             // checks an 'onlyIf' condition
             if (ctx.condition && !ctx.condition())
                 continue;
