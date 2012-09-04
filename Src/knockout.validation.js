@@ -339,7 +339,8 @@
                 //add the anonymous rule to the observable
                 exports.addRule(observable, {
                     rule: ruleName,
-                    params: ruleObj.params
+                    params: ruleObj.params,
+                    enabled: ko.observable(true)
                 });
             },
 
@@ -366,12 +367,14 @@
                             rule: ruleName,
                             message: params.message,
                             params: utils.isEmptyVal(params.params) ? true : params.params,
-                            condition: params.onlyIf
+                            condition: params.onlyIf,
+                            enabled: ko.observable(true)
                         });
                     } else {
                         return exports.addRule(observable, {
                             rule: ruleName,
-                            params: params
+                            params: params,
+                            enabled: ko.observable(true)
                         });
                     }
                 };
@@ -858,6 +861,20 @@
             // Rule Context = { rule: '<rule name>', params: '<passed in params>', message: '<Override of default Message>' }
             observable.rules = ko.observableArray(); //holds the rule Contexts to use as part of validation
 
+            // Function to set enabled status of a rule on the observable given a rule name. If no name is passed in, all rules are disabled.
+            observable.setRuleEnabled = function(ruleName, isEnabled) {
+                if (typeof utils.getValue(ruleName) === "boolean") {
+                    isEnabled = ruleName;
+                    ruleName = void(0);
+                }
+                isEnabled = utils.getValue(ruleName) || true;
+                ko.utils.arrayForEach(observable.rules(), function (rule) {
+                    if (ruleName === void(0) || rule.rule === ruleName) {
+                        rule.enabled(isEnabled);
+                    }
+                })
+            }
+
             //in case async validation is occuring
             observable.isValidating = ko.observable(false);
 
@@ -974,6 +991,10 @@
 
             //get the Rule Context info to give to the core Rule
             ctx = ruleContexts[i];
+
+            // checks if rule is disabled.
+            if (utils.getValue(ctx.enabled) === false)
+                continue;
 
             // checks an 'onlyIf' condition
             if (ctx.condition && !ctx.condition())
