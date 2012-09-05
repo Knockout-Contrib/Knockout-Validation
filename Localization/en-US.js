@@ -27,7 +27,7 @@ ko.validation.localize({
     maxLength: 'Please enter no more than {0} characters.',
     pattern: 'Please check this value.',
     step: 'The value must increment by {0}',
-    email: '{0} is not a proper email address',
+    email: 'This is not a proper email address',
     date: 'Please enter a proper date',
     dateISO: 'Please enter a proper date',
     number: 'Please enter a number',

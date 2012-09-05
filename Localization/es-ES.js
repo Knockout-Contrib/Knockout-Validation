@@ -27,7 +27,7 @@ ko.validation.localize({
     maxLength: 'Por favor, no introduzca más de {0} caracteres',
     pattern: 'Por favor, compruebe este campo',
     step: 'El valor debe incrementarse por {0}',
-    email: '{0} no es una dirección de email correcta',
+    email: 'Este no es una dirección de email correcta',
     date: 'Por favor, introduzca una fecha correcta',
     dateISO: 'Por favor, introduzca una fecha correcta',
     number: 'Por favor, introduzca un número',
