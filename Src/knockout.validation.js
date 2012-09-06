@@ -46,6 +46,7 @@
     var configuration = ko.utils.extend({}, defaults);
 
     var html5Attributes = ['required', 'pattern', 'min', 'max', 'step'];
+    var html5InputTypes = ['email', 'number', 'date'];
 
     var async = function (expr) {
         if (window.setImmediate) { window.setImmediate(expr); }
@@ -407,6 +408,17 @@
                         exports.addRule(valueAccessor(), {
                             rule: attr,
                             params: element.getAttribute(attr) || true
+                        });
+                    }
+                });
+
+                var currentType = element.getAttribute('type');
+                ko.utils.arrayForEach(html5InputTypes, function (type) {
+                    if (type == currentType){
+                        console.log("current: "  + currentType + " vs. " + type);
+                        exports.addRule(valueAccessor(), {
+                            rule: type,
+                            params: true
                         });
                     }
                 });

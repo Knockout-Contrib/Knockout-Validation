@@ -431,4 +431,43 @@ test("Issue #80 - HTML5 attributes - pattern", function () {
     strictEqual(vm.testObj(), 'something', 'Observable still works');
 });
 
+test("HTML5 Input types", function () {
+
+    var vm = {
+        invalidEmail: ko.validatedObservable('invalidEmail'),
+        invalidDate: ko.validatedObservable('no date'),
+        invalidNumber: ko.validatedObservable('invalidNumber')
+    };
+
+    // setup the html
+    addTestHtml('<input type="email" id="emailInput" data-bind="value: invalidEmail"/>' +
+        '<input type="date" id="dateInput" data-bind="value: invalidDate"/>'+
+        '<input type="number" id="numberInput" data-bind="value: invalidNumber"/>');
+
+    // make sure we parse element attributes
+    ko.validation.init({
+        parseInputAttributes: true
+    }, true);
+
+    applyTestBindings(vm);
+    stop();
+
+    setTimeout(function() {
+        var $emailInput = $('#emailInput');
+        var emailInput = $emailInput.get(0);
+        var $dateInput = $('#dateInput');
+        var dateInput = $dateInput.get(0);
+        var $numberInput = $('#numberInput');
+        var numberInput = $numberInput.get(0);
+
+        ok(!vm.invalidEmail.isValid(), 'Expected email to be considered as invalid.');
+        ok(!vm.invalidDate.isValid(), 'Expected date to be considered as invalid.');
+        ok(!vm.invalidNumber.isValid(), 'Expected date to be considered as invalid.');
+
+      start();
+    }, 1 );
+});
+
+
+
 //#endregion
