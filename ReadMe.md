@@ -147,5 +147,4 @@ Add a reference to the localization js file after the Knockout Validation plugin
 ```html
 <script type="text/javascript" src ="knockout.validation.js"></script>
 <script type="text/javascript" src ="el-GR.js"> </script>
-
 ```
