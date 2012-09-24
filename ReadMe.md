@@ -139,3 +139,13 @@ Check out more on [Validation Bindings](https://github.com/ericmbarnard/Knockout
 
 ##Remote Validation Rules
 Check out our [Async Validation](https://github.com/ericmbarnard/Knockout-Validation/wiki/Async-Rules) and [jQuery AJAX Validation](https://github.com/ericmbarnard/Knockout-Validation/wiki/Async-Rules)
+
+##Localization
+
+Add a reference to the localization js file after the Knockout Validation plugin
+
+```html
+<script type="text/javascript" src ="knockout.validation.js"></script>
+<script type="text/javascript" src ="el-GR.js"> </script>
+
+```
