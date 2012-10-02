@@ -417,7 +417,7 @@
                     if (type == currentType){
                         console.log("current: "  + currentType + " vs. " + type);
                         exports.addRule(valueAccessor(), {
-                            rule: type,
+                            rule: (type == 'date')?'dateISO':type,
                             params: true
                         });
                     }
