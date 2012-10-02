@@ -415,7 +415,6 @@
                 var currentType = element.getAttribute('type');
                 ko.utils.arrayForEach(html5InputTypes, function (type) {
                     if (type == currentType){
-                        console.log("current: "  + currentType + " vs. " + type);
                         exports.addRule(valueAccessor(), {
                             rule: (type == 'date')?'dateISO':type,
                             params: true
