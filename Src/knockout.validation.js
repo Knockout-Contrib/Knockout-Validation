@@ -735,7 +735,7 @@
 
             //toggle visibility on validation messages when validation hasn't been evaluated, or when the object isValid
             var visiblityAccessor = function () {
-                return isModified ? !isValid : false;
+                return (!config.messagesOnModified || isModified) ? !isValid : false;
             };
 
             ko.bindingHandlers.text.update(element, errorMsgAccessor);
