@@ -528,7 +528,7 @@
 
     validation.rules['pattern'] = {
         validator: function (val, regex) {
-            return utils.isEmptyVal(val) || val.match(regex) != null;
+            return utils.isEmptyVal(val) || val.toString().match(regex) != null;
         },
         message: 'Please check this value.'
     };
