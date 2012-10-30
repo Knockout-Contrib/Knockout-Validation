@@ -24,7 +24,7 @@ var addTestHtml = function(html){
 };
 
 test('hasAttribute works in old IE', function () {
-    
+
     addTestHtml('<input id="myTestInput" type="text" required />');
 
     var el = document.getElementById('myTestInput');
@@ -49,10 +49,10 @@ test('Inserting Messages Works', function () {
 
     var $testInput = $('#myTestInput');
 
-    $testInput.val("a"); //set it 
+    $testInput.val("a"); //set it
     $testInput.change(); //trigger change event
 
-    $testInput.val(""); //set it 
+    $testInput.val(""); //set it
     $testInput.change(); //trigger change event
 
     var isValid = vm.firstName.isValid();
@@ -65,6 +65,43 @@ test('Inserting Messages Works', function () {
 });
 
 //#endregion
+
+//#region Inserted messages can have a custom element
+
+test("Inserted Messages Can Have A Custom Element", function () {
+
+    addTestHtml('<input id="myTestInput" data-bind="value: firstName" type="text" />');
+
+    var vm = {
+        firstName: ko.observable('').extend({ required: true })
+    };
+
+    applyTestBindings(vm);
+
+    var $testInput = $('#myTestInput');
+
+    $testInput.val("a"); //set it
+    $testInput.change(); //trigger change event
+
+    var errorElement = $testInput.siblings().first().is("span");
+
+    ok(errorElement, true, "The error element is a <span> tag");
+
+    ko.validation.init({
+        errorMessageElement: "p" //change the error element to a "p" tag.
+    }, true);
+
+    applyTestBindings(vm);
+
+    $testInput.val("b"); //set it
+    $testInput.change();
+
+    var errorElementP = $testInput.siblings().first().is("p");
+    ok(errorElementP, true, "The error element is <p> tag");
+
+});
+
+//#end region
 
 //#region Showing errors as titles
 
@@ -86,16 +123,16 @@ test('Showing Errors As Titles Works', function () {
 
     var $testInput = $('#myTestInput');
 
-    $testInput.val("a"); //set it 
+    $testInput.val("a"); //set it
     $testInput.change(); //trigger change event
 
-    $testInput.val(""); //set it 
+    $testInput.val(""); //set it
     $testInput.change(); //trigger change event
 
     var isValid = vm.firstName.isValid();
 
     ok(!isValid, 'First Name is NOT Valid');
-    console.log($testInput)
+
     var msg = $testInput.attr('title');
 
     equal(msg, 'This field is required.', msg);
@@ -119,16 +156,16 @@ test('Original titles are restored', function () {
 
     var $testInput = $('#myTestInput');
 
-    $testInput.val("a"); //set it 
+    $testInput.val("a"); //set it
     $testInput.change(); //trigger change event
 
-    $testInput.val(""); //set it 
+    $testInput.val(""); //set it
     $testInput.change(); //trigger change event
 
     var msg = $testInput.attr('title');
     equal(msg, 'This field is required.', msg);
 
-    $testInput.val("a"); //set it 
+    $testInput.val("a"); //set it
     $testInput.change(); //trigger change event
 
     var msg = $testInput.attr('title');
@@ -154,22 +191,22 @@ test('Original titles are restored with multiple validators, too', function () {
 
     var $testInput = $('#myTestInput');
 
-    $testInput.val("aa"); //set it 
+    $testInput.val("aa"); //set it
     $testInput.change(); //trigger change event
 
-    $testInput.val(""); //set it 
+    $testInput.val(""); //set it
     $testInput.change(); //trigger change event
 
     var msg = $testInput.attr('title');
     equal(msg, 'This field is required.', msg);
 
-    $testInput.val("a"); //set it 
+    $testInput.val("a"); //set it
     $testInput.change(); //trigger change event
 
     var msg = $testInput.attr('title');
     equal(msg, 'Please enter at least 2 characters.', msg);
 
-    $testInput.val("aa"); //set it 
+    $testInput.val("aa"); //set it
     $testInput.change(); //trigger change event
 
     var msg = $testInput.attr('title');
@@ -195,10 +232,10 @@ test('Validation Options - Basic Tests', function () {
 
     var $testInput = $('#myTestInput');
 
-    $testInput.val("a"); //set it 
+    $testInput.val("a"); //set it
     $testInput.change(); //trigger change event
 
-    $testInput.val(""); //set it 
+    $testInput.val(""); //set it
     $testInput.change(); //trigger change event
 
     var isValid = vm.firstName.isValid();
@@ -233,7 +270,7 @@ test('Validation Options - Nested Test', function () {
 
     var $testInput = $('#myLastName');
 
-    $testInput.val("a"); //set it 
+    $testInput.val("a"); //set it
     $testInput.change(); //trigger change event
 
     var isValid = vm.someObj.lastName.isValid();
@@ -270,7 +307,7 @@ test('Validation Options - Options only apply to their HTML Contexts', function 
 
     var $testInput = $('#myLastName');
 
-    $testInput.val("a"); //set it 
+    $testInput.val("a"); //set it
     $testInput.change(); //trigger change event
 
     var isValid = vm.someObj.lastName.isValid();
@@ -282,7 +319,7 @@ test('Validation Options - Options only apply to their HTML Contexts', function 
     equal(noMsgs, 0, 'No Messages were inserted');
 
     var $firstName = $('#myFirstName');
-    $firstName.val(""); //set it 
+    $firstName.val(""); //set it
     $firstName.change(); //trigger change event
 
     ok(!vm.firstName.isValid(), 'Validation Still works correctly');
@@ -419,7 +456,7 @@ test("Issue #80 - HTML5 attributes - pattern", function () {
 
     var $el = $('#testElement');
     var el = $el.get(0);
-    
+
     var param = $el.attr('pattern');
 
     // fire the validity check event

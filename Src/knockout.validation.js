@@ -1,9 +1,9 @@
 /*
 ===============================================================================
-    Author:     Eric M. Barnard - @ericmbarnard                                
-    License:    MIT (http://opensource.org/licenses/mit-license.php)           
-                                                                               
-    Description: Validation Library for KnockoutJS                             
+    Author:     Eric M. Barnard - @ericmbarnard
+    License:    MIT (http://opensource.org/licenses/mit-license.php)
+
+    Description: Validation Library for KnockoutJS
 ===============================================================================
 */
 
@@ -36,6 +36,7 @@
         errorClass: null,               // single class for error message and element
         errorElementClass: 'validationElement',  // class to decorate error element
         errorMessageClass: 'validationMessage',  // class to decorate error message
+        errorMessageElement: null,
         grouping: {
             deep: false,        //by default grouping is shallow
             observable: true    //and using observables
@@ -276,10 +277,10 @@
                 };
                 obj.isAnyMessageShown = function() {
                     var invalidAndModifiedPresent = false;
-                    
+
                     // ensure we have latest changes
                     result();
-                    
+
                     ko.utils.arrayForEach(validatables(), function (observable) {
                         if (!observable.isValid() && observable.isModified()) {
                             invalidAndModifiedPresent = true;
@@ -393,10 +394,10 @@
 
             //creates a span next to the @element with the specified error class
             insertValidationMessage: function (element) {
-                var span = document.createElement('SPAN');
-                span.className = utils.getConfigOptions(element).errorMessageClass;
-                utils.insertAfter(element, span);
-                return span;
+                var msgElement = (utils.getConfigOptions(element).errorMessageElement !== null) ? document.createElement(utils.getConfigOptions(element).errorMessageElement) : document.createElement('SPAN');
+                msgElement.className = utils.getConfigOptions(element).errorMessageClass;
+                utils.insertAfter(element, msgElement);
+                return msgElement;
             },
 
             // if html-5 validation attributes have been specified, this parses
@@ -718,12 +719,12 @@
                 msg = null,
                 isModified = false,
                 isValid = false;
-                
+
             obsv.extend({ validatable: true });
 
             isModified = obsv.isModified();
             isValid = obsv.isValid();
-            
+
             // create a handler to correctly return an error message
             var errorMsgAccessor = function () {
                 if (!config.messagesOnModified || isModified) {
