@@ -102,6 +102,16 @@
         <script type="text/javascript">
             $(function () {                
                 ko.applyBindings(viewModel, $('#workbench')[0]);
+
+
+                module("Workbench Tests");
+
+                test("Reports Correct Amount of Starting Errors", function(){
+
+                    var cnt = $('#errorCount').text();
+
+                    strictEqual(cnt, "5", "Init was not called, and the correct number of errors was evaluated");
+                })
             });
         </script>
     </div>
