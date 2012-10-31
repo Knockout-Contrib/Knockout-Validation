@@ -535,7 +535,7 @@
 
     validation.rules['pattern'] = {
         validator: function (val, regex) {
-            return utils.isEmptyVal(val) || val.match(regex) != null;
+            return utils.isEmptyVal(val) || val.toString().match(regex) != null;
         },
         message: 'Please check this value.'
     };
@@ -742,7 +742,7 @@
 
             //toggle visibility on validation messages when validation hasn't been evaluated, or when the object isValid
             var visiblityAccessor = function () {
-                return isModified ? !isValid : false;
+                return (!config.messagesOnModified || isModified) ? !isValid : false;
             };
 
             ko.bindingHandlers.text.update(element, errorMsgAccessor);
