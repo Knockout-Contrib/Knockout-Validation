@@ -31,6 +31,7 @@
     </div>
     <div id="workbench">
         <script type="text/javascript">
+            ko.validation.init();
             ko.validation.rules.pattern.message = 'Invalid.';
 
             var captcha = function (val) {
@@ -100,7 +101,7 @@
         <br />
         <button type="button" data-bind='click: requireLocation'>Make 'Location' required</button>
         <script type="text/javascript">
-            $(function () {
+            $(function () {                
                 ko.applyBindings(viewModel, $('#workbench')[0]);
             });
         </script>
