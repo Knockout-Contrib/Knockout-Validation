@@ -24,6 +24,10 @@
 
     if (typeof (ko) === undefined) { throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in'; }
 
+    if (typeof define === "function" && define["amd"]) {
+        exports = ko.validation = {};
+    }
+
     var defaults = {
         registerExtenders: true,
         messagesOnModified: true,

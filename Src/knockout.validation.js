@@ -24,9 +24,9 @@
 
     if (typeof (ko) === undefined) { throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in'; }
 
-    if (typeof define === "function" && define["amd"]) {
-        exports = ko.validation = {};
-    }
+    // create our namespace object
+    var validation = exports;
+    ko.validation = validation;
 
     var defaults = {
         registerExtenders: true,
@@ -146,7 +146,7 @@
     //#endregion
 
     //#region Public API
-    var validation = (function () {
+    var api = (function () {
 
         var isInitialized = 0;
 
@@ -453,7 +453,10 @@
                 contexts = null;
             }
         };
-    } ());
+    }());
+
+    // expose api publicly
+    ko.utils.extend(validation, api);
     //#endregion
 
     //#region Core Validation Rules
@@ -1072,8 +1075,4 @@
     };
 
     //#endregion
-
-    /// apply our public api to the public object
-    ko.utils.extend(exports, validation);
-
 }));
