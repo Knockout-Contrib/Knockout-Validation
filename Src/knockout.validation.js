@@ -747,11 +747,15 @@
 
             // toggle classname for active error
             var classnameAccessor = function () {
+            	var value = {};
+
             	if (!config.messagesOnModified || isModified) {
-                    return isValid ? '' : config.errorMessageClass;
+                    value[config.errorMessageClass] = isValid ? false : true;
                 } else {
-                    return '';
+                    value[config.errorMessageClass] = false;
                 }
+
+                return value;
             };
 
 			ko.bindingHandlers.css.update(element, classnameAccessor);
