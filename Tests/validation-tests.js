@@ -1038,6 +1038,22 @@ test('Issue #37 - Toggle ShowAllMessages', function () {
     ok(!vm.two.one.isModified(), "Level 2 is not modified");
     ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
 });
+
+test('Group does not resolve computed values', function () {
+	var vm = {
+		Value: ko.observable('no')
+	};
+	vm.Test = ko.computed({
+		read: function () {
+			vm.Value('yes');
+		},
+		deferEvaluation: true
+	});
+	
+	equal(vm.Value(), 'no');
+	ko.validation.group(vm);
+	equal(vm.Value(), 'no');
+});
 //#endregion
 
 //#region Conditional Validation
