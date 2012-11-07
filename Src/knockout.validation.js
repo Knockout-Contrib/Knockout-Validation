@@ -222,7 +222,8 @@
                         ko.utils.arrayForEach(objValues, function (observable) {
 
                             //but not falsy things and not HTML Elements
-                            if (observable && !observable.nodeType) traverse(observable, level + 1);
+                            if (observable && !observable.nodeType && !ko.isComputed(observable))
+								traverse(observable, level + 1);
                         });
                     }
                 };
