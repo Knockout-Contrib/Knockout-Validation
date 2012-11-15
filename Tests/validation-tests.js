@@ -1039,7 +1039,7 @@ test('Issue #37 - Toggle ShowAllMessages', function () {
     ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
 });
 
-test('Group does not resolve computed values', function () {
+test('Group does not resolve deferred computed values', function () {
 	var vm = {
 		Value: ko.observable('no')
 	};
@@ -1050,9 +1050,28 @@ test('Group does not resolve computed values', function () {
 		deferEvaluation: true
 	});
 	
-	equal(vm.Value(), 'no');
+	equal(vm.Value(), 'no', 'Not resolved');
 	ko.validation.group(vm);
-	equal(vm.Value(), 'no');
+	equal(vm.Value(), 'no', 'Still not resolved');
+	equal(vm.errors().length, 0, 'No errors');
+});
+
+test('Group does resolve deferred computed values that have validation', function () {
+	var vm = {
+		Value: ko.observable('no')
+	};
+	vm.Test = ko.computed({
+		read: function () {
+			vm.Value('yes');
+		},
+		deferEvaluation: true
+	});
+	
+	equal(vm.Value(), 'no', 'Not resolved');
+	vm.Test.extend({ required: true });
+	ko.validation.group(vm);
+	equal(vm.Value(), 'yes', 'Resolved');
+	equal(vm.errors().length, 1, 'Error notification');
 });
 //#endregion
 
