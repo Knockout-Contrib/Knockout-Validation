@@ -244,7 +244,7 @@
                                 observable.subscribe(function () {
                                     validatables([]); //clear validatables
                                     traverse(obj);
-                                })
+                                });
                             }
                         });
                     }
