@@ -904,7 +904,7 @@ test('Nested grouping finds items in observableArrays - observable', function ()
     equals(errors().length, 1, 'Grouping finds property on object in observableArray');
 });
 
-test('Nested grouping does not add newly items newly inserted into observableArrays to result - observable, not live', function () {
+test('Nested grouping does not add items newly inserted into observableArrays to result - observable, not live', function () {
     var vm = { array: ko.observableArray() };
     
     var errors = ko.validation.group(vm, { deep: true, observable: true, live: false }); 
@@ -941,12 +941,29 @@ test('Nested grouping ignores items nested in destroyed objects - not observable
 test('Nested grouping ignores items nested in destroyed objects - observable, live', function () {
     var obj = { nested: ko.observable().extend({ required: true }) };
     var array = ko.observableArray([obj]);
+    var vm = { array: array};
 
-    var errors = ko.validation.group(array, { deep: true, observable: true, live: true });
+    var errors = ko.validation.group(vm, { deep: true, observable: true, live: true });
 
     equal(errors().length, 1, 'obj is not yet destroyed and nested therefore invalid');
     array.destroy(obj);
     equal(errors().length, 0, 'obj is destroyed and nested therefore ignored');
+});
+
+test('Nested grouping does not cause the reevaluation of computeds depending on the result for every observable', function () {
+    var vm = { array: ko.observableArray() };
+    var item = { one:  ko.observable().extend( { required: true } ) };
+    
+    var errors = ko.validation.group(vm, { deep: true, observable: true, live: true });
+    
+    var computedHitCount = 0;
+    var computed = ko.computed(function () {
+        computedHitCount++;
+        errors();
+    });
+
+    vm.array.push(item);
+    equals(computedHitCount, 2, ' first on while creating the computed, second one for adding the item');
 });
 
 test('Nested grouping adds items newly inserted into observableArrays to result - cleares validatables before traversing again - observable, live', function () {
