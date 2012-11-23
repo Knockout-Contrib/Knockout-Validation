@@ -36,6 +36,7 @@
         errorClass: null,               // single class for error message and element
         errorElementClass: 'validationElement',  // class to decorate error element
         errorMessageClass: 'validationMessage',  // class to decorate error message
+        enableErrorDetails: false,      // add a new property errorDetails which contains the rule, the params, the observable and the message
         grouping: {
             deep: false,            //by default grouping is shallow
             observable: true,       //and using observables
@@ -237,7 +238,7 @@
                         var errors = [];
                         ko.utils.arrayForEach(validatables(), function (observable) {
                             if (!observable.isValid()) {
-                                errors.push(options.errorDetails ? observable.errorDetails : observable.error);
+                                errors.push(options.errorDetails && configuration.enableErrorDetails ? observable.errorDetails : observable.error);
                             }
                         });
                         return errors;
@@ -250,7 +251,7 @@
                         traverse(obj); // and traverse tree again
                         ko.utils.arrayForEach(validatables(), function (observable) {
                             if (!observable.isValid()) {
-                                errors.push(options.errorDetails ? observable.errorDetails : observable.error);
+                                errors.push(options.errorDetails && configuration.enableErrorDetails ? observable.errorDetails : observable.error);
                             }
                         });
                         return errors;
@@ -852,7 +853,9 @@
         if (enable && !utils.isValidatable(observable)) {
 
             observable.error = null; // holds the error message, we only need one since we stop processing validators when one is invalid
-            observable.errorDetails = null; // 
+            if(configuration.enableErrorDetails) {
+                observable.errorDetails = null; // holds detailed error informatino
+            }
             // observable.rules:
             // ObservableArray of Rule Contexts, where a Rule Context is simply the name of a rule and the params to supply to it
             //
@@ -904,6 +907,7 @@
                 delete observable['isValidating'];
                 delete observable['__valid__'];
                 delete observable['isModified'];
+                if(configuration.enableErrorDetails) delete observable['errorDetails']
             };
         } else if (enable === false && utils.isValidatable(observable)) {
 
