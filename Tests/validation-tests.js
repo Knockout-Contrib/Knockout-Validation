@@ -860,6 +860,26 @@ test('Error Grouping works', function () {
     equals(errors().length, 2, 'Grouping correctly finds 2 invalid properties');
 });
 
+test('Error Grouping option addResultToVM true adds properties to vm', function () {
+    var vm = { };
+
+    var errors = ko.validation.group(vm, { addResultToVM: true });
+
+    equals(vm.errors, errors, 'errors property exists on vm');
+    equals(vm.isValid, errors.isValid, 'isValid property exists on vm');
+    equals(vm.isAnyMessageShown, vm.isAnyMessageShown, 'isAnyMessageShown property exists on vm');
+});
+
+test('Error Grouping option addResultToVM false adds no properties to vm', function () {
+    var vm = { };
+
+    var errors = ko.validation.group(vm, { addResultToVM: false });
+
+    equals(vm.errors, undefined, 'errors property not set');
+    equals(vm.isValid, undefined, 'isValid property not set');
+    equals(vm.isAnyMessageShown, undefined, 'isAnyMessageShown property not set');
+});
+
 test('Nested Grouping works - Observable', function () {
     var vm = {
        one: ko.observable().extend({ required: true }),
