@@ -245,7 +245,6 @@
                             if (utils.isObservableArray(observable)) {
                                 observable.subscribe(function () {
                                     validatablesTemp = [];
-                                    //validatables([]); //clear validatables
                                     traverse(obj);
                                     validatables(validatablesTemp);
                                 });
