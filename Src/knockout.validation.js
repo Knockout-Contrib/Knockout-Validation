@@ -187,7 +187,7 @@
             //      observable: false // if true, returns a computed observable indicating if the viewModel is valid
             // }
             group: function group(obj, options) { // array of observables or viewModel
-                var options = ko.utils.extend(configuration.grouping, options),
+                var options = ko.utils.extend(ko.utils.extend({} ,configuration.grouping), options),
                 validatables = ko.observableArray([]),
                 result = null,
 
