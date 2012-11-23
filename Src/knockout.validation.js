@@ -923,16 +923,17 @@
         if (!rule.validator(observable(), ctx.params === undefined ? true : ctx.params)) { // default param is true, eg. required = true
 
             //not valid, so format the error message and stick it in the 'error' variable
-            observable.error = ko.validation.formatMessage(ctx.message || rule.message, ctx.params);
-            //make a details object summary
-            observable.errorDetails = {
-                rule: rule,
-                params: ctx.params,
-                observable: observable,
-                message: observable.error
-            };
             observable.error = exports.formatMessage(ctx.message || rule.message, ctx.params);
             observable.__valid__(false);
+            if(configuration.enableErrorDetails) {
+                //make a details object summary
+                observable.errorDetails = {
+                    rule: rule,
+                    params: ctx.params,
+                    observable: observable,
+                    message: observable.error
+                };
+            }
             return false;
         } else {
             return true;
@@ -966,17 +967,16 @@
                 //not valid, so format the error message and stick it in the 'error' variable
                 observable.error = exports.formatMessage(msg || ctx.message || rule.message, ctx.params);
                 observable.__valid__(isValid);
+                if(configuration.enableErrorDetails) {
+                    //make a details object summary
+                    observable.errorDetails = {
+                        rule: rule,
+                        params: ctx.params,
+                        observable: observable,
+                        message: observable.error
+                    };
+                }
             }
-
-            //not valid, so format the error message and stick it in the 'error' variable
-            observable.error = ko.validation.formatMessage(msg || ctx.message || rule.message, ctx.params);
-            //make a details object summary
-            observable.errorDetails = {
-                rule: rule,
-                params: ctx.params,
-                observable: observable,
-                message: observable.error
-            };
 
             // tell it that we're done
             observable.isValidating(false);
@@ -1018,7 +1018,7 @@
         }
         //finally if we got this far, make the observable valid again!
         observable.error = null;
-        observable.errorDetails = null;
+        if(configuration.enableErrorDetails) observable.errorDetails = null;
         observable.__valid__(true);
         return true;
     };

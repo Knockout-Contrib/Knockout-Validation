@@ -1301,4 +1301,15 @@ test('group with errorDetails options works - Observable', function () {
     equals(errors()[1], vm.lastName.errorDetails, 'group with errorDetails returns list of errorDetails');
     ko.validation.reset();
 });
+
+test('errorDetails property is not defined if enableErrorDetails equals false', function () {
+    // enableErrorDetails is disabled by default
+    //ko.validation.init({enableErrorDetails: false }, true);
+    var testObj = ko.observable('').extend({ required: true });
+
+    equal(testObj.isValid(), false);
+    equal(testObj.error, ko.validation.rules.required.message);
+
+    ok(!testObj.hasOwnProperty('errorDetails'), 'errorDetails property does exist.');
+});
 //#endregion
