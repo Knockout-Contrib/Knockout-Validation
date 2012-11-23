@@ -1013,7 +1013,7 @@
         if (!exports.utils.isObject(initialValue)) { return ko.observable(initialValue).extend({ validatable: true }); }
 
         var obsv = ko.observable(initialValue);
-        obsv.errors = exports.group(initialValue);
+        obsv.errors = exports.group(initialValue, { addResultToVM: true });
         obsv.isValid = ko.computed(function () {
             return obsv.errors().length === 0;
         });
