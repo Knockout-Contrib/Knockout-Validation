@@ -31,6 +31,7 @@
     var defaults = {
         registerExtenders: true,
         messagesOnModified: true,
+		errorsAsTitle: true,  			// enables/disables showing of errors as title attribute of the target element.
         errorsAsTitleOnModified: false, // shows the error when hovering the input field (decorateElement must be true)
         messageTemplate: null,
         insertMessages: true,           // automatically inserts validation messages as <span></span>
@@ -781,7 +782,9 @@
 
             //add or remove class on the element;
             ko.bindingHandlers.css.update(element, cssSettingsAccessor);
-
+			
+			if (!config.errorsAsTitle) return;
+			
             var origTitle = element.getAttribute('data-orig-title');
             var elementTitle = element.title;
             var titleIsErrorMsg = element.getAttribute('data-orig-title') == "true"
