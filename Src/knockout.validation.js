@@ -88,6 +88,12 @@
             hasAttribute: function (node, attr) {
                 return node.getAttribute(attr) !== null;
             },
+            getAttribute: function(element, attr){
+                return element.getAttribute(attr);
+            },
+            setAttribute: function(element, attr, value){
+                return element.setAttribute(attr, value);
+            },
             isValidatable: function (o) {
                 return o && o.rules && o.isValid && o.isModified;
             },
@@ -793,12 +799,11 @@
 
             //add or remove class on the element;
             ko.bindingHandlers.css.update(element, cssSettingsAccessor);
-			
 			if (!config.errorsAsTitle) return;
 			
-            var origTitle = element.getAttribute('data-orig-title');
-            var elementTitle = element.title;
-            var titleIsErrorMsg = element.getAttribute('data-orig-title') == "true"
+			var origTitle = utils.getAttribute(element, 'data-orig-title'),
+                elementTitle = element.title,
+                titleIsErrorMsg = utils.getAttribute(element, 'data-orig-title') == "true";
 
             var errorMsgTitleAccessor = function () {
                 if (!config.errorsAsTitleOnModified || isModified) {
