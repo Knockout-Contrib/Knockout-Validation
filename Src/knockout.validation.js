@@ -924,7 +924,6 @@
 
             //not valid, so format the error message and stick it in the 'error' variable
             observable.error = exports.formatMessage(ctx.message || rule.message, ctx.params);
-            observable.__valid__(false);
             if(configuration.enableErrorDetails) {
                 //make a details object summary
                 observable.errorDetails = {
@@ -934,6 +933,7 @@
                     message: observable.error
                 };
             }
+            observable.__valid__(false);
             return false;
         } else {
             return true;
@@ -966,7 +966,6 @@
             if (!isValid) {
                 //not valid, so format the error message and stick it in the 'error' variable
                 observable.error = exports.formatMessage(msg || ctx.message || rule.message, ctx.params);
-                observable.__valid__(isValid);
                 if(configuration.enableErrorDetails) {
                     //make a details object summary
                     observable.errorDetails = {
@@ -976,6 +975,7 @@
                         message: observable.error
                     };
                 }
+                observable.__valid__(isValid);
             }
 
             // tell it that we're done
