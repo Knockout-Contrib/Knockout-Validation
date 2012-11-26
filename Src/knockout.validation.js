@@ -907,7 +907,7 @@
                 delete observable['isValidating'];
                 delete observable['__valid__'];
                 delete observable['isModified'];
-                if(configuration.enableErrorDetails) delete observable['errorDetails']
+                if(configuration.enableErrorDetails) delete observable['errorDetails'];
             };
         } else if (enable === false && utils.isValidatable(observable)) {
 
