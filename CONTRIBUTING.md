@@ -6,7 +6,7 @@ Firstly, I am looking for team members! The popularity of Knockout.Validation ha
 
 As a team member, you will have priority on determining the direction of Knockout.Validation. You will also get credit on all publicity, articles, references, etc... for Knockout.Validation.
 
-If you are interested, shoot [Eric](eric.m.barnard@gmail.com) a note
+If you are interested, shoot [Eric](https://github.com/ericmbarnard) a note
 
 ##Found a bug?
 1. Please give your absolute best attempt to repro the issue with a test (it's really not that hard)
