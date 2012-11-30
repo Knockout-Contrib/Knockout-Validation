@@ -505,3 +505,100 @@ test("HTML5 Input types", function () {
 
 
 //#endregion
+
+
+
+//#region Other Tests
+module('Other Tests');
+
+test('ViewModel has an observable Model with validated properties', function () {
+
+    // define the model class
+    function M(data) {
+        var self = this;
+
+        // this is the actual observed attribute
+        self.firstName = ko.observable(data.firstName).extend({ required: true });
+
+        return self;
+    };
+
+    // define the view model class
+    function VM() {
+        var self = this;
+
+        // set up an observer
+        self._model = ko.observable({});
+
+        // dummy to hold log messages
+        self._log = ko.observableArray([]);
+
+        // dummy to hold errors
+        self._errors = ko.observableArray([]);
+
+        // helper/wrapper method
+        self.isValid = function () {
+            //reset the errors
+            self._errors([]);
+
+            var result = ko.validation.group(self._model);
+
+            if (self._model.isValid) {
+                var is_valid = self._model.isValid();
+
+                if (!is_valid && result.errors) {
+                    $.each(result.errors(), function (err) {
+                        self._errors.push(err);
+                    });
+                }
+
+                return is_valid;
+            }
+            else {
+                var msg = "Model is not a validated observable";
+                console.log(msg);
+                self._log.push(msg);
+                return false;
+            }
+        };
+
+        // load the model (IRL this is from the remote source)
+        self.load = function(data) {
+            self._model(new M(data));
+        };
+
+        // load the (empty) initial model
+        self.load({});
+
+        return self;
+    };
+
+    var testHtml =  '<div data-bind="validationOptions: { insertMessages: false }">' +
+                        '<div data-bind="with: _model">' + 
+                            '<input id="myTestInput" data-bind="value: firstName" />' +
+                        '</div>' + 
+                    '</div>';
+
+    addTestHtml(testHtml);
+    var vm = new VM();
+
+    applyTestBindings(vm);
+
+    // ok(vm._model.isValid, 'Underlying model should be validatable');
+
+    var $testInput = $('#myTestInput');
+    equal($testInput.val(), '', 'Input should have no value right now');
+
+    equal(vm.isValid(), false, 'ViewModel should not be valid');
+    equal(vm._log().length, 0, 'Should have no log messages since the model is a validated observable, right?');
+
+    var firstName_value = "a";
+    $testInput.val(firstName_value); //set it 
+    $testInput.change(); //trigger change event
+    equal($testInput.val(), firstName_value, 'Input should now have a value');
+    equal(vm._model().firstName(), firstName_value, 'Bound observable should also have the same value');
+
+    equal(vm.isValid(), true, 'ViewModel should be valid');
+    equal(vm._log().length, 0, 'Should *still* have no log messages since the model is a validated observable, right?  Right?');
+});
+//#endregion
