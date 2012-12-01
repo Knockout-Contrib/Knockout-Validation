@@ -286,31 +286,31 @@ test('Pattern validation mismatches numbers', function () {
 test('Pattern validation doesn\'t break with non-string values', function () {
     var testObj = ko.observable('')
                     .extend({ pattern: '^$' });
-	
-	// Validation results not important, just shouldn't blow-up
+    
+    // Validation results not important, just shouldn't blow-up
     testObj(null);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj(undefined);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj(12345);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj(12.34);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj(true);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj(false);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj([]);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj({});
-	testObj.isValid();
+    testObj.isValid();
 });
 
 //#endregion
