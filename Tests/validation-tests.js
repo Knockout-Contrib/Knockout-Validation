@@ -821,440 +821,490 @@ test('Issue #78 - Falsy Params', function () {
 });
 //#endregion
 
+//#region Manual Validation
+module("Manual Validation")
+test("setError sets isValid and error message", function () {
+    var testObj = ko.observable();
+    testObj.extend({ validatable: true });
+
+	//check initial validation state
+    ok(testObj.isValid());
+    equal(testObj.error, null);
+
+	//manually set an error
+    testObj.setError("oh no!");
+
+	//check state was set
+    ok(!testObj.isValid());
+	equal("oh no!", testObj.error);
+});
+
+test("clearError clears manually-specified error", function () {
+	var testObj = ko.observable();
+	testObj.extend({ validatable: true });
+	testObj.setError("oh no!");
+
+	//fail the validation
+	ok(!testObj.isValid())
+
+	//clear the validation
+	testObj.clearError();
+
+	//check state was cleared
+	ok(testObj.isValid());
+	equal(testObj.error, null);
+});
+
+test("clearError clears automatic errors", function () {
+	var testObj = ko.observable(5);
+	testObj.extend({ min: 6 });
+
+	//check initial state
+	ok(!testObj.isValid());
+
+	testObj.clearError();
+
+	//check validation was cleared
+	ok(testObj.isValid());
+	equal(testObj.error, null);
+});
+
+//#endregion
+
 //#region Equal tests
 module("Equal Tests");
 
-test('Object is Valid and isValid returns True', function () {
-    var compareObj = ko.observable(12);
-    var testObj = ko.observable('').extend({ equal: compareObj });
+	test('Object is Valid and isValid returns True', function () {
+		var compareObj = ko.observable(12);
+		var testObj = ko.observable('').extend({ equal: compareObj });
 
-    testObj(12);
+		testObj(12);
 
-    equal(testObj(), 12, 'observable still works');
-    ok(testObj.isValid(), 'testObj is Valid');
-});
+		equal(testObj(), 12, 'observable still works');
+		ok(testObj.isValid(), 'testObj is Valid');
+	});
 
-test('Object is NOT Valid and isValid returns False', function () {
-    var compareObj = ko.observable(12);
-    var testObj = ko.observable('').extend({ equal: compareObj });
+	test('Object is NOT Valid and isValid returns False', function () {
+		var compareObj = ko.observable(12);
+		var testObj = ko.observable('').extend({ equal: compareObj });
 
-    testObj(11);
+		testObj(11);
 
-    equal(testObj(), 11, 'observable still works');
-    equal(testObj.isValid(), false, 'testObj is not valid');
-});
+		equal(testObj(), 11, 'observable still works');
+		equal(testObj.isValid(), false, 'testObj is not valid');
+	});
 
-//#endregion
+	//#endregion
 
-//#region NotEqual tests
-module("Not Equal Tests");
+	//#region NotEqual tests
+	module("Not Equal Tests");
 
-test('Object is Valid and isValid returns True', function () {
-    var compareObj = ko.observable(12);
-    var testObj = ko.observable('').extend({ notEqual: compareObj });
+	test('Object is Valid and isValid returns True', function () {
+		var compareObj = ko.observable(12);
+		var testObj = ko.observable('').extend({ notEqual: compareObj });
 
-    testObj(11);
+		testObj(11);
 
-    equal(testObj(), 11, 'observable still works');
-    ok(testObj.isValid(), 'testObj is Valid');
-});
+		equal(testObj(), 11, 'observable still works');
+		ok(testObj.isValid(), 'testObj is Valid');
+	});
 
-test('Object is NOT Valid and isValid returns False', function () {
-    var compareObj = ko.observable(12);
-    var testObj = ko.observable('').extend({ notEqual: compareObj });
+	test('Object is NOT Valid and isValid returns False', function () {
+		var compareObj = ko.observable(12);
+		var testObj = ko.observable('').extend({ notEqual: compareObj });
 
-    testObj(12);
+		testObj(12);
 
-    equal(testObj(), 12, 'observable still works');
-    equal(testObj.isValid(), false, 'testObj is not valid');
-});
+		equal(testObj(), 12, 'observable still works');
+		equal(testObj.isValid(), false, 'testObj is not valid');
+	});
 
-//#endregion
+	//#endregion
 
-//#region Unique tests
-module("Unique Tests");
+	//#region Unique tests
+	module("Unique Tests");
 
-test('Object is Valid and isValid returns True', function () {
-    var compareObj = ko.observableArray([11, 12, 13]);
-    var testObj = ko.observable('').extend({ unique: { collection: compareObj} });
+	test('Object is Valid and isValid returns True', function () {
+		var compareObj = ko.observableArray([11, 12, 13]);
+		var testObj = ko.observable('').extend({ unique: { collection: compareObj} });
 
-    testObj(11);
+		testObj(11);
 
-    equal(testObj(), 11, 'observable still works');
-    ok(testObj.isValid(), 'testObj is Valid');
-});
+		equal(testObj(), 11, 'observable still works');
+		ok(testObj.isValid(), 'testObj is Valid');
+	});
 
-test('Object is NOT Valid and isValid returns False', function () {
-    var compareObj = ko.observableArray([11, 12, 13, 13]);
-    var testObj = ko.observable('').extend({ unique: { collection: compareObj} });
+	test('Object is NOT Valid and isValid returns False', function () {
+		var compareObj = ko.observableArray([11, 12, 13, 13]);
+		var testObj = ko.observable('').extend({ unique: { collection: compareObj} });
 
-    testObj(13);
+		testObj(13);
 
-    equal(testObj(), 13, 'observable still works');
-    equal(testObj.isValid(), false, 'testObj is not valid');
-});
+		equal(testObj(), 13, 'observable still works');
+		equal(testObj.isValid(), false, 'testObj is not valid');
+	});
 
-//#endregion
+	//#endregion
 
-//#region Utils Tests
-module('Grouping Tests');
+	//#region Utils Tests
+	module('Grouping Tests');
 
-test('Error Grouping works', function () {
-    var vm = {
-        firstName: ko.observable().extend({ required: true }),
-        lastName: ko.observable().extend({ required: 2 })
-    };
+	test('Error Grouping works', function () {
+		var vm = {
+			firstName: ko.observable().extend({ required: true }),
+			lastName: ko.observable().extend({ required: 2 })
+		};
 
-    var errors = ko.validation.group(vm);
+		var errors = ko.validation.group(vm);
 
-    equals(errors().length, 2, 'Grouping correctly finds 2 invalid properties');
-});
+		equals(errors().length, 2, 'Grouping correctly finds 2 invalid properties');
+	});
 
-test('Nested Grouping works - Observable', function () {
-    var vm = {
-       one: ko.observable().extend({ required: true }),
-       two: {
-           one: ko.observable().extend({ required: true })
-       },
-       three: {
-           two: {
-               one: ko.observable().extend({ required: true })
-           }
-       }
-    };
+	test('Nested Grouping works - Observable', function () {
+		var vm = {
+			one: ko.observable().extend({ required: true }),
+			two: {
+				one: ko.observable().extend({ required: true })
+			},
+			three: {
+				two: {
+					one: ko.observable().extend({ required: true })
+				}
+			}
+		};
 
-    var errors = ko.validation.group(vm, { deep: true, observable: true });
+		var errors = ko.validation.group(vm, { deep: true, observable: true });
 
-    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
-});
+		equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+	});
 
-test('Nested Grouping works - Not Observable', function () {
-    var vm = {
-        one: ko.observable().extend({ required: true }),
-        two: {
-            one: ko.observable().extend({ required: true })
-        },
-        three: {
-            two: {
-                one: ko.observable().extend({ required: true })
-            }
-        }
-    };
+	test('Nested Grouping works - Not Observable', function () {
+		var vm = {
+			one: ko.observable().extend({ required: true }),
+			two: {
+				one: ko.observable().extend({ required: true })
+			},
+			three: {
+				two: {
+					one: ko.observable().extend({ required: true })
+				}
+			}
+		};
 
-    var errors = ko.validation.group(vm, { deep: true, observable: false });
+		var errors = ko.validation.group(vm, { deep: true, observable: false });
 
-    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
-});
+		equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+	});
 
-test('Issue #31 - Recursively Show All Messages', function () {
-    var vm = {
-        one: ko.observable().extend({ required: true }),
-        two: {
-            one: ko.observable().extend({ required: true })
-        },
-        three: {
-            two: {
-                one: ko.observable().extend({ required: true })
-            }
-        }
-    };
+	test('Issue #31 - Recursively Show All Messages', function () {
+		var vm = {
+			one: ko.observable().extend({ required: true }),
+			two: {
+				one: ko.observable().extend({ required: true })
+			},
+			three: {
+				two: {
+					one: ko.observable().extend({ required: true })
+				}
+			}
+		};
 
-    var errors = ko.validation.group(vm, { deep: true, observable: false });
+		var errors = ko.validation.group(vm, { deep: true, observable: false });
 
-    ok(!vm.one.isModified(), "Level 1 is not modified");
-    ok(!vm.two.one.isModified(), "Level 2 is not modified");
-    ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
+		ok(!vm.one.isModified(), "Level 1 is not modified");
+		ok(!vm.two.one.isModified(), "Level 2 is not modified");
+		ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
     
-    // now show all the messages
-    errors.showAllMessages();
-
-    ok(vm.one.isModified(), "Level 1 is modified");
-    ok(vm.two.one.isModified(), "Level 2 is modified");
-    ok(vm.three.two.one.isModified(), "Level 3 is modified");
-
-    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
-});
-
-test('Issue #31 - Recursively Show All Messages - using computed', function () {
-    var vm = {
-        one: ko.observable().extend({ required: true }),
-        two: {
-            one: ko.observable().extend({ required: true })
-        },
-        three: {
-            two: {
-                one: ko.observable().extend({ required: true })
-            }
-        }
-    };
-
-    var errors = ko.validation.group(vm, { deep: true, observable: true });
-
-    ok(!vm.one.isModified(), "Level 1 is not modified");
-    ok(!vm.two.one.isModified(), "Level 2 is not modified");
-    ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
-
-    // now show all the messages
-    errors.showAllMessages();
-
-    ok(vm.one.isModified(), "Level 1 is modified");
-    ok(vm.two.one.isModified(), "Level 2 is modified");
-    ok(vm.three.two.one.isModified(), "Level 3 is modified");
-
-    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
-});
-
-test('Issue #37 - Toggle ShowAllMessages', function () {
-    var vm = {
-        one: ko.observable().extend({ required: true }),
-        two: {
-            one: ko.observable().extend({ required: true })
-        },
-        three: {
-            two: {
-                one: ko.observable().extend({ required: true })
-            }
-        }
-    };
-
-    var errors = ko.validation.group(vm, { deep: true, observable: true });
-
-    ok(!vm.one.isModified(), "Level 1 is not modified");
-    ok(!vm.two.one.isModified(), "Level 2 is not modified");
-    ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
-
-    // now show all the messages
-    errors.showAllMessages();
-
-    ok(vm.one.isModified(), "Level 1 is modified");
-    ok(vm.two.one.isModified(), "Level 2 is modified");
-    ok(vm.three.two.one.isModified(), "Level 3 is modified");
-
-    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
-
-    // now shut them off
-    errors.showAllMessages(false);
-    ok(!vm.one.isModified(), "Level 1 is not modified");
-    ok(!vm.two.one.isModified(), "Level 2 is not modified");
-    ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
-});
-//#endregion
-
-//#region Conditional Validation
-module('Conditional Validation in a rule');
-test('isValid always returns True when onlyIf Condition evaluates to false', function () {
-    var testObj = ko.observable('something').extend({
-        required: {
-            onlyIf: function() { return false; }
-        }
-    });
-    testObj('');
-    equal(testObj(), '', 'observable still works');
-    ok(testObj.isValid(), 'testObj is Valid');
-});
-
-test('isValid returns False When onlyIf Condition evaluates to true and Value is invalid', function () {
-    var testObj = ko.observable('something').extend({
-        required: {
-            onlyIf: function() { return true; }
-        }
-    });
-    testObj('');
-    equal(testObj(), '', 'observable still works');
-    equal(testObj.isValid(), false, 'testObj is not Valid');
-});
-
-test('Changing the value of observable used in onlyIf condition triggers validation', function () {
-    var person = {
-        isMarried: ko.observable(false).extend({ required: true }),
-    };
-    person.spouseName = ko.observable('').extend({
-                          required: { onlyIf: person.isMarried }
-                        });
-    person.isMarried(false);
-    ok(person.spouseName.isValid(), 'Unmarried person is valid without spouse name')
+		// now show all the messages
+		errors.showAllMessages();
+
+		ok(vm.one.isModified(), "Level 1 is modified");
+		ok(vm.two.one.isModified(), "Level 2 is modified");
+		ok(vm.three.two.one.isModified(), "Level 3 is modified");
+
+		equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+	});
+
+	test('Issue #31 - Recursively Show All Messages - using computed', function () {
+		var vm = {
+			one: ko.observable().extend({ required: true }),
+			two: {
+				one: ko.observable().extend({ required: true })
+			},
+			three: {
+				two: {
+					one: ko.observable().extend({ required: true })
+				}
+			}
+		};
+
+		var errors = ko.validation.group(vm, { deep: true, observable: true });
+
+		ok(!vm.one.isModified(), "Level 1 is not modified");
+		ok(!vm.two.one.isModified(), "Level 2 is not modified");
+		ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
+
+		// now show all the messages
+		errors.showAllMessages();
+
+		ok(vm.one.isModified(), "Level 1 is modified");
+		ok(vm.two.one.isModified(), "Level 2 is modified");
+		ok(vm.three.two.one.isModified(), "Level 3 is modified");
+
+		equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+	});
+
+	test('Issue #37 - Toggle ShowAllMessages', function () {
+		var vm = {
+			one: ko.observable().extend({ required: true }),
+			two: {
+				one: ko.observable().extend({ required: true })
+			},
+			three: {
+				two: {
+					one: ko.observable().extend({ required: true })
+				}
+			}
+		};
+
+		var errors = ko.validation.group(vm, { deep: true, observable: true });
+
+		ok(!vm.one.isModified(), "Level 1 is not modified");
+		ok(!vm.two.one.isModified(), "Level 2 is not modified");
+		ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
+
+		// now show all the messages
+		errors.showAllMessages();
+
+		ok(vm.one.isModified(), "Level 1 is modified");
+		ok(vm.two.one.isModified(), "Level 2 is modified");
+		ok(vm.three.two.one.isModified(), "Level 3 is modified");
+
+		equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+
+		// now shut them off
+		errors.showAllMessages(false);
+		ok(!vm.one.isModified(), "Level 1 is not modified");
+		ok(!vm.two.one.isModified(), "Level 2 is not modified");
+		ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
+	});
+	//#endregion
+
+	//#region Conditional Validation
+	module('Conditional Validation in a rule');
+	test('isValid always returns True when onlyIf Condition evaluates to false', function () {
+		var testObj = ko.observable('something').extend({
+			required: {
+				onlyIf: function() { return false; }
+			}
+		});
+		testObj('');
+		equal(testObj(), '', 'observable still works');
+		ok(testObj.isValid(), 'testObj is Valid');
+	});
+
+	test('isValid returns False When onlyIf Condition evaluates to true and Value is invalid', function () {
+		var testObj = ko.observable('something').extend({
+			required: {
+				onlyIf: function() { return true; }
+			}
+		});
+		testObj('');
+		equal(testObj(), '', 'observable still works');
+		equal(testObj.isValid(), false, 'testObj is not Valid');
+	});
+
+	test('Changing the value of observable used in onlyIf condition triggers validation', function () {
+		var person = {
+			isMarried: ko.observable(false).extend({ required: true }),
+		};
+		person.spouseName = ko.observable('').extend({
+			required: { onlyIf: person.isMarried }
+		});
+		person.isMarried(false);
+		ok(person.spouseName.isValid(), 'Unmarried person is valid without spouse name')
 
-    person.isMarried(true);
-    equal(person.spouseName.isValid(), false, 'Married person is not valid without spouse name')
-});
-//#endregion
+		person.isMarried(true);
+		equal(person.spouseName.isValid(), false, 'Married person is not valid without spouse name')
+	});
+	//#endregion
 
-//#region validatedObservable
-module('validatedObservable Tests');
-test('validatedObservable is Valid', function () {
+	//#region validatedObservable
+	module('validatedObservable Tests');
+	test('validatedObservable is Valid', function () {
 
-    var obj = ko.validatedObservable({
-        testObj: ko.observable('').extend({ minLength: 5 }),
-        testObj2: ko.observable('').extend({ required: true })
-    });
+		var obj = ko.validatedObservable({
+			testObj: ko.observable('').extend({ minLength: 5 }),
+			testObj2: ko.observable('').extend({ required: true })
+		});
 
-    obj().testObj('something');
-    obj().testObj2('eric');
+		obj().testObj('something');
+		obj().testObj2('eric');
 
-    ok(obj(), 'observable works');
-    ok(obj.isValid(), 'observable is valid');
+		ok(obj(), 'observable works');
+		ok(obj.isValid(), 'observable is valid');
 
-});
+	});
 
-test('validatedObservable is not Valid', function () {
+	test('validatedObservable is not Valid', function () {
 
-    var obj = ko.validatedObservable({
-        testObj: ko.observable('').extend({ minLength: 5 }),
-        testObj2: ko.observable('').extend({ required: true })
-    });
+		var obj = ko.validatedObservable({
+			testObj: ko.observable('').extend({ minLength: 5 }),
+			testObj2: ko.observable('').extend({ required: true })
+		});
 
-    obj().testObj('some');// not length of 5
-    obj().testObj2('eric');
+		obj().testObj('some');// not length of 5
+		obj().testObj2('eric');
 
-    ok(obj(), 'observable works');
-    ok(!obj.isValid(), obj.errors()[0]);
+		ok(obj(), 'observable works');
+		ok(!obj.isValid(), obj.errors()[0]);
 
-});
+	});
 
-test('validatedObservable is first Valid then made InValid', function () {
+	test('validatedObservable is first Valid then made InValid', function () {
 
-    var obj = ko.validatedObservable({
-        testObj: ko.observable('').extend({ minLength: 5 }),
-        testObj2: ko.observable('').extend({ required: true })
-    });
+		var obj = ko.validatedObservable({
+			testObj: ko.observable('').extend({ minLength: 5 }),
+			testObj2: ko.observable('').extend({ required: true })
+		});
 
-    //make it valid
-    obj().testObj('something');
-    obj().testObj2('eric');
+		//make it valid
+		obj().testObj('something');
+		obj().testObj2('eric');
 
-    //now make it invalid
-    obj().testObj('some');
+		//now make it invalid
+		obj().testObj('some');
 
-    ok(obj(), 'observable works');
-    ok(!obj.isValid(), obj.errors()[0]);
+		ok(obj(), 'observable works');
+		ok(!obj.isValid(), obj.errors()[0]);
 
-});
+	});
 
-test('validatedObservable does not show error message when not modified', function () {
-    var obj = ko.validatedObservable({
-        testObj: ko.observable('a').extend({ minLength: 5 }),
-        testObj2: ko.observable('').extend({ required: true })
-    });
+	test('validatedObservable does not show error message when not modified', function () {
+		var obj = ko.validatedObservable({
+			testObj: ko.observable('a').extend({ minLength: 5 }),
+			testObj2: ko.observable('').extend({ required: true })
+		});
 
-    ok(obj(), 'observable works');
-    ok(!obj().isAnyMessageShown(), 'validation error message is hidden');
+		ok(obj(), 'observable works');
+		ok(!obj().isAnyMessageShown(), 'validation error message is hidden');
 
-});
+	});
 
 
-test('validatedObservable does not show error message when modified but correct', function () {
-    var obj = ko.validatedObservable({
-        testObj: ko.observable('a').extend({ minLength: 5 }),
-        testObj2: ko.observable('').extend({ required: true })
-    });
+	test('validatedObservable does not show error message when modified but correct', function () {
+		var obj = ko.validatedObservable({
+			testObj: ko.observable('a').extend({ minLength: 5 }),
+			testObj2: ko.observable('').extend({ required: true })
+		});
 
-    obj().testObj('12345');
-    obj().testObj2('a');
+		obj().testObj('12345');
+		obj().testObj2('a');
 
-    ok(obj(), 'observable works');
-    ok(!obj().isAnyMessageShown(), 'validation error message is hidden');
+		ok(obj(), 'observable works');
+		ok(!obj().isAnyMessageShown(), 'validation error message is hidden');
 
-});
+	});
 
-test('validatedObservable show error message when at least one invalid and modified', function () {
-    var obj = ko.validatedObservable({
-        testObj: ko.observable('a').extend({ minLength: 5 }),
-        testObj2: ko.observable('').extend({ required: true })
-    });
+	test('validatedObservable show error message when at least one invalid and modified', function () {
+		var obj = ko.validatedObservable({
+			testObj: ko.observable('a').extend({ minLength: 5 }),
+			testObj2: ko.observable('').extend({ required: true })
+		});
 
-    obj().testObj.isModified(true);
+		obj().testObj.isModified(true);
 
-    ok(obj(), 'observable works');
-    ok(obj().isAnyMessageShown(), 'validation error message is shown');
+		ok(obj(), 'observable works');
+		ok(obj().isAnyMessageShown(), 'validation error message is shown');
 
-});
+	});
 
-//#endregion
+	//#endregion
 
-//#region Removing Validation
-module('Removing Validation Tests');
+	//#region Removing Validation
+	module('Removing Validation Tests');
 
-test('Basic Removal', function () {
-    var testObj = ko.observable('')
-                    .extend({ min: 2 });
+	test('Basic Removal', function () {
+		var testObj = ko.observable('')
+						.extend({ min: 2 });
 
-    testObj(3);
+		testObj(3);
 
-    var testFlag = false;
+		var testFlag = false;
 
-    equal(testObj(), 3, 'observable still works');
-    ok(testObj.isValid(), 'testObj is Valid');
+		equal(testObj(), 3, 'observable still works');
+		ok(testObj.isValid(), 'testObj is Valid');
 
-    testObj.isValid.subscribe(function () {
-        testFlag = true;
-    });
+		testObj.isValid.subscribe(function () {
+			testFlag = true;
+		});
 
-    testObj.extend({ validatable: false });
+		testObj.extend({ validatable: false });
 
-    ok(!testObj.isValid, 'Validation features removed');
-    testObj(1);
-    ok(!testFlag, 'Subscriptions to isValid didnt fire');
+		ok(!testObj.isValid, 'Validation features removed');
+		testObj(1);
+		ok(!testFlag, 'Subscriptions to isValid didnt fire');
 
-});
-//#endregion
+	});
+	//#endregion
 
-//#region Async Tests
-module('Async Tests');
+	//#region Async Tests
+	module('Async Tests');
 
-asyncTest('Async Rule Is Valid Test', function () {
+	asyncTest('Async Rule Is Valid Test', function () {
 
-    ko.validation.rules['mustEqualAsync'] = {
-        async: true,
-        validator: function (val, otherVal, callBack) {
-            var isValid = (val === otherVal);
-            setTimeout(function () {
-                callBack(isValid);
-                doAssertions();
+		ko.validation.rules['mustEqualAsync'] = {
+			async: true,
+			validator: function (val, otherVal, callBack) {
+				var isValid = (val === otherVal);
+				setTimeout(function () {
+					callBack(isValid);
+					doAssertions();
 
-                start();
-            }, 10);
-        },
-        message: 'The field must equal {0}'
-    };
-    ko.validation.registerExtenders(); //make sure the new rule is registered
+					start();
+				}, 10);
+			},
+			message: 'The field must equal {0}'
+		};
+		ko.validation.registerExtenders(); //make sure the new rule is registered
 
-    var testObj = ko.observable(5);
+		var testObj = ko.observable(5);
 
-    var doAssertions = function () {
-        equal(testObj(), 5, 'observable still works');
-        equal(testObj.isValid(), true, 'testObj is valid');
-    };
+		var doAssertions = function () {
+			equal(testObj(), 5, 'observable still works');
+			equal(testObj.isValid(), true, 'testObj is valid');
+		};
 
-    testObj.extend({ mustEqualAsync: 5 });
-});
+		testObj.extend({ mustEqualAsync: 5 });
+	});
 
-asyncTest('Async Rule Is NOT Valid Test', function () {
+	asyncTest('Async Rule Is NOT Valid Test', function () {
 
-    ko.validation.rules['mustEqualAsync'] = {
-        async: true,
-        validator: function (val, otherVal, callBack) {
-            var isValid = (val === otherVal);
-            setTimeout(function () {
-                callBack(isValid);
-                doAssertions();
+		ko.validation.rules['mustEqualAsync'] = {
+			async: true,
+			validator: function (val, otherVal, callBack) {
+				var isValid = (val === otherVal);
+				setTimeout(function () {
+					callBack(isValid);
+					doAssertions();
 
-                start();
-            }, 10);
-        },
-        message: 'The field must equal {0}'
-    };
-    ko.validation.registerExtenders(); //make sure the new rule is registered
+					start();
+				}, 10);
+			},
+			message: 'The field must equal {0}'
+		};
+		ko.validation.registerExtenders(); //make sure the new rule is registered
 
 
-    var testObj = ko.observable(4);
+		var testObj = ko.observable(4);
 
-    var doAssertions = function () {
-        equal(testObj(), 4, 'observable still works');
-        ok(testObj.error, testObj.error);
-        equal(testObj.isValid(), false, 'testObj is not valid');
-    };
+		var doAssertions = function () {
+			equal(testObj(), 4, 'observable still works');
+			ok(testObj.error, testObj.error);
+			equal(testObj.isValid(), false, 'testObj is not valid');
+		};
 
-    testObj.extend({ mustEqualAsync: 5 });
-});
+		testObj.extend({ mustEqualAsync: 5 });
+	});
 
-//#endregion
+	//#endregion
