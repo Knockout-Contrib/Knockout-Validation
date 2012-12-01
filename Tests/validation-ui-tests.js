@@ -136,6 +136,40 @@ test('Original titles are restored', function () {
 
 });
 
+test("Original titles are restored to blank", function () {
+        addTestHtml('<input id="myTestInput" data-bind="value: firstName" type="text" />');
+
+    var vm = {
+        firstName: ko.observable('').extend({ required: true })
+    };
+
+    // make sure the options are ok.
+    ko.validation.init({
+        errorsAsTitleOnModified: true,
+        decorateElement: true
+    }, true);
+
+    applyTestBindings(vm);
+
+    var $testInput = $('#myTestInput');
+
+    $testInput.val("a"); //set it 
+    $testInput.change(); //trigger change event
+
+    $testInput.val(""); //set it 
+    $testInput.change(); //trigger change event
+
+    ok(!vm.firstName.isValid(), 'First Name is NOT Valid');
+
+    //now make the name valid
+    vm.firstName("valid name");
+    ok(vm.firstName.isValid(), "Should now be valid");
+
+    //and check that the title was reset to blank
+    var updatedTitle = $testInput.attr("title")
+    ok(!updatedTitle, "Title should have been reset to blank");
+})
+
 test('Original titles are restored with multiple validators, too', function () {
 
     addTestHtml('<input id="myTestInput" title="my-orig-title" data-bind="value: firstName" type="text" />');
@@ -189,7 +223,7 @@ test('Showing Errors As Titles is disabled sucessfully', function () {
     ko.validation.init({
         errorsAsTitleOnModified: true,
         decorateElement: true,
-		errorsAsTitle: false
+        errorsAsTitle: false
     }, true);
 
     applyTestBindings(vm);

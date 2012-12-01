@@ -16,3 +16,4 @@
 *.ipr
 *.iws
 target
+*.ncrunchsolution

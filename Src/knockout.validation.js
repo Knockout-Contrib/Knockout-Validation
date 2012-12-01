@@ -31,7 +31,7 @@
     var defaults = {
         registerExtenders: true,
         messagesOnModified: true,
-		errorsAsTitle: true,  			// enables/disables showing of errors as title attribute of the target element.
+        errorsAsTitle: true,  			// enables/disables showing of errors as title attribute of the target element.
         errorsAsTitleOnModified: false, // shows the error when hovering the input field (decorateElement must be true)
         messageTemplate: null,
         insertMessages: true,           // automatically inserts validation messages as <span></span>
@@ -147,6 +147,14 @@
                 if (val === "") {
                     return true;
                 }
+            },
+            getOriginalElementTitle: function (element) {
+                var savedOriginalTitle = utils.getAttribute(element, 'data-orig-title'),
+                    currentTitle = element.title,
+                    hasSavedOriginalTitle = utils.hasAttribute(element, 'data-orig-title');
+                
+                return hasSavedOriginalTitle ? 
+                    savedOriginalTitle : currentTitle;
             }
         };
     } ());
@@ -799,18 +807,14 @@
 
             //add or remove class on the element;
             ko.bindingHandlers.css.update(element, cssSettingsAccessor);
-			if (!config.errorsAsTitle) return;
-			
-			var origTitle = utils.getAttribute(element, 'data-orig-title'),
-                elementTitle = element.title,
-                titleIsErrorMsg = utils.getAttribute(element, 'data-orig-title') == "true";
-
+            if (!config.errorsAsTitle) return;
+            
             var errorMsgTitleAccessor = function () {
                 if (!config.errorsAsTitleOnModified || isModified) {
                     if (!isValid) {
-                        return { title: obsv.error, 'data-orig-title': origTitle || elementTitle };
+                        return { title: obsv.error, 'data-orig-title': utils.getOriginalElementTitle(element) };
                     } else {
-                        return { title: origTitle || elementTitle, 'data-orig-title': null };
+                        return { title: utils.getOriginalElementTitle(element), 'data-orig-title': null };
                     }
                 }
             };
