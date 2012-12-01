@@ -7,6 +7,28 @@
 ===============================================================================
 */
 
+/*jshint
+    sub:true, 
+    curly: true,eqeqeq: true,
+    immed: true,
+    latedef: true,
+    newcap: true,
+    noarg: true,
+    sub: true,
+    undef: true,
+    boss: true,
+    eqnull: true,
+    browser: true
+*/
+
+/*globals
+    jQuery: false,
+    require: false,
+    exports: false,
+    define: false,
+    ko: false
+*/
+
 (function (factory) {
     // Module systems magic dance.
 
@@ -31,7 +53,7 @@
     var defaults = {
         registerExtenders: true,
         messagesOnModified: true,
-		errorsAsTitle: true,  			// enables/disables showing of errors as title attribute of the target element.
+        errorsAsTitle: true,            // enables/disables showing of errors as title attribute of the target element.
         errorsAsTitleOnModified: false, // shows the error when hovering the input field (decorateElement must be true)
         messageTemplate: null,
         insertMessages: true,           // automatically inserts validation messages as <span></span>
@@ -131,8 +153,8 @@
                     case 1:
                     case 8:
                         var context = utils.getDomData(node);
-                        if (context) return context;
-                        if (node.parentNode) return utils.contextFor(node.parentNode);
+                        if (context) { return context; }
+                        if (node.parentNode) { return utils.contextFor(node.parentNode); }
                         break;
                 }
                 return undefined;
@@ -189,7 +211,7 @@
             configure: function (options) { exports.init(options); },
 
             // resets the config back to its original state
-            reset: function () { configuration = $.extend(configuration, defaults); },
+            reset: function () { configuration = jQuery.extend(configuration, defaults); },
 
             // recursivly walks a viewModel and creates an object that
             // provides validation information for the entire viewModel
@@ -199,9 +221,10 @@
             //      observable: false // if true, returns a computed observable indicating if the viewModel is valid
             // }
             group: function group(obj, options) { // array of observables or viewModel
-                var options = ko.utils.extend(configuration.grouping, options),
-                validatables = ko.observableArray([]),
-                result = null,
+                options = ko.utils.extend(configuration.grouping, options);
+
+                var validatables = ko.observableArray([]),
+                    result = null,
 
                 //anonymous, immediate function to traverse objects hierarchically
                 //if !options.deep then it will stop on top level
@@ -216,7 +239,7 @@
                     if (ko.isObservable(obj)) {
 
                         //make sure it is validatable object
-                        if (!obj.isValid) obj.extend({ validatable: true });
+                        if (!obj.isValid) { obj.extend({ validatable: true }); }
                         validatables.push(obj);
                     }
 
@@ -234,7 +257,7 @@
                         ko.utils.arrayForEach(objValues, function (observable) {
 
                             //but not falsy things and not HTML Elements
-                            if (observable && !observable.nodeType) traverse(observable, level + 1);
+                            if (observable && !observable.nodeType) { traverse(observable, level + 1); }
                         });
                     }
                 };
@@ -271,8 +294,9 @@
                 }
 
                 result.showAllMessages = function (show) { // thanks @heliosPortal
-                    if (show == undefined) //default to true
+                    if (show === undefined) {//default to true
                         show = true;
+                    }
 
                     // ensure we have latest changes
                     result();
@@ -304,8 +328,9 @@
             },
 
             formatMessage: function (message, params) {
-                if (typeof (message) === 'function')
+                if (typeof (message) === 'function') {
                     return message(params);
+                }
                 return message.replace(/\{0\}/gi, params);
             },
 
@@ -425,9 +450,9 @@
 
                 var currentType = element.getAttribute('type');
                 ko.utils.arrayForEach(html5InputTypes, function (type) {
-                    if (type == currentType){
+                    if (type === currentType){
                         exports.addRule(valueAccessor(), {
-                            rule: (type == 'date')?'dateISO':type,
+                            rule: (type === 'date')?'dateISO':type,
                             params: true
                         });
                     }
@@ -451,13 +476,14 @@
                         return ctx.rule.toLowerCase() === attr.toLowerCase();
                     });
 
-                    if (!ctx)
+                    if (!ctx) {
                         return;
+                    }
 
                     params = ctx.params;
 
                     // we have to do some special things for the pattern validation
-                    if (ctx.rule == "pattern") {
+                    if (ctx.rule === "pattern") {
                         if (ctx.params instanceof RegExp) {
                             params = ctx.params.source; // we need the pure string representation of the RegExpr without the //gi stuff
                         }
@@ -511,12 +537,13 @@
             }
 
             testVal = val;
-            if (typeof (val) == "string") {
+            if (typeof (val) === "string") {
                 testVal = val.replace(stringTrimRegEx, '');
             }
 
-            if (!required) // if they passed: { required: false }, then don't require this
+            if (!required) {// if they passed: { required: false }, then don't require this
                 return true;
+            }
 
             return ((testVal + '').length > 0);
         },
@@ -553,7 +580,7 @@
 
     validation.rules['pattern'] = {
         validator: function (val, regex) {
-            return utils.isEmptyVal(val) || val.toString().match(regex) != null;
+            return utils.isEmptyVal(val) || val.toString().match(regex) !== null;
         },
         message: 'Please check this value.'
     };
@@ -570,7 +597,7 @@
 
     validation.rules['email'] = {
         validator: function (val, validate) {
-            if (!validate) return true;
+            if (!validate) { return true; }
 
             //I think an empty email address is also a valid entry
             //if one want's to enforce entry it should be done with 'required: true'
@@ -584,7 +611,7 @@
 
     validation.rules['date'] = {
         validator: function (value, validate) {
-            if (!validate) return true;
+            if (!validate) { return true; }
             return utils.isEmptyVal(value) || (validate && !/Invalid|NaN/.test(new Date(value)));
         },
         message: 'Please enter a proper date'
@@ -592,15 +619,15 @@
 
     validation.rules['dateISO'] = {
         validator: function (value, validate) {
-            if (!validate) return true;
-            return utils.isEmptyVal(value) || (validate && /^\d{4}[\/-]\d{1,2}[\/-]\d{1,2}$/.test(value));
+            if (!validate) { return true; }
+            return utils.isEmptyVal(value) || (validate && /^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/.test(value));
         },
         message: 'Please enter a proper date'
     };
 
     validation.rules['number'] = {
         validator: function (value, validate) {
-            if (!validate) return true;
+            if (!validate) { return true; }
             return utils.isEmptyVal(value) || (validate && /^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(value));
         },
         message: 'Please enter a number'
@@ -608,7 +635,7 @@
 
     validation.rules['digit'] = {
         validator: function (value, validate) {
-            if (!validate) return true;
+            if (!validate) { return true; }
             return utils.isEmptyVal(value) || (validate && /^\d+$/.test(value));
         },
         message: 'Please enter a digit'
@@ -616,7 +643,7 @@
 
     validation.rules['phoneUS'] = {
         validator: function (phoneNumber, validate) {
-            if (!validate) return true;
+            if (!validate) { return true; }
             if (typeof (phoneNumber) !== 'string') { return false; }
             if (utils.isEmptyVal(phoneNumber)) { return true; } // makes it optional, use 'required' rule if it should be required
             phoneNumber = phoneNumber.replace(/\s+/g, "");
@@ -654,10 +681,10 @@
                 external = utils.getValue(options.externalValue),
                 counter = 0;
 
-            if (!val || !c) return true;
+            if (!val || !c) { return true; }
 
             ko.utils.arrayFilter(ko.utils.unwrapObservable(c), function (item) {
-                if (val === (options.valueAccessor ? options.valueAccessor(item) : item)) counter++;
+                if (val === (options.valueAccessor ? options.valueAccessor(item) : item)) { counter++; }
             });
             // if value is external even 1 same value in collection means the value is not unique
             return counter < (external !== undefined && val !== external ? 1 : 2);
@@ -686,7 +713,7 @@
 
                 // parse html5 input validation attributes, optional feature
                 if (config.parseInputAttributes) {
-                    async(function () { exports.parseInputValidationAttributes(element, valueAccessor) });
+                    async(function () { exports.parseInputValidationAttributes(element, valueAccessor); });
                 }
 
                 // if requested insert message element and apply bindings
@@ -799,11 +826,11 @@
 
             //add or remove class on the element;
             ko.bindingHandlers.css.update(element, cssSettingsAccessor);
-			if (!config.errorsAsTitle) return;
-			
-			var origTitle = utils.getAttribute(element, 'data-orig-title'),
+            if (!config.errorsAsTitle) { return; }
+            
+            var origTitle = utils.getAttribute(element, 'data-orig-title'),
                 elementTitle = element.title,
-                titleIsErrorMsg = utils.getAttribute(element, 'data-orig-title') == "true";
+                titleIsErrorMsg = utils.getAttribute(element, 'data-orig-title') === "true";
 
             var errorMsgTitleAccessor = function () {
                 if (!config.errorsAsTitleOnModified || isModified) {
@@ -1002,8 +1029,9 @@
             ctx = ruleContexts[i];
 
             // checks an 'onlyIf' condition
-            if (ctx.condition && !ctx.condition())
+            if (ctx.condition && !ctx.condition()) {
                 continue;
+            }
 
             //get the core Rule to use for validation
             rule = exports.rules[ctx.rule];

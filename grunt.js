@@ -15,7 +15,7 @@ module.exports = function (grunt) {
                     '*/'
         },
         lint: {
-            files: ['grunt.js']
+            files: ['grunt.js', 'src/knockout.validation.js']
         },
         qunit: {
             files: ['Tests/test-runner.htm']
