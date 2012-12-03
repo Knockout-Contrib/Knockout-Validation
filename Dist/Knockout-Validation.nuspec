@@ -1,0 +1,17 @@
+﻿<?xml version="1.0"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
+  <metadata>
+    <id>Knockout.Validation</id>
+    <version>1.0.1</version>
+    <authors>ericbarnard</authors>
+    <owners>ericbarnard</owners>
+    <licenseUrl>http://www.opensource.org/licenses/mit-license.html</licenseUrl>
+    <projectUrl>https://github.com/ericmbarnard/Knockout-Validation</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>A Validation Library plugin for KnockoutJS. An extensible and pluggable framework for performing model-based Form and UI validation.</description>
+    <tags>Validation JavaScript knockout mvvm</tags>
+    <dependencies>
+      <dependency id="knockoutjs" version="2.1" />
+    </dependencies>
+  </metadata>
+</package>

@@ -263,6 +263,56 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
 
+test('Pattern validation matches numbers', function () {
+    var testObj = ko.observable('')
+                    .extend({ pattern: '^12' });
+
+    testObj(123);
+
+    equal(testObj(), 123, 'observable still works');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Pattern validation mismatches numbers', function () {
+    var testObj = ko.observable('')
+                    .extend({ pattern: 'none' });
+
+    testObj(123);
+
+    equal(testObj(), 123, 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
+test('Pattern validation doesn\'t break with non-string values', function () {
+    var testObj = ko.observable('')
+                    .extend({ pattern: '^$' });
+	
+	// Validation results not important, just shouldn't blow-up
+    testObj(null);
+	testObj.isValid();
+
+    testObj(undefined);
+	testObj.isValid();
+
+    testObj(12345);
+	testObj.isValid();
+
+    testObj(12.34);
+	testObj.isValid();
+
+    testObj(true);
+	testObj.isValid();
+
+    testObj(false);
+	testObj.isValid();
+
+    testObj([]);
+	testObj.isValid();
+
+    testObj({});
+	testObj.isValid();
+});
+
 //#endregion
 
 //#region Step Validation

@@ -100,8 +100,18 @@
         <br />
         <button type="button" data-bind='click: requireLocation'>Make 'Location' required</button>
         <script type="text/javascript">
-            $(function () {
+            $(function () {                
                 ko.applyBindings(viewModel, $('#workbench')[0]);
+
+
+                module("Workbench Tests");
+
+                test("Reports Correct Amount of Starting Errors", function(){
+
+                    var cnt = $('#errorCount').text();
+
+                    strictEqual(cnt, "5", "Init was not called, and the correct number of errors was evaluated");
+                })
             });
         </script>
     </div>

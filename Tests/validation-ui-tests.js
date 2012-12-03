@@ -177,6 +177,40 @@ test('Original titles are restored with multiple validators, too', function () {
 
 });
 
+test('Showing Errors As Titles is disabled sucessfully', function () {
+
+    addTestHtml('<input id="myTestInput" data-bind="value: firstName" type="text" />');
+
+    var vm = {
+        firstName: ko.observable('').extend({ required: true })
+    };
+
+    // make sure the options are ok.
+    ko.validation.init({
+        errorsAsTitleOnModified: true,
+        decorateElement: true,
+		errorsAsTitle: false
+    }, true);
+
+    applyTestBindings(vm);
+
+    var $testInput = $('#myTestInput');
+
+    $testInput.val("a"); //set it 
+    $testInput.change(); //trigger change event
+
+    $testInput.val(""); //set it 
+    $testInput.change(); //trigger change event
+
+    var isValid = vm.firstName.isValid();
+
+    ok(!isValid, 'First Name is NOT Valid');
+    console.log($testInput)
+    var msg = $testInput.attr('title');
+
+    notEqual(msg, 'This field is required.', msg);
+});
+
 //#endregion
 
 //#region Validation Option Tests
@@ -430,5 +464,44 @@ test("Issue #80 - HTML5 attributes - pattern", function () {
     ok(el.validity.valid, "Element is showing it is valid");
     strictEqual(vm.testObj(), 'something', 'Observable still works');
 });
+
+test("HTML5 Input types", function () {
+
+    var vm = {
+        invalidEmail: ko.validatedObservable('invalidEmail'),
+        invalidDate: ko.validatedObservable('no date'),
+        invalidNumber: ko.validatedObservable('invalidNumber')
+    };
+
+    // setup the html
+    addTestHtml('<input type="email" id="emailInput" data-bind="value: invalidEmail"/>' +
+        '<input type="date" id="dateInput" data-bind="value: invalidDate"/>'+
+        '<input type="number" id="numberInput" data-bind="value: invalidNumber"/>');
+
+    // make sure we parse element attributes
+    ko.validation.init({
+        parseInputAttributes: true
+    }, true);
+
+    applyTestBindings(vm);
+    stop();
+
+    setTimeout(function() {
+        var $emailInput = $('#emailInput');
+        var emailInput = $emailInput.get(0);
+        var $dateInput = $('#dateInput');
+        var dateInput = $dateInput.get(0);
+        var $numberInput = $('#numberInput');
+        var numberInput = $numberInput.get(0);
+
+        ok(!vm.invalidEmail.isValid(), 'Expected email to be considered as invalid.');
+        ok(!vm.invalidDate.isValid(), 'Expected date to be considered as invalid.');
+        ok(!vm.invalidNumber.isValid(), 'Expected date to be considered as invalid.');
+
+      start();
+    }, 1 );
+});
+
+
 
 //#endregion
