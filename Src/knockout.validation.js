@@ -24,9 +24,14 @@
 
     if (typeof (ko) === undefined) { throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in'; }
 
+    // create our namespace object
+    var validation = exports;
+    ko.validation = validation;
+
     var defaults = {
         registerExtenders: true,
         messagesOnModified: true,
+		errorsAsTitle: true,  			// enables/disables showing of errors as title attribute of the target element.
         errorsAsTitleOnModified: false, // shows the error when hovering the input field (decorateElement must be true)
         messageTemplate: null,
         insertMessages: true,           // automatically inserts validation messages as <span></span>
@@ -48,6 +53,7 @@
     var configuration = ko.utils.extend({}, defaults);
 
     var html5Attributes = ['required', 'pattern', 'min', 'max', 'step'];
+    var html5InputTypes = ['email', 'number', 'date'];
 
     var async = function (expr) {
         if (window.setImmediate) { window.setImmediate(expr); }
@@ -83,6 +89,12 @@
             },
             hasAttribute: function (node, attr) {
                 return node.getAttribute(attr) !== null;
+            },
+            getAttribute: function(element, attr){
+                return element.getAttribute(attr);
+            },
+            setAttribute: function(element, attr, value){
+                return element.setAttribute(attr, value);
             },
             isValidatable: function (o) {
                 return o && o.rules && o.isValid && o.isModified;
@@ -144,7 +156,7 @@
     //#endregion
 
     //#region Public API
-    var validation = (function () {
+    var api = (function () {
 
         var isInitialized = 0;
 
@@ -412,6 +424,16 @@
                         });
                     }
                 });
+
+                var currentType = element.getAttribute('type');
+                ko.utils.arrayForEach(html5InputTypes, function (type) {
+                    if (type == currentType){
+                        exports.addRule(valueAccessor(), {
+                            rule: (type == 'date')?'dateISO':type,
+                            params: true
+                        });
+                    }
+                });
             },
 
             // writes html5 validation attributes on the element passed in
@@ -451,7 +473,10 @@
                 contexts = null;
             }
         };
-    } ());
+    }());
+
+    // expose api publicly
+    ko.utils.extend(validation, api);
     //#endregion
 
     //#region Core Validation Rules
@@ -530,7 +555,7 @@
 
     validation.rules['pattern'] = {
         validator: function (val, regex) {
-            return utils.isEmptyVal(val) || val.match(regex) != null;
+            return utils.isEmptyVal(val) || val.toString().match(regex) != null;
         },
         message: 'Please check this value.'
     };
@@ -737,7 +762,7 @@
 
             //toggle visibility on validation messages when validation hasn't been evaluated, or when the object isValid
             var visiblityAccessor = function () {
-                return isModified ? !isValid : false;
+                return (!config.messagesOnModified || isModified) ? !isValid : false;
             };
 
             ko.bindingHandlers.text.update(element, errorMsgAccessor);
@@ -776,10 +801,11 @@
 
             //add or remove class on the element;
             ko.bindingHandlers.css.update(element, cssSettingsAccessor);
-
-            var origTitle = element.getAttribute('data-orig-title');
-            var elementTitle = element.title;
-            var titleIsErrorMsg = element.getAttribute('data-orig-title') == "true"
+			if (!config.errorsAsTitle) return;
+			
+			var origTitle = utils.getAttribute(element, 'data-orig-title'),
+                elementTitle = element.title,
+                titleIsErrorMsg = utils.getAttribute(element, 'data-orig-title') == "true";
 
             var errorMsgTitleAccessor = function () {
                 if (!config.errorsAsTitleOnModified || isModified) {
@@ -1092,8 +1118,4 @@
     };
 
     //#endregion
-
-    /// apply our public api to the public object
-    ko.utils.extend(exports, validation);
-
 }));
