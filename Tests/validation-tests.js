@@ -1271,14 +1271,14 @@ test('errorDetails property is filled when not valid', function () {
     equal(testObj.error, ko.validation.rules.required.message);
 
     ok(testObj.hasOwnProperty('errorDetails'), 'errorDetails property does not exist.');
-    equal(testObj.errorDetails.rule, ko.validation.rules.required);
-    equal(testObj.errorDetails.params, true);
+    equal(testObj.errorDetails.rule(), ko.validation.rules.required);
+    equal(testObj.errorDetails.params(), true);
     equal(testObj.errorDetails.observable, testObj);
-    equal(testObj.errorDetails.message, ko.validation.rules.required.message)
+    equal(testObj.errorDetails.message(), ko.validation.rules.required.message)
     ko.validation.reset();
 });
 
-test('errorDetails property is null when valid', function () {
+test('errorDetails properties are null when valid', function () {
     ko.validation.init({enableErrorDetails: true }, true);
     var testObj = ko.observable('').extend({ required: true });
     equal(testObj.isValid(), false);
@@ -1286,7 +1286,9 @@ test('errorDetails property is null when valid', function () {
     testObj('a value');
 
     equal(testObj.isValid(), true);
-    equal(testObj.errorDetails, null);
+    equal(testObj.errorDetails.rule(), null);
+    equal(testObj.errorDetails.params(), null);
+    equal(testObj.errorDetails.message(), null);
     ko.validation.reset();
 });
 
@@ -1312,10 +1314,10 @@ asyncTest('errorDetails property is filled when not valid async', function () {
 
     var doAssertions = function () {
         ok(testObj.hasOwnProperty('errorDetails'), 'errorDetails property does not exist.');
-        equal(testObj.errorDetails.rule, ko.validation.rules['mustEqualAsync']);
-        equal(testObj.errorDetails.params, 5);
+        equal(testObj.errorDetails.rule(), ko.validation.rules['mustEqualAsync']);
+        equal(testObj.errorDetails.params(), 5);
         equal(testObj.errorDetails.observable, testObj);
-        equal(testObj.errorDetails.message, 'The field must equal 5')
+        equal(testObj.errorDetails.message(), 'The field must equal 5')
     };
 
     testObj.extend({ mustEqualAsync: 5 });
@@ -1361,5 +1363,19 @@ test('errorDetails property is not defined if enableErrorDetails equals false', 
     equal(testObj.error, ko.validation.rules.required.message);
 
     ok(!testObj.hasOwnProperty('errorDetails'), 'errorDetails property does exist.');
+});
+
+test('going from one invalid state to the next creates the correct errorDetails (required -> maxLength)', function () {
+    ko.validation.init( { enableErrorDetails: true }, true);    
+    var vm = { item : ko.observable().extend( { maxLength: 2, required: true } ) };
+    var errors = ko.validation.group(vm, { deep: true, observable: true, errorDetails: true });
+
+    equals(errors().length, 1, "has initially one error");
+    equals(errors()[0].rule().message, ko.validation.rules.required.message);
+
+    // insert too long text triggering maxLength rule
+    vm.item('12345');
+    equals(errors()[0].rule().message, "Please enter no more than {0} characters.");    
+    ko.validation.reset();    
 });
 //#endregion

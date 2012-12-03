@@ -880,7 +880,14 @@
 
             observable.error = null; // holds the error message, we only need one since we stop processing validators when one is invalid
             if(configuration.enableErrorDetails) {
-                observable.errorDetails = null; // holds detailed error information
+                // holds detailed error information  
+                observable.errorDetails = {
+                    rule: ko.observable(null),
+                    params: ko.observable(null),
+                    observable: observable,
+                    message: ko.observable(null)
+                };
+                
             }
             // observable.rules:
             // ObservableArray of Rule Contexts, where a Rule Context is simply the name of a rule and the params to supply to it
@@ -926,6 +933,7 @@
                 observable.__valid__._subscriptions['change'] = [];
                 h_change.dispose();
                 h_obsValidationTrigger.dispose();
+                // TODO: dispose errorDetails' properties
 
                 delete observable['rules'];
                 delete observable['error'];
@@ -951,13 +959,9 @@
             //not valid, so format the error message and stick it in the 'error' variable
             observable.error = exports.formatMessage(ctx.message || rule.message, ctx.params);
             if(configuration.enableErrorDetails) {
-                //make a details object summary
-                observable.errorDetails = {
-                    rule: rule,
-                    params: ctx.params,
-                    observable: observable,
-                    message: observable.error
-                };
+                observable.errorDetails.rule(rule);
+                observable.errorDetails.params(ctx.params);
+                observable.errorDetails.message(observable.error);
             }
             observable.__valid__(false);
             return false;
@@ -993,13 +997,9 @@
                 //not valid, so format the error message and stick it in the 'error' variable
                 observable.error = exports.formatMessage(msg || ctx.message || rule.message, ctx.params);
                 if(configuration.enableErrorDetails) {
-                    //make a details object summary
-                    observable.errorDetails = {
-                        rule: rule,
-                        params: ctx.params,
-                        observable: observable,
-                        message: observable.error
-                    };
+                    observable.errorDetails.rule(rule);
+                    observable.errorDetails.params(ctx.params);
+                    observable.errorDetails.message(observable.error);
                 }
                 observable.__valid__(isValid);
             }
@@ -1044,7 +1044,11 @@
         }
         //finally if we got this far, make the observable valid again!
         observable.error = null;
-        if(configuration.enableErrorDetails) observable.errorDetails = null;
+        if(configuration.enableErrorDetails) {
+            observable.errorDetails.rule(null);
+            observable.errorDetails.params(null);
+            observable.errorDetails.message(null);
+        }
         observable.__valid__(true);
         return true;
     };
