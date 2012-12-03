@@ -880,7 +880,7 @@
 
             observable.error = null; // holds the error message, we only need one since we stop processing validators when one is invalid
             if(configuration.enableErrorDetails) {
-                observable.errorDetails = null; // holds detailed error informatino
+                observable.errorDetails = null; // holds detailed error information
             }
             // observable.rules:
             // ObservableArray of Rule Contexts, where a Rule Context is simply the name of a rule and the params to supply to it
