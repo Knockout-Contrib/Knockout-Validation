@@ -933,7 +933,11 @@
                 observable.__valid__._subscriptions['change'] = [];
                 h_change.dispose();
                 h_obsValidationTrigger.dispose();
-                // TODO: dispose errorDetails' properties
+                if(configuration.enableErrorDetails) {
+                    observable.errorDetails.rule.dispose();
+                    observable.errorDetails.params.dispose();
+                    observable.errorDetails.message.dispose();
+                }
 
                 delete observable['rules'];
                 delete observable['error'];
