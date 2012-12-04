@@ -24,6 +24,14 @@
 
     if (typeof (ko) === undefined) { throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in'; }
 
+    //until knockout has it's own isObservableArray function, which is coming, role our own
+    //this can then be dropped at a later date
+    if (ko.isObservableArray === undefined) {
+        ko.isObservableArray = function (obj) {
+            return ko.isObservable(obj) && !(obj.destroyAll === undefined);
+        }
+    }
+
     // create our namespace object
     var validation = exports;
     ko.validation = validation;
@@ -218,6 +226,13 @@
                         //make sure it is validatable object
                         if (!obj.isValid) obj.extend({ validatable: true });
                         validatables.push(obj);
+
+                        //when using observable arrays we need to ensure then any new items that are added also get added to our validatables
+                        if (ko.isObservableArray(obj)) {
+                            obj.subscribe(function (newValue) {
+                                traverse(newValue);
+                            });
+                        }
                     }
 
                     //get list of values either from array or object but ignore non-objects

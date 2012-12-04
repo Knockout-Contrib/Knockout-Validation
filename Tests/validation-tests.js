@@ -907,7 +907,7 @@ test('Error Grouping works', function () {
 
     var errors = ko.validation.group(vm);
 
-    equals(errors().length, 2, 'Grouping correctly finds 2 invalid properties');
+    equal(errors().length, 2, 'Grouping correctly finds 2 invalid properties');
 });
 
 test('Nested Grouping works - Observable', function () {
@@ -925,7 +925,7 @@ test('Nested Grouping works - Observable', function () {
 
     var errors = ko.validation.group(vm, { deep: true, observable: true });
 
-    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+    equal(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
 });
 
 test('Nested Grouping works - Not Observable', function () {
@@ -943,7 +943,7 @@ test('Nested Grouping works - Not Observable', function () {
 
     var errors = ko.validation.group(vm, { deep: true, observable: false });
 
-    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+    equal(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
 });
 
 test('Issue #31 - Recursively Show All Messages', function () {
@@ -972,7 +972,7 @@ test('Issue #31 - Recursively Show All Messages', function () {
     ok(vm.two.one.isModified(), "Level 2 is modified");
     ok(vm.three.two.one.isModified(), "Level 3 is modified");
 
-    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+    equal(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
 });
 
 test('Issue #31 - Recursively Show All Messages - using computed', function () {
@@ -1001,7 +1001,7 @@ test('Issue #31 - Recursively Show All Messages - using computed', function () {
     ok(vm.two.one.isModified(), "Level 2 is modified");
     ok(vm.three.two.one.isModified(), "Level 3 is modified");
 
-    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+    equal(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
 });
 
 test('Issue #37 - Toggle ShowAllMessages', function () {
@@ -1030,7 +1030,7 @@ test('Issue #37 - Toggle ShowAllMessages', function () {
     ok(vm.two.one.isModified(), "Level 2 is modified");
     ok(vm.three.two.one.isModified(), "Level 3 is modified");
 
-    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+    equal(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
 
     // now shut them off
     errors.showAllMessages(false);
@@ -1256,5 +1256,130 @@ asyncTest('Async Rule Is NOT Valid Test', function () {
 
     testObj.extend({ mustEqualAsync: 5 });
 });
+
+//#endregion
+
+
+//#region validated contents of observable array
+module('contents of observable array is validated');
+
+test('object with empty observable array is Valid', function () {
+
+    var obj = ko.validatedObservable({
+        testObj: ko.observableArray()
+    });
+    ok(obj.isValid(), 'observable is valid');
+
+});
+
+test('object with observable array with valid initial value is valid', function () {
+
+    var obj = ko.validatedObservable(
+        {
+            array: ko.observableArray([
+            {
+                testObj2: ko.observable('').extend({ required: true })
+            }])
+        });
+
+    obj().array()[0].testObj2('a value');
+
+    ok(obj(), 'observable works');
+    ok(obj.isValid(), 'observable is valid');
+
+});
+
+
+test('object with observable array with invalid initial value is invalid', function () {
+
+    var obj = ko.validatedObservable(
+        {
+            array: ko.observableArray([
+            {
+                testObj2: ko.observable('').extend({ required: true })
+            }])
+        });
+
+    ok(obj(), 'observable works');
+    ok(!obj.isValid(), obj.errors()[0]);
+
+});
+
+test('object with observable array valid pushed item is valid', function () {
+
+    var obj = ko.validatedObservable(
+        {
+            array: ko.observableArray([])
+        });
+
+    obj().array.push(
+            {
+                testObj2: ko.observable('23').extend({ required: true })
+            });
+
+    ok(obj(), 'observable works');
+
+    ok(obj.isValid(), 'observable is valid');
+
+});
+
+test('object with observable array invalid pushed item is invalid', function () {
+
+    var obj = ko.validatedObservable(
+        {
+            array: ko.observableArray([])
+        });
+
+    obj().array.push(
+            {
+                testObj2: ko.observable('').extend({ required: true })
+            });
+
+    ok(obj(), 'observable works');
+
+    ok(!obj.isValid(), obj.errors()[0]);
+
+});
+
+test('object with observable array valid pushed invalid item then made valid is valid', function () {
+
+    var obj = ko.validatedObservable(
+        {
+            array: ko.observableArray([])
+        });
+
+    obj().array.push(
+            {
+                testObj2: ko.observable('').extend({ required: true })
+            });
+
+    obj().array()[0].testObj2("new value");
+
+    ok(obj(), 'observable works');
+
+    ok(obj.isValid(), 'observable is valid');
+
+});
+
+test('object with observable array valid pushed valid item then made invalid is invalid', function () {
+
+    var obj = ko.validatedObservable(
+        {
+            array: ko.observableArray([])
+        });
+
+    obj().array.push(
+            {
+                testObj2: ko.observable('value').extend({ required: true })
+            });
+
+    obj().array()[0].testObj2('');
+
+    ok(obj(), 'observable works');
+
+    ok(!obj.isValid(), obj.errors()[0]);
+
+});
+
 
 //#endregion
