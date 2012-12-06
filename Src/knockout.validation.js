@@ -215,6 +215,11 @@
                     // if object is observable then add it to the list
                     if (ko.isObservable(obj)) {
 
+                        //but not if it is flagged as ignore in group
+                        if(obj.ignoreInValidationGroup) {
+                            return; // we also do not add descendants
+                        }
+
                         //make sure it is validatable object
                         if (!obj.isValid) obj.extend({ validatable: true });
                         validatables.push(obj);
@@ -937,6 +942,13 @@
             }
         }
         return observable;
+    };
+
+    //This extender can be used to flag a Knockout Observable to be ignored in validation groups.
+    //When the extender is set the observable will not be added to validation groups.
+    //Rules added to a flagged obserable still apply but the errors are not shown in any group.
+    ko.extenders['ignoreInValidationGroup'] = function (observable, enable) {
+        observable.ignoreInValidationGroup = enable;
     };
 
     function validateSync(observable, rule, ctx) {

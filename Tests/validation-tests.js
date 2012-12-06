@@ -1038,6 +1038,18 @@ test('Issue #37 - Toggle ShowAllMessages', function () {
     ok(!vm.two.one.isModified(), "Level 2 is not modified");
     ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
 });
+
+test('grouping ignores observables extended with ignoreInValidationGroup', function () {
+    var vm = {};
+    vm.firstName = ko.observable().extend({ required: true });
+    vm.lastName = ko.observable().extend({ required: 2 });
+    vm.allProperties = ko.observableArray([vm.firstName, vm.lastName]).extend({ ignoreInValidationGroup: true });
+
+    var errors = ko.validation.group(vm, { deep: true, observable: true });
+
+    equals(errors().length, 2, 'Grouping correctly finds only 2 invalid properties');
+});
+
 //#endregion
 
 //#region Conditional Validation
