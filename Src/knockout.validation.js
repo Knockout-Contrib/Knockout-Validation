@@ -949,6 +949,7 @@
     //Rules added to a flagged obserable still apply but the errors are not shown in any group.
     ko.extenders['ignoreInValidationGroup'] = function (observable, enable) {
         observable.ignoreInValidationGroup = enable;
+        return observable;
     };
 
     function validateSync(observable, rule, ctx) {
