@@ -29,6 +29,7 @@
     ko.validation = validation;
 
     var defaults = {
+        asyncOnModified: false,         // only run async validations once the field has been modified
         registerExtenders: true,
         messagesOnModified: true,
         errorsAsTitle: true,  			// enables/disables showing of errors as title attribute of the target element.
@@ -1009,8 +1010,10 @@
             rule = exports.rules[ctx.rule];
 
             if (rule['async'] || ctx['async']) {
-                //run async validation
-                validateAsync(observable, rule, ctx);
+                //run async validation if appropriate
+                if (!configuration.asyncOnModified || observable.isModified()) {
+                    validateAsync(observable, rule, ctx);
+                }
 
             } else {
                 //run normal sync validation
