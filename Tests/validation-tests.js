@@ -286,31 +286,31 @@ test('Pattern validation mismatches numbers', function () {
 test('Pattern validation doesn\'t break with non-string values', function () {
     var testObj = ko.observable('')
                     .extend({ pattern: '^$' });
-	
-	// Validation results not important, just shouldn't blow-up
+    
+    // Validation results not important, just shouldn't blow-up
     testObj(null);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj(undefined);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj(12345);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj(12.34);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj(true);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj(false);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj([]);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj({});
-	testObj.isValid();
+    testObj.isValid();
 });
 
 //#endregion
@@ -1255,6 +1255,34 @@ asyncTest('Async Rule Is NOT Valid Test', function () {
     };
 
     testObj.extend({ mustEqualAsync: 5 });
+});
+
+asyncTest("AsyncRule is NOT run until observable is modified when config flag is set", function () {
+    //force an update to the options
+    ko.validation.init({
+        asyncOnModified: true
+    }, true);
+
+    var validatorCallCount = 0;
+
+     ko.validation.rules['mustEqualAsync'] = {
+        async: true,
+        validator: function (val, otherVal, callBack) {
+            validatorCallCount++;
+
+            equal(1, validatorCallCount, "Validator should only have been called once - after the modification");
+            start();
+        }
+    };
+    ko.validation.registerExtenders(); //make sure the new rule is registered
+
+    var testObj = ko.observable(4);
+
+    //initial validation should not be invoked here
+    testObj.extend({ mustEqualAsync: 5 });
+
+    //now modify to run the actual rule
+    testObj(5);
 });
 
 //#endregion
