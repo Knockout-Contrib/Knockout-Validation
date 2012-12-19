@@ -35,6 +35,32 @@ test('hasAttribute works in old IE', function () {
     ok(!ko.validation.utils.hasAttribute(el, 'pattern'), 'element correctly does not have html5 input attribute');
 });
 
+test("checked binding sets error class on radio buttons", function() {
+    addTestHtml("<input id='testInput1' type='radio' name='group' value='one' data-bind='checked: result' />" +
+        "<input id='testInput2' type='radio' name='group' value='two' data-bind='checked: result' />" +
+        "<input id='testInput3' type='radio' name='group' value='three' data-bind='checked: result' />");
+
+    var $input = $("#testInput2"),
+        vm = {
+            result: ko.observable("").extend({ required: true })
+        };
+    ko.validation.init({ decorateElement: true }, true);
+
+    vm.result.isModified(true); //fake a modification
+    
+    applyTestBindings(vm);
+
+    ok(!vm.result.isValid(), "Should initially be invalid");
+    ok($input.hasClass("validationElement"), "Validation class should have been added");
+
+    $input.prop("checked", true);
+    $input.click(); //trigger the validation
+
+    equal(vm.result(), "two", "Value should have changed");
+    ok(vm.result.isValid(), "Should now be valid");
+    ok(!$input.hasClass("validationElement"), "Validation class should have been removed");
+});
+
 //#region Inserting Messages
 
 test('Inserting Messages Works', function () {
@@ -189,7 +215,7 @@ test('Showing Errors As Titles is disabled sucessfully', function () {
     ko.validation.init({
         errorsAsTitleOnModified: true,
         decorateElement: true,
-		errorsAsTitle: false
+        errorsAsTitle: false
     }, true);
 
     applyTestBindings(vm);
