@@ -31,7 +31,7 @@
     var defaults = {
         registerExtenders: true,
         messagesOnModified: true,
-		errorsAsTitle: true,  			// enables/disables showing of errors as title attribute of the target element.
+        errorsAsTitle: true,  			// enables/disables showing of errors as title attribute of the target element.
         errorsAsTitleOnModified: false, // shows the error when hovering the input field (decorateElement must be true)
         messageTemplate: null,
         insertMessages: true,           // automatically inserts validation messages as <span></span>
@@ -469,6 +469,18 @@
                 });
 
                 contexts = null;
+            },
+
+            //take an existing binding handler and make it cause automatic validations
+            makeBindingHandlerValidatable: function (handlerName) {
+                var init = ko.bindingHandlers[handlerName].init;
+
+                ko.bindingHandlers[handlerName].init = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+
+                    init(element, valueAccessor, allBindingsAccessor);
+
+                    return ko.bindingHandlers['validationCore'].init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
+                };
             }
         };
     }());
@@ -722,17 +734,9 @@
 
     }());
 
-    // override for KO's default 'value' binding
-    (function () {
-        var init = ko.bindingHandlers['value'].init;
-
-        ko.bindingHandlers['value'].init = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-
-            init(element, valueAccessor, allBindingsAccessor);
-
-            return ko.bindingHandlers['validationCore'].init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
-        };
-    } ());
+    // override for KO's default 'value' and 'checked' bindings
+    api.makeBindingHandlerValidatable("value");
+    api.makeBindingHandlerValidatable("checked");
 
 
     ko.bindingHandlers['validationMessage'] = { // individual error message, if modified or post binding
@@ -799,9 +803,9 @@
 
             //add or remove class on the element;
             ko.bindingHandlers.css.update(element, cssSettingsAccessor);
-			if (!config.errorsAsTitle) return;
-			
-			var origTitle = utils.getAttribute(element, 'data-orig-title'),
+            if (!config.errorsAsTitle) return;
+            
+            var origTitle = utils.getAttribute(element, 'data-orig-title'),
                 elementTitle = element.title,
                 titleIsErrorMsg = utils.getAttribute(element, 'data-orig-title') == "true";
 
