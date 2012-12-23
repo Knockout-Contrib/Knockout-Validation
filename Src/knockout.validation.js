@@ -224,6 +224,10 @@
                         //make sure it is validatable object
                         if (!obj.isValid) obj.extend({ validatable: true });
                         validatablesTemp.push(obj);
+
+                        if(options.live && utils.isObservableArray(obj)) {
+                            subscribeToObservableArray(obj);
+                        }
                     }
 
                     //get list of values either from array or object but ignore non-objects
@@ -244,26 +248,30 @@
                             if (observable && !observable.nodeType) traverse(observable, level + 1);
                         });
                     }
+                },
+
+                observableArraySubscriptions = [],
+                clearObservableArraySubscriptions = function () {
+                    ko.utils.arrayForEach(observableArraySubscriptions, function (subscription) {
+                        subscription.dispose();
+                    });
+                    observableArraySubscriptions = [];
+                },
+                traverseAndStoreInValidatables = function() {
+                    clearObservableArraySubscriptions();
+                    validatablesTemp = [];
+                    traverse(obj);
+                    validatables(validatablesTemp);   
+                },
+                subscribeToObservableArray = function(observableArray) {
+                    observableArraySubscriptions.push(observableArray.subscribe(traverseAndStoreInValidatables));
                 };
 
                 //if using observables then traverse structure once and add observables
                 if (options.observable) {
 
-                    traverse(obj);
-                    validatables(validatablesTemp);
-
-                    if (options.live) {
-                        ko.utils.arrayForEach(validatablesTemp, function (observable) {
-                            if (utils.isObservableArray(observable)) {
-                                observable.subscribe(function () {
-                                    validatablesTemp = [];
-                                    traverse(obj);
-                                    validatables(validatablesTemp);
-                                });
-                            }
-                        });
-                    }
-
+                    traverseAndStoreInValidatables();
+                    
                     result = ko.computed(function () {
                         var errors = [];
                         ko.utils.arrayForEach(validatables(), function (observable) {

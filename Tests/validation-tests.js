@@ -964,6 +964,17 @@ test('Nested grouping does not add items newly inserted into observableArrays to
     equals(errors().length, 0, 'grouping does not add newly items newly inserted into observableArrays to result');
 });
 
+test('Nested grouping adds items newly inserted into an observableArrays nested in an object in an observableArray to result - observable, live', function () {
+    var vm = { array: ko.observableArray() };
+
+    var errors = ko.validation.group(vm, { deep: true, observable: true, live: true });
+
+    vm.array.push({ array: ko.observableArray() });
+    vm.array()[0].array.push( { one:  ko.observable().extend( { required: true } ) });
+    
+    equals(errors().length, 1, 'grouping adds newly items newly inserted into observableArrays to result');
+});
+
 test('Nested grouping adds items newly inserted into observableArrays to result - observable, live', function () {
     var vm = { array: ko.observableArray() };
     
