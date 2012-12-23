@@ -253,7 +253,7 @@
                     validatables(validatablesTemp);
 
                     if (options.live) {
-                        ko.utils.arrayForEach(validatables(), function (observable) {
+                        ko.utils.arrayForEach(validatablesTemp, function (observable) {
                             if (utils.isObservableArray(observable)) {
                                 observable.subscribe(function () {
                                     validatablesTemp = [];
