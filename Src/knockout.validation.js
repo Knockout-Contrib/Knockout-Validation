@@ -776,6 +776,10 @@
                 msg = null,
                 isModified = false,
                 isValid = false;
+                
+            if (typeof obsv === 'undefined') {
+                throw 'Cannot bind validationElement to undefined value. data-bind expression: ' + element.getAttribute('data-bind');
+            }
 
             obsv.extend({ validatable: true });
 
