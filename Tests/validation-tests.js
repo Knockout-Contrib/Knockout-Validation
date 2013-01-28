@@ -44,13 +44,35 @@ test('Empty spaces is not a valid value for required', function () {
     equal(testObj.isValid(), false, 'testObj is valid');
 });
 
+test('"required: true" observable value forces validation', function () {
+
+    var reqObs = ko.observable(false),
+		testObj = ko.observable('  ')
+                    .extend({ required: reqObs });
+
+	reqObs(true); // flip
+    equal(testObj(), '  ', 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is valid');
+});
+
+test('"required: false" observable value doesnt force validation', function () {
+
+    var reqObs = ko.observable(true),
+		testObj = ko.observable('  ')
+                    .extend({ required: reqObs });
+
+	reqObs(false); // flip
+    equal(testObj(), '  ', 'observable still works');
+    equal(testObj.isValid(), true, 'testObj is invalid');
+});
+
 test('Issue #90 - "required: false" doesnt force validation', function () {
 
     var testObj = ko.observable()
                     .extend({ required: false });
 
     equal(testObj.isValid(), true, 'testObj is valid without value');
-    
+
     testObj('blah');
     equal(testObj.isValid(), true, 'testObj is valid with value');
 
@@ -100,6 +122,29 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj(), 1, 'observable still works');
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
+
+test('"min: 1" observable value overrides previous larger value and marks valid', function () {
+
+    var reqObs = ko.observable(3),
+		testObj = ko.observable(2)
+                    .extend({ min: reqObs });
+
+	reqObs(1); // decrement
+    equal(testObj(), 2, 'observable still works');
+    equal(testObj.isValid(), true, 'testObj is not valid');
+});
+
+test('"min: 3" observable value overrides previous larger value and marks invalid', function () {
+
+    var reqObs = ko.observable(1),
+		testObj = ko.observable(2)
+                    .extend({ min: reqObs });
+
+	reqObs(3); // increment
+    equal(testObj(), 2, 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is valid');
+});
+
 //#endregion
 
 //#region Max Validation
@@ -131,6 +176,28 @@ test('Object is NOT Valid and isValid returns False', function () {
 
     equal(testObj(), 6, 'observable still works');
     equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
+test('"max: 3" observable value overrides previous larger value and marks valid', function () {
+
+    var reqObs = ko.observable(1),
+		testObj = ko.observable(2)
+                    .extend({ max: reqObs });
+
+	reqObs(3); // decrement
+    equal(testObj(), 2, 'observable still works');
+    equal(testObj.isValid(), true, 'testObj is not valid');
+});
+
+test('"max: 1" observable value overrides previous larger value and marks invalid', function () {
+
+    var reqObs = ko.observable(3),
+		testObj = ko.observable(2)
+                    .extend({ max: reqObs });
+
+	reqObs(1); // increment
+    equal(testObj(), 2, 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is valid');
 });
 
 //#endregion
@@ -182,6 +249,27 @@ test('Issue #33 - Arrays - Invalid', function () {
     testObj(['one', 'two', 'three']);
     ok(!testObj.isValid(), testObj.error);
 });
+
+test('"minLength: 1" observable value overrides previous larger value and marks valid', function () {
+
+    var reqObs = ko.observable(3),
+		testObj = ko.observableArray(['one', 'two'])
+                    .extend({ minLength: reqObs });
+
+	reqObs(1); // decrement
+    equal(testObj.isValid(), true, 'testObj is not valid');
+});
+
+test('"minLength: 3" observable value overrides previous larger value and marks invalid', function () {
+
+    var reqObs = ko.observable(1),
+		testObj = ko.observableArray(['one', 'two'])
+                    .extend({ minLength: reqObs });
+
+	reqObs(3); // increment
+    equal(testObj.isValid(), false, 'testObj is valid');
+});
+
 //#endregion
 
 //#region Max Length Validation
@@ -230,6 +318,27 @@ test('Issue #33 - Arrays - Invalid', function () {
     testObj(['one', 'two', 'three']);
     ok(!testObj.isValid(), testObj.error);
 });
+
+test('"maxLength: 3" observable value overrides previous larger value and marks valid', function () {
+
+    var reqObs = ko.observable(1),
+		testObj = ko.observableArray(['one', 'two'])
+                    .extend({ maxLength: reqObs });
+
+	reqObs(3); // decrement
+    equal(testObj.isValid(), true, 'testObj is not valid');
+});
+
+test('"maxLength: 1" observable value overrides previous larger value and marks invalid', function () {
+
+    var reqObs = ko.observable(3),
+		testObj = ko.observableArray(['one', 'two'])
+                    .extend({ maxLength: reqObs });
+
+	reqObs(1); // increment
+    equal(testObj.isValid(), false, 'testObj is valid');
+});
+
 //#endregion
 
 //#region Pattern Validation
@@ -286,7 +395,7 @@ test('Pattern validation mismatches numbers', function () {
 test('Pattern validation doesn\'t break with non-string values', function () {
     var testObj = ko.observable('')
                     .extend({ pattern: '^$' });
-	
+
 	// Validation results not important, just shouldn't blow-up
     testObj(null);
 	testObj.isValid();
@@ -311,6 +420,26 @@ test('Pattern validation doesn\'t break with non-string values', function () {
 
     testObj({});
 	testObj.isValid();
+});
+
+test('"pattern: ^12" observable value overrides previous value and marks valid', function () {
+
+    var reqObs = ko.observable('^21'),
+		testObj = ko.observable('12')
+                    .extend({ pattern: reqObs });
+
+	reqObs('^12'); // override
+    equal(testObj.isValid(), true, 'testObj is not valid');
+});
+
+test('"pattern: ^21" observable value overrides previous value and marks invalid', function () {
+
+    var reqObs = ko.observable('^12'),
+		testObj = ko.observable('12')
+                    .extend({ pattern: reqObs });
+
+	reqObs('^21'); // override
+    equal(testObj.isValid(), false, 'testObj is valid');
 });
 
 //#endregion
@@ -344,6 +473,26 @@ test('Object is NOT Valid and isValid returns False', function () {
 
     equal(testObj(), 5, 'observable still works');
     equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
+test('"step: 3" observable value overrides previous value and marks valid', function () {
+
+    var reqObs = ko.observable(2),
+		testObj = ko.observable(9)
+                    .extend({ step: reqObs });
+
+	reqObs(3); // decrement
+    equal(testObj.isValid(), true, 'testObj is not valid');
+});
+
+test('"step: 1" observable value overrides previous value and marks invalid', function () {
+
+    var reqObs = ko.observable(3),
+		testObj = ko.observable(9)
+                    .extend({ step: reqObs });
+
+	reqObs(2); // increment
+    equal(testObj.isValid(), false, 'testObj is valid');
 });
 
 test('Issue 74 - Object is Valid with a step of 0.1 and isValid returns True', function () {
@@ -416,7 +565,28 @@ test('Email with invalid domain', function(){
 
     equal( testObj.isValid(), false, testObj.error );
     equal( testObj.error, 'Please enter a proper email address');
-})
+});
+
+test('"email: false" observable value overrides previous true value and marks valid when provided value is not a valid email address', function () {
+
+    var reqObs = ko.observable(true),
+		testObj = ko.observable('notavalidemailaddress')
+                    .extend({ email: reqObs });
+
+	reqObs(false); // flip
+    equal(testObj.isValid(), true, 'testObj is not valid');
+});
+
+test('"email: true" observable value overrides previous false value and marks invalid when provided value is not a valid email address', function () {
+
+    var reqObs = ko.observable(false),
+		testObj = ko.observable('notavalidemailaddress')
+                    .extend({ email: reqObs });
+
+	reqObs(true); // flip
+    equal(testObj.isValid(), false, 'testObj is valid');
+});
+
 //#endregion
 
 //#region Date Validation
@@ -448,6 +618,26 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, testObj.error);
 });
 
+test('"date: false" observable value overrides previous true value and marks valid when provided value is not a valid date', function () {
+
+    var reqObs = ko.observable(true),
+		testObj = ko.observable('notavaliddate')
+                    .extend({ date: reqObs });
+
+	reqObs(false); // flip
+    equal(testObj.isValid(), true, 'testObj is not valid');
+});
+
+test('"date: true" observable value overrides previous false value and marks invalid when provided value is not a valid date', function () {
+
+    var reqObs = ko.observable(false),
+		testObj = ko.observable('notavaliddate')
+                    .extend({ date: reqObs });
+
+	reqObs(true); // flip
+    equal(testObj.isValid(), false, 'testObj is valid');
+});
+
 //#endregion
 
 //#region DateISO Validation
@@ -462,7 +652,7 @@ test('Object is Valid when no value is present - Preserves Optional Properties',
 });
 
 test('Object is Valid and isValid returns True', function () {
-    var testObj = ko.observable('').extend({ dateISO: true }); 
+    var testObj = ko.observable('').extend({ dateISO: true });
 
     testObj('2011-11-18');
 
@@ -477,6 +667,26 @@ test('Object is NOT Valid and isValid returns False', function () {
 
     equal(testObj(), 'stuff', 'observable still works');
     equal(testObj.isValid(), false, testObj.error);
+});
+
+test('"dateISO: false" observable value overrides previous true value and marks valid when provided value is not a valid dateISO', function () {
+
+    var reqObs = ko.observable(true),
+		testObj = ko.observable('notavaliddateISO')
+                    .extend({ dateISO: reqObs });
+
+	reqObs(false); // flip
+    equal(testObj.isValid(), true, 'testObj is not valid');
+});
+
+test('"dateISO: true" observable value overrides previous false value and marks invalid when provided value is not a valid dateISO', function () {
+
+    var reqObs = ko.observable(false),
+		testObj = ko.observable('notavaliddateISO')
+                    .extend({ dateISO: reqObs });
+
+	reqObs(true); // flip
+    equal(testObj.isValid(), false, 'testObj is valid');
 });
 
 //#endregion
@@ -510,6 +720,26 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, testObj.error);
 });
 
+test('"number: false" observable value overrides previous true value and marks valid when provided value is not a valid number', function () {
+
+    var reqObs = ko.observable(true),
+		testObj = ko.observable('notavalidnumber')
+                    .extend({ number: reqObs });
+
+	reqObs(false); // flip
+    equal(testObj.isValid(), true, 'testObj is not valid');
+});
+
+test('"number: true" observable value overrides previous false value and marks invalid when provided value is not a valid number', function () {
+
+    var reqObs = ko.observable(false),
+		testObj = ko.observable('notavalidnumber')
+                    .extend({ number: reqObs });
+
+	reqObs(true); // flip
+    equal(testObj.isValid(), false, 'testObj is valid');
+});
+
 //#endregion
 
 //#region Digit Validation
@@ -541,6 +771,26 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, testObj.error);
 });
 
+test('"digit: false" observable value overrides previous true value and marks valid when provided value is not a valid digit', function () {
+
+    var reqObs = ko.observable(true),
+		testObj = ko.observable('notavaliddigit')
+                    .extend({ digit: reqObs });
+
+	reqObs(false); // flip
+    equal(testObj.isValid(), true, 'testObj is not valid');
+});
+
+test('"digit: true" observable value overrides previous false value and marks invalid when provided value is not a valid digit', function () {
+
+    var reqObs = ko.observable(false),
+		testObj = ko.observable('notavaliddigit')
+                    .extend({ digit: reqObs });
+
+	reqObs(true); // flip
+    equal(testObj.isValid(), false, 'testObj is valid');
+});
+
 //#endregion
 
 //#region PhoneUS Validation
@@ -570,6 +820,26 @@ test('Object is NOT Valid and isValid returns False', function () {
 
     equal(testObj(), 5, 'observable still works');
     equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
+test('"phoneUS: false" observable value overrides previous true value and marks valid when provided value is not a valid US phone number', function () {
+
+    var reqObs = ko.observable(true),
+		testObj = ko.observable('notavalidphonenum')
+                    .extend({ phoneUS: reqObs });
+
+	reqObs(false); // flip
+    equal(testObj.isValid(), true, 'testObj is not valid');
+});
+
+test('"phoneUS: true" observable value overrides previous false value and marks invalid when provided value is not a valid US phone number', function () {
+
+    var reqObs = ko.observable(false),
+		testObj = ko.observable('notavalidphonenum')
+                    .extend({ phoneUS: reqObs });
+
+	reqObs(true); // flip
+    equal(testObj.isValid(), false, 'testObj is valid');
 });
 
 //#endregion
@@ -680,7 +950,7 @@ test( 'Issue #81 - Dynamic messages', function () {
 
     var CustomRule = function () {
         var self = this;
-        
+
         this.message = 'before';
         this.params = 0;
 
@@ -730,9 +1000,9 @@ test('Object is Valid and isValid returns True', function () {
 });
 
 test('Object is Valid and isValid returns True', function () {
-    var testObj = ko.observable().extend({ 
+    var testObj = ko.observable().extend({
                     required: true,
-                    minLength: 2, 
+                    minLength: 2,
                     pattern: {
                         message: 'It must contain some',
                         params: 'some'
@@ -964,7 +1234,7 @@ test('Issue #31 - Recursively Show All Messages', function () {
     ok(!vm.one.isModified(), "Level 1 is not modified");
     ok(!vm.two.one.isModified(), "Level 2 is not modified");
     ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
-    
+
     // now show all the messages
     errors.showAllMessages();
 
