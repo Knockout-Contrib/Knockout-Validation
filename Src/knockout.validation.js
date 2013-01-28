@@ -288,10 +288,10 @@
                 };
                 obj.isAnyMessageShown = function() {
                     var invalidAndModifiedPresent = false;
-                    
+
                     // ensure we have latest changes
                     result();
-                    
+
                     ko.utils.arrayForEach(validatables(), function (observable) {
                         if (!observable.isValid() && observable.isModified()) {
                             invalidAndModifiedPresent = true;
@@ -504,10 +504,11 @@
     validation.rules['required'] = {
         validator: function (val, required) {
             var stringTrimRegEx = /^\s+|\s+$/g,
+                requiredVal = utils.getValue(required),
                 testVal;
 
             if (val === undefined || val === null) {
-                return !required;
+                return !requiredVal;
             }
 
             testVal = val;
@@ -515,7 +516,7 @@
                 testVal = val.replace(stringTrimRegEx, '');
             }
 
-            if (!required) // if they passed: { required: false }, then don't require this
+            if (!requiredVal) // if they passed: { required: false }, then don't require this
                 return true;
 
             return ((testVal + '').length > 0);
@@ -525,35 +526,40 @@
 
     validation.rules['min'] = {
         validator: function (val, min) {
-            return utils.isEmptyVal(val) || val >= min;
+            var minValue = utils.getValue(min);
+            return utils.isEmptyVal(val) || val >= minValue;
         },
         message: 'Please enter a value greater than or equal to {0}.'
     };
 
     validation.rules['max'] = {
         validator: function (val, max) {
-            return utils.isEmptyVal(val) || val <= max;
+            var maxValue = utils.getValue(max);
+            return utils.isEmptyVal(val) || val <= maxValue;
         },
         message: 'Please enter a value less than or equal to {0}.'
     };
 
     validation.rules['minLength'] = {
         validator: function (val, minLength) {
-            return utils.isEmptyVal(val) || val.length >= minLength;
+            var minLengthValue = utils.getValue(minLength);
+            return utils.isEmptyVal(val) || val.length >= minLengthValue;
         },
         message: 'Please enter at least {0} characters.'
     };
 
     validation.rules['maxLength'] = {
         validator: function (val, maxLength) {
-            return utils.isEmptyVal(val) || val.length <= maxLength;
+            var maxLengthValue = utils.getValue(maxLength);
+            return utils.isEmptyVal(val) || val.length <= maxLengthValue;
         },
         message: 'Please enter no more than {0} characters.'
     };
 
     validation.rules['pattern'] = {
         validator: function (val, regex) {
-            return utils.isEmptyVal(val) || val.toString().match(regex) != null;
+            var regexValue = utils.getValue(regex);
+            return utils.isEmptyVal(val) || val.toString().match(regexValue) != null;
         },
         message: 'Please check this value.'
     };
@@ -563,20 +569,22 @@
 
             // in order to handle steps of .1 & .01 etc.. Modulus won't work
             // if the value is a decimal, so we have to correct for that
-            return utils.isEmptyVal(val) || (val * 100) % (step * 100) === 0;
+            var stepVal = utils.getValue(step);
+            return utils.isEmptyVal(val) || (val * 100) % (stepVal * 100) === 0;
         },
         message: 'The value must increment by {0}'
     };
 
     validation.rules['email'] = {
         validator: function (val, validate) {
-            if (!validate) return true;
+            var validateVal = utils.getValue(validate);
+            if (!validateVal) return true;
 
             //I think an empty email address is also a valid entry
             //if one want's to enforce entry it should be done with 'required: true'
             return utils.isEmptyVal(val) || (
                 // jquery validate regex - thanks Scott Gonzalez
-                validate && /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i.test(val)
+                validateVal && /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i.test(val)
             );
         },
         message: 'Please enter a proper email address'
@@ -584,43 +592,48 @@
 
     validation.rules['date'] = {
         validator: function (value, validate) {
-            if (!validate) return true;
-            return utils.isEmptyVal(value) || (validate && !/Invalid|NaN/.test(new Date(value)));
+            var validateVal = utils.getValue(validate);
+            if (!validateVal) return true;
+            return utils.isEmptyVal(value) || (validateVal && !/Invalid|NaN/.test(new Date(value)));
         },
         message: 'Please enter a proper date'
     };
 
     validation.rules['dateISO'] = {
         validator: function (value, validate) {
-            if (!validate) return true;
-            return utils.isEmptyVal(value) || (validate && /^\d{4}[\/-]\d{1,2}[\/-]\d{1,2}$/.test(value));
+            var validateVal = utils.getValue(validate);
+            if (!validateVal) return true;
+            return utils.isEmptyVal(value) || (validateVal && /^\d{4}[\/-]\d{1,2}[\/-]\d{1,2}$/.test(value));
         },
         message: 'Please enter a proper date'
     };
 
     validation.rules['number'] = {
         validator: function (value, validate) {
-            if (!validate) return true;
-            return utils.isEmptyVal(value) || (validate && /^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(value));
+            var validateVal = utils.getValue(validate);
+            if (!validateVal) return true;
+            return utils.isEmptyVal(value) || (validateVal && /^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(value));
         },
         message: 'Please enter a number'
     };
 
     validation.rules['digit'] = {
         validator: function (value, validate) {
-            if (!validate) return true;
-            return utils.isEmptyVal(value) || (validate && /^\d+$/.test(value));
+            var validateVal = utils.getValue(validate);
+            if (!validateVal) return true;
+            return utils.isEmptyVal(value) || (validateVal && /^\d+$/.test(value));
         },
         message: 'Please enter a digit'
     };
 
     validation.rules['phoneUS'] = {
         validator: function (phoneNumber, validate) {
-            if (!validate) return true;
+            var validateVal = utils.getValue(validate);
+            if (!validateVal) return true;
             if (typeof (phoneNumber) !== 'string') { return false; }
             if (utils.isEmptyVal(phoneNumber)) { return true; } // makes it optional, use 'required' rule if it should be required
             phoneNumber = phoneNumber.replace(/\s+/g, "");
-            return validate && phoneNumber.length > 9 && phoneNumber.match(/^(1-?)?(\([2-9]\d{2}\)|[2-9]\d{2})-?[2-9]\d{2}-?\d{4}$/);
+            return validateVal && phoneNumber.length > 9 && phoneNumber.match(/^(1-?)?(\([2-9]\d{2}\)|[2-9]\d{2})-?[2-9]\d{2}-?\d{4}$/);
         },
         message: 'Please specify a valid phone number'
     };
@@ -743,12 +756,12 @@
                 msg = null,
                 isModified = false,
                 isValid = false;
-                
+
             obsv.extend({ validatable: true });
 
             isModified = obsv.isModified();
             isValid = obsv.isValid();
-            
+
             // create a handler to correctly return an error message
             var errorMsgAccessor = function () {
                 if (!config.messagesOnModified || isModified) {
@@ -800,7 +813,7 @@
             //add or remove class on the element;
             ko.bindingHandlers.css.update(element, cssSettingsAccessor);
 			if (!config.errorsAsTitle) return;
-			
+
 			var origTitle = utils.getAttribute(element, 'data-orig-title'),
                 elementTitle = element.title,
                 titleIsErrorMsg = utils.getAttribute(element, 'data-orig-title') == "true";
