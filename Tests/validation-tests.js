@@ -1038,6 +1038,25 @@ test('Issue #37 - Toggle ShowAllMessages', function () {
     ok(!vm.two.one.isModified(), "Level 2 is not modified");
     ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
 });
+
+test('Grouping options does not overwrite global configuration options', function () {
+    // we can not access the configuration therefore we test by observing the behavior
+    // deep option is false per default;
+
+    // that should not change the config
+    ko.validation.group({}, { deep: true });
+
+    var vm = {
+        one: ko.observable().extend({ required: true }),
+        two: {
+            one: ko.observable().extend({ required: true })
+        }
+    };
+
+    var errors = ko.validation.group(vm);
+
+    equals(errors().length, 1, 'Grouping finds one invalid object because deep option was not specified.');
+});
 //#endregion
 
 //#region Conditional Validation
