@@ -43,7 +43,8 @@
         errorMessageClass: 'validationMessage',  // class to decorate error message
         grouping: {
             deep: false,        //by default grouping is shallow
-            observable: true    //and using observables
+            observable: true,    //and using observables
+            addResultToVM: true  //add errors, isValid, isAnyMessage shown to the view model (can cause problems if these properties are already used) 
         }
     };
 
@@ -282,11 +283,11 @@
                     });
                 };
 
-                obj.errors = result;
-                obj.isValid = function () {
+                result.isValid = function () {
                     return obj.errors().length === 0;
                 };
-                obj.isAnyMessageShown = function() {
+
+                result.isAnyMessageShown = function() {
                     var invalidAndModifiedPresent = false;
                     
                     // ensure we have latest changes
@@ -300,6 +301,11 @@
                     return invalidAndModifiedPresent;
                 };
 
+                if (options.addResultToVM) {
+                    obj.errors = result;
+                    obj.isValid = result.isValid;
+                    obj.isAnyMessageShown = result.isAnyMessageShown;
+                }
                 return result;
             },
 
@@ -1033,7 +1039,7 @@
         if (!exports.utils.isObject(initialValue)) { return ko.observable(initialValue).extend({ validatable: true }); }
 
         var obsv = ko.observable(initialValue);
-        obsv.errors = exports.group(initialValue);
+        obsv.errors = exports.group(initialValue, { addResultToVM: true });
         obsv.isValid = ko.computed(function () {
             return obsv.errors().length === 0;
         });
