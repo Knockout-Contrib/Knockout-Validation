@@ -572,6 +572,15 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
 
+test('Object is null and isValid returns True', function () {
+    var testObj = ko.observable('').extend({ phoneUS: true });
+
+    testObj(null);
+
+    equal(testObj(), null, 'observable still works');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
 //#endregion
 
 //#region Custom Rule Validation
