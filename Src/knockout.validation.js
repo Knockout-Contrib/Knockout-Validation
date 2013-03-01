@@ -490,7 +490,7 @@
 
     ko.validation.rules['number'] = {
         validator: function (value, validate) {
-            return utils.isEmptyVal(value) || (validate && /^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(value));
+            return utils.isEmptyVal(value) || (validate && /^-?(?:\d+|\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$/.test(value));
         },
         message: 'Please enter a number'
     };
