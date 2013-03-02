@@ -1038,6 +1038,18 @@ test('Issue #37 - Toggle ShowAllMessages', function () {
     ok(!vm.two.one.isModified(), "Level 2 is not modified");
     ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
 });
+
+test("Issue #235 - formatMessage should unwrap observable parameters", function () {
+    var observable = ko.observable("a value");
+    var format = "Format message: {0}";
+    var formatted = ko.validation.formatMessage(format, observable);
+
+    equal("Format message: a value", formatted, "Message should be formatted with the observable value");
+    equal("a value", observable(), "Source observable should not be altered");
+
+    formatted = ko.validation.formatMessage(format, "a value");
+    equal("Format message: a value", formatted, "Message should be formatted with the non-observable value");
+});
 //#endregion
 
 //#region Conditional Validation
