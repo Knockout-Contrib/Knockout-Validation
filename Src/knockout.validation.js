@@ -31,6 +31,7 @@
     var defaults = {
         registerExtenders: true,
         messagesOnModified: true,
+		errorsAsTitle: true,  			// enables/disables showing of errors as title attribute of the target element.
         errorsAsTitleOnModified: false, // shows the error when hovering the input field (decorateElement must be true)
         messageTemplate: null,
         insertMessages: true,           // automatically inserts validation messages as <span></span>
@@ -50,6 +51,7 @@
     var configuration = ko.utils.extend({}, defaults);
 
     var html5Attributes = ['required', 'pattern', 'min', 'max', 'step'];
+    var html5InputTypes = ['email', 'number', 'date'];
 
     var async = function (expr) {
         if (window.setImmediate) { window.setImmediate(expr); }
@@ -85,6 +87,12 @@
             },
             hasAttribute: function (node, attr) {
                 return node.getAttribute(attr) !== null;
+            },
+            getAttribute: function(element, attr){
+                return element.getAttribute(attr);
+            },
+            setAttribute: function(element, attr, value){
+                return element.setAttribute(attr, value);
             },
             isValidatable: function (o) {
                 return o && o.rules && o.isValid && o.isModified;
@@ -412,6 +420,16 @@
                         exports.addRule(valueAccessor(), {
                             rule: attr,
                             params: element.getAttribute(attr) || true
+                        });
+                    }
+                });
+
+                var currentType = element.getAttribute('type');
+                ko.utils.arrayForEach(html5InputTypes, function (type) {
+                    if (type == currentType){
+                        exports.addRule(valueAccessor(), {
+                            rule: (type == 'date')?'dateISO':type,
+                            params: true
                         });
                     }
                 });
@@ -782,10 +800,11 @@
 
             //add or remove class on the element;
             ko.bindingHandlers.css.update(element, cssSettingsAccessor);
-
-            var origTitle = element.getAttribute('data-orig-title');
-            var elementTitle = element.title;
-            var titleIsErrorMsg = element.getAttribute('data-orig-title') == "true"
+			if (!config.errorsAsTitle) return;
+			
+			var origTitle = utils.getAttribute(element, 'data-orig-title'),
+                elementTitle = element.title,
+                titleIsErrorMsg = utils.getAttribute(element, 'data-orig-title') == "true";
 
             var errorMsgTitleAccessor = function () {
                 if (!config.errorsAsTitleOnModified || isModified) {
