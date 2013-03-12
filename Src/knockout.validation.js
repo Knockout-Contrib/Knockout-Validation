@@ -22,7 +22,7 @@
     }
 }(function ( ko, exports ) {
 
-    if (typeof (ko) === undefined) { throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in'; }
+    if (typeof (ko) === 'undefined') { throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in'; }
 
     // create our namespace object
     var validation = exports;
@@ -121,7 +121,7 @@
                 var key = node[domDataKey];
 
                 if (!key) {
-                    return undefined;
+                    return;
                 }
 
                 return domData[key];
@@ -135,13 +135,10 @@
                         if (node.parentNode) return utils.contextFor(node.parentNode);
                         break;
                 }
-                return undefined;
+                return;
             },
             isEmptyVal: function (val) {
-                if (val === undefined) {
-                    return true;
-                }
-                if (val === null) {
+                if (val == null) {
                     return true;
                 }
                 if (val === "") {
@@ -210,7 +207,7 @@
                         val = ko.utils.unwrapObservable(obj);
 
                     //default level value depends on deep option.
-                    level = (level !== undefined ? level : options.deep ? 1 : -1);
+                    level = ((typeof level !== 'undefined') ? level : options.deep ? 1 : -1);
 
                     // if object is observable then add it to the list
                     if (ko.isObservable(obj)) {
@@ -271,7 +268,7 @@
                 }
 
                 result.showAllMessages = function (show) { // thanks @heliosPortal
-                    if (show == undefined) //default to true
+                    if (typeof show === 'undefined') //default to true
                         show = true;
 
                     // ensure we have latest changes
@@ -341,7 +338,7 @@
             addAnonymousRule: function (observable, ruleObj) {
                 var ruleName = utils.newId();
 
-                if ( ruleObj['message'] === undefined ) {
+                if ( typeof ruleObj['message'] === 'undefined' ) {
                     ruleObj['message'] = 'Error';
                 }
 
@@ -506,7 +503,7 @@
             var stringTrimRegEx = /^\s+|\s+$/g,
                 testVal;
 
-            if (val === undefined || val === null) {
+            if (val == null) {
                 return !required;
             }
 
@@ -660,7 +657,7 @@
                 if (val === (options.valueAccessor ? options.valueAccessor(item) : item)) counter++;
             });
             // if value is external even 1 same value in collection means the value is not unique
-            return counter < (external !== undefined && val !== external ? 1 : 2);
+            return counter < ((typeof external !== 'undefined') && val !== external ? 1 : 2);
         },
         message: 'Please make sure the value is unique.'
     };
@@ -941,7 +938,7 @@
 
     function validateSync(observable, rule, ctx) {
         //Execute the validator and see if its valid
-        if (!rule.validator(observable(), ctx.params === undefined ? true : ctx.params)) { // default param is true, eg. required = true
+        if (!rule.validator(observable(), typeof ctx.params === 'undefined' ? true : ctx.params)) { // default param is true, eg. required = true
 
             //not valid, so format the error message and stick it in the 'error' variable
             observable.error = exports.formatMessage(ctx.message || rule.message, ctx.params);
