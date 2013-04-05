@@ -286,31 +286,31 @@ test('Pattern validation mismatches numbers', function () {
 test('Pattern validation doesn\'t break with non-string values', function () {
     var testObj = ko.observable('')
                     .extend({ pattern: '^$' });
-    
-    // Validation results not important, just shouldn't blow-up
+	
+	// Validation results not important, just shouldn't blow-up
     testObj(null);
-    testObj.isValid();
+	testObj.isValid();
 
     testObj(undefined);
-    testObj.isValid();
+	testObj.isValid();
 
     testObj(12345);
-    testObj.isValid();
+	testObj.isValid();
 
     testObj(12.34);
-    testObj.isValid();
+	testObj.isValid();
 
     testObj(true);
-    testObj.isValid();
+	testObj.isValid();
 
     testObj(false);
-    testObj.isValid();
+	testObj.isValid();
 
     testObj([]);
-    testObj.isValid();
+	testObj.isValid();
 
     testObj({});
-    testObj.isValid();
+	testObj.isValid();
 });
 
 //#endregion
@@ -416,7 +416,7 @@ test('Email with invalid domain', function(){
 
     equal( testObj.isValid(), false, testObj.error());
     equal( testObj.error(), 'Please enter a proper email address');
-})
+});
 //#endregion
 
 //#region Date Validation
@@ -1037,6 +1037,25 @@ test('Issue #37 - Toggle ShowAllMessages', function () {
     ok(!vm.one.isModified(), "Level 1 is not modified");
     ok(!vm.two.one.isModified(), "Level 2 is not modified");
     ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
+});
+
+test('Grouping options does not overwrite global configuration options', function () {
+    // we can not access the configuration therefore we test by observing the behavior
+    // deep option is false per default;
+
+    // that should not change the config
+    ko.validation.group({}, { deep: true });
+
+    var vm = {
+        one: ko.observable().extend({ required: true }),
+        two: {
+            one: ko.observable().extend({ required: true })
+        }
+    };
+
+    var errors = ko.validation.group(vm);
+
+    equals(errors().length, 1, 'Grouping finds one invalid object because deep option was not specified.');
 });
 
 test("Issue #235 - formatMessage should unwrap observable parameters", function () {
