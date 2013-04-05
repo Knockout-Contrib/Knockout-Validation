@@ -189,7 +189,7 @@ test('Showing Errors As Titles is disabled sucessfully', function () {
     ko.validation.init({
         errorsAsTitleOnModified: true,
         decorateElement: true,
-		errorsAsTitle: false
+        errorsAsTitle: false
     }, true);
 
     applyTestBindings(vm);
