@@ -495,6 +495,18 @@
                 });
 
                 contexts = null;
+            },
+
+            //take an existing binding handler and make it cause automatic validations
+            makeBindingHandlerValidatable: function (handlerName) {
+                var init = ko.bindingHandlers[handlerName].init;
+
+                ko.bindingHandlers[handlerName].init = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+
+                    init(element, valueAccessor, allBindingsAccessor);
+
+                    return ko.bindingHandlers['validationCore'].init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
+                };
             }
         };
     }());
@@ -749,17 +761,9 @@
 
     }());
 
-    // override for KO's default 'value' binding
-    (function () {
-        var init = ko.bindingHandlers['value'].init;
-
-        ko.bindingHandlers['value'].init = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-
-            init(element, valueAccessor, allBindingsAccessor);
-
-            return ko.bindingHandlers['validationCore'].init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
-        };
-    } ());
+    // override for KO's default 'value' and 'checked' bindings
+    api.makeBindingHandlerValidatable("value");
+    api.makeBindingHandlerValidatable("checked");
 
 
     ko.bindingHandlers['validationMessage'] = { // individual error message, if modified or post binding
