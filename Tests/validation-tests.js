@@ -286,31 +286,31 @@ test('Pattern validation mismatches numbers', function () {
 test('Pattern validation doesn\'t break with non-string values', function () {
     var testObj = ko.observable('')
                     .extend({ pattern: '^$' });
-	
-	// Validation results not important, just shouldn't blow-up
+    
+    // Validation results not important, just shouldn't blow-up
     testObj(null);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj(undefined);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj(12345);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj(12.34);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj(true);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj(false);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj([]);
-	testObj.isValid();
+    testObj.isValid();
 
     testObj({});
-	testObj.isValid();
+    testObj.isValid();
 });
 
 //#endregion
@@ -819,6 +819,56 @@ test('Issue #78 - Falsy Params', function () {
     equal(testObj.isValid(), false, 'testObj is not valid');
 
 });
+//#endregion
+
+//#region Manual Validation
+module("Manual Validation")
+test("setError sets isValid and error message", function () {
+    var testObj = ko.observable();
+    testObj.extend({ validatable: true });
+
+	//check initial validation state
+    ok(testObj.isValid());
+    equal(testObj.error, null);
+
+	//manually set an error
+    testObj.setError("oh no!");
+
+	//check state was set
+    ok(!testObj.isValid());
+	equal("oh no!", testObj.error);
+});
+
+test("clearError clears manually-specified error", function () {
+	var testObj = ko.observable();
+	testObj.extend({ validatable: true });
+	testObj.setError("oh no!");
+
+	//fail the validation
+	ok(!testObj.isValid())
+
+	//clear the validation
+	testObj.clearError();
+
+	//check state was cleared
+	ok(testObj.isValid());
+	equal(testObj.error, null);
+});
+
+test("clearError clears automatic errors", function () {
+	var testObj = ko.observable(5);
+	testObj.extend({ min: 6 });
+
+	//check initial state
+	ok(!testObj.isValid());
+
+	testObj.clearError();
+
+	//check validation was cleared
+	ok(testObj.isValid());
+	equal(testObj.error, null);
+});
+
 //#endregion
 
 //#region Equal tests
