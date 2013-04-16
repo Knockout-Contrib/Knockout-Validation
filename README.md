@@ -4,6 +4,7 @@ A KnockoutJS Plugin for model and property validation
 Contributors:
 
 * [Eric Barnard](https://github.com/ericmbarnard)
+* [Steve Greatrex](https://github.com/stevegreatrex)
 * [Andy Booth](https://github.com/andybooth)
 * [Michal Poreba](https://github.com/michalporeba)
 * and many others!
