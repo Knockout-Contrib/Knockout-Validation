@@ -562,6 +562,58 @@ test("HTML5 Input types", function () {
     }, 1 );
 });
 
+test('max Attribute of 30 should fail for value of 100', function () {
+
+    var vm = {
+		someNumber: ko.validatedObservable()
+    };
+    
+    addTestHtml('<input id="myTestInput" type="number" max="30" data-bind="value:someNumber", validationElement: someNumber" />');
+
+    ko.validation.init({
+        parseInputAttributes: true
+    }, true);
+    applyTestBindings(vm);
+	stop();
+	
+	setTimeout(function() {
+		vm.someNumber(100); // should fail the min rule
+		
+		var el = $('#myTestInput');
+
+		ok(el, 'found element');
+		ok(!vm.someNumber.isValid(), "Object is not valid");
+
+		start();
+	}, 1);
+});
+
+test('max Attribute of 30 should pass for value of 5', function () {
+
+    var vm = {
+		someNumber: ko.validatedObservable()
+    };
+    
+    addTestHtml('<input id="myTestInput" type="number" max="30" data-bind="value:someNumber", validationElement: someNumber" />');
+
+	ko.validation.init({
+		parseInputAttributes: true,
+	}, true);
+    applyTestBindings(vm);
+	stop();
+	
+	setTimeout(function() {
+		vm.someNumber(5); // should validate the min rule
+		
+		var el = $('#myTestInput');
+
+		ok(el, 'found element');
+		ok(vm.someNumber.isValid(), "Object is valid");
+		
+		start();
+	}, 1);
+	
+});
 
 
 //#endregion

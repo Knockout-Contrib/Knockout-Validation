@@ -73,6 +73,7 @@
     var configuration = ko.utils.extend({}, defaults);
 
     var html5Attributes = ['required', 'pattern', 'min', 'max', 'step'];
+	var html5NumericAttributes = ['min', 'max', 'step'];
     var html5InputTypes = ['email', 'number', 'date'];
 
     var async = function (expr) {
@@ -89,6 +90,15 @@
         var domDataKey = '__ko_validation__';
 
         return {
+			isNumericAttribute: function(attr) {
+				var isNumeric = false;
+				ko.utils.arrayForEach(html5NumericAttributes, function (numAttr) {
+					if (numAttr === attr) {
+						isNumeric = true;
+					}
+				});
+				return isNumeric;
+			},
             isArray: function (o) {
                 return o.isArray || Object.prototype.toString.call(o) === '[object Array]';
             },
@@ -449,9 +459,20 @@
             parseInputValidationAttributes: function (element, valueAccessor) {
                 ko.utils.arrayForEach(html5Attributes, function (attr) {
                     if (utils.hasAttribute(element, attr)) {
+
+                        // If the attribute is a numeric attribute, such as min/max,  
+                        // parse the attribute value to a number so that values 
+                        // can be compared as numbers rather than as strings.
+                        // The observable being validated should be stored as a number
+                        // for the comparison to work properly.  The numeric extender
+                        // at http://knockoutjs.com/documentation/extenders.html
+                        // can help force the user input to be stored as a numeric value.
+                        var attrVal = element.getAttribute(attr);
+                        if (utils.isNumericAttribute(attr)) { attrVal = parseFloat(attrVal); }
+
                         exports.addRule(valueAccessor(), {
                             rule: attr,
-                            params: element.getAttribute(attr) || true
+                            params: attrVal || true
                         });
                     }
                 });
