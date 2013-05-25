@@ -64,7 +64,21 @@ test('Issue #90 - "required: false" doesnt force validation', function () {
 
 module('Min Validation');
 
-test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ min: 2 });
+    testObj();
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when null value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ min: 2 });
+    testObj(null);
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
 
     var testObj = ko.observable().extend({ min: 2 });
     testObj('');
@@ -105,13 +119,27 @@ test('Object is NOT Valid and isValid returns False', function () {
 //#region Max Validation
 
 module('Max Validation');
-test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+
+test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ max: 2 });
+    testObj();
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when null value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ max: 2 });
+    testObj(null);
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
 
     var testObj = ko.observable().extend({ max: 2 });
     testObj('');
     ok(testObj.isValid(), 'testObj is Valid');
 });
-
 
 test('Object is Valid and isValid returns True', function () {
     var testObj = ko.observable('')
@@ -138,6 +166,27 @@ test('Object is NOT Valid and isValid returns False', function () {
 //#region Min Length Validation
 
 module('MinLength Validation');
+
+test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ minLength: 2 });
+    testObj();
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when null value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ minLength: 2 });
+    testObj(null);
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ minLength: 2 });
+    testObj('');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
 
 test('Object is Valid when no value is present - Preserves Optional Properties', function () {
 
@@ -188,7 +237,21 @@ test('Issue #33 - Arrays - Invalid', function () {
 
 module('MaxLength Validation');
 
-test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ maxLength: 2 });
+    testObj();
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when null value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ maxLength: 2 });
+    testObj(null);
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
 
     var testObj = ko.observable().extend({ maxLength: 2 });
     testObj('');
@@ -236,7 +299,21 @@ test('Issue #33 - Arrays - Invalid', function () {
 
 module('Pattern Validation');
 
-test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ pattern: 'test' });
+    testObj();
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when null value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ pattern: 'test' });
+    testObj(null);
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
 
     var testObj = ko.observable().extend({ pattern: 'test' });
     testObj('');
@@ -287,13 +364,6 @@ test('Pattern validation doesn\'t break with non-string values', function () {
     var testObj = ko.observable('')
                     .extend({ pattern: '^$' });
     
-    // Validation results not important, just shouldn't blow-up
-    testObj(null);
-    testObj.isValid();
-
-    testObj(undefined);
-    testObj.isValid();
-
     testObj(12345);
     testObj.isValid();
 
@@ -319,7 +389,21 @@ test('Pattern validation doesn\'t break with non-string values', function () {
 
 module('Step Validation');
 
-test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ step: 2 });
+    testObj();
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when null value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ step: 2 });
+    testObj(null);
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
 
     var testObj = ko.observable().extend({ step: 2 });
     testObj('');
@@ -383,7 +467,21 @@ test('Issue 74 - Object is NOT Valid with a step of 0.1 and isValid returns Fals
 
 module('Email Validation');
 
-test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ email: true });
+    testObj();
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when null value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ email: true });
+    testObj(null);
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
 
     var testObj = ko.observable().extend({ email: true });
     testObj('');
@@ -423,7 +521,21 @@ test('Email with invalid domain', function(){
 
 module('Date Validation');
 
-test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ date: 'test' });
+    testObj();
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when null value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ date: 'test' });
+    testObj(null);
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
 
     var testObj = ko.observable().extend({ date: 'test' });
     testObj('');
@@ -454,7 +566,21 @@ test('Object is NOT Valid and isValid returns False', function () {
 
 module('DateISO Validation');
 
-test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ dateISO: 'test' });
+    testObj();
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when null value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ dateISO: 'test' });
+    testObj(null);
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
 
     var testObj = ko.observable().extend({ dateISO: 'test' });
     testObj('');
@@ -485,7 +611,21 @@ test('Object is NOT Valid and isValid returns False', function () {
 
 module('Number Validation');
 
-test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ number: true });
+    testObj();
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when null value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ number: true });
+    testObj(null);
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
 
     var testObj = ko.observable().extend({ number: true });
     testObj('');
@@ -516,7 +656,21 @@ test('Object is NOT Valid and isValid returns False', function () {
 
 module('Digit Validation');
 
-test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ digit: true });
+    testObj();
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when null value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ digit: true });
+    testObj(null);
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
 
     var testObj = ko.observable().extend({ digit: true });
     testObj('');
@@ -546,13 +700,26 @@ test('Object is NOT Valid and isValid returns False', function () {
 //#region PhoneUS Validation
 module('PhoneUS Validation');
 
-test('Object is Valid when no value is present - Preserves Optional Properties', function () {
+test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ phoneUS: true });
+    testObj();
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when null value is present - Preserves Optional Properties', function () {
+
+    var testObj = ko.observable().extend({ phoneUS: true });
+    testObj(null);
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
 
     var testObj = ko.observable().extend({ phoneUS: true });
     testObj('');
     ok(testObj.isValid(), 'testObj is Valid');
 });
-
 
 test('Object is Valid and isValid returns True', function () {
     var testObj = ko.observable('').extend({ phoneUS: true });
