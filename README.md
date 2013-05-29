@@ -87,7 +87,7 @@ var myObj = ko.observable('').extend({ maxLength: 12 });
 var myObj = ko.observable('').extend({ email: true });
 ```
 
-... and [MANY MORE](https://github.com/ericmbarnard/Knockout-Validation/wiki/Native-Rules)
+... and [MANY MORE](https://github.com/Knockout-Contrib/Knockout-Validation/wiki/Native-Rules)
 
 _Much thanks to the [jQuery Validation Plug-In](https://github.com/jzaefferer/jquery-validation) team for their work on many of the rules_
 ##Custom Validation Rules
@@ -107,9 +107,9 @@ ko.validation.registerExtenders();
 //the value '5' is the second arg ('otherVal') that is passed to the validator
 var myCustomObj = ko.observable().extend({ mustEqual: 5 });
 ```
-Learn more about Custom Rules on the [WIKI](https://github.com/ericmbarnard/Knockout-Validation/wiki/Custom-Validation-Rules)
+Learn more about Custom Rules on the [WIKI](https://github.com/Knockout-Contrib/Knockout-Validation/wiki/Custom-Validation-Rules)
 
-###Or Check out our [User-Contributed Custom Rules](https://github.com/ericmbarnard/Knockout-Validation/wiki/User-Contributed-Rules)!###
+###Or Check out our [User-Contributed Custom Rules](https://github.com/Knockout-Contrib/Knockout-Validation/wiki/User-Contributed-Rules)!###
 
 ##HTML5 Validation Attributes
 
@@ -136,10 +136,10 @@ If you want to customize the display of your objects validation message, use the
    <p data-bind="validationMessage: someValue"></p>
 <div>
 ```
-Check out more on [Validation Bindings](https://github.com/ericmbarnard/Knockout-Validation/wiki/Validation-Bindings)
+Check out more on [Validation Bindings](https://github.com/Knockout-Contrib/Knockout-Validation/wiki/Validation-Bindings)
 
 ##Remote Validation Rules
-Check out our [Async Validation](https://github.com/ericmbarnard/Knockout-Validation/wiki/Async-Rules) and [jQuery AJAX Validation](https://github.com/ericmbarnard/Knockout-Validation/wiki/Async-Rules)
+Check out our [Async Validation](https://github.com/Knockout-Contrib/Knockout-Validation/wiki/Async-Rules) and [jQuery AJAX Validation](https://github.com/ericmbarnard/Knockout-Validation/wiki/Async-Rules)
 
 ##Localization
 
