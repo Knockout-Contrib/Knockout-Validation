@@ -829,14 +829,14 @@ test("setError sets isValid and error message", function () {
 
 	//check initial validation state
     ok(testObj.isValid());
-    equal(testObj.error, null);
+    equal(testObj.error(), null);
 
 	//manually set an error
     testObj.setError("oh no!");
 
 	//check state was set
     ok(!testObj.isValid());
-	equal("oh no!", testObj.error);
+	equal("oh no!", testObj.error());
 });
 
 test("clearError clears manually-specified error", function () {
@@ -852,7 +852,7 @@ test("clearError clears manually-specified error", function () {
 
 	//check state was cleared
 	ok(testObj.isValid());
-	equal(testObj.error, null);
+	equal(testObj.error(), null);
 });
 
 test("clearError clears automatic errors", function () {
@@ -866,7 +866,7 @@ test("clearError clears automatic errors", function () {
 
 	//check validation was cleared
 	ok(testObj.isValid());
-	equal(testObj.error, null);
+	equal(testObj.error(), null);
 });
 
 //#endregion
