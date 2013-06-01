@@ -840,7 +840,7 @@
             ko.bindingHandlers.css.update(element, cssSettingsAccessor);
             if (!config.errorsAsTitle) { return; }
             
-			var origTitle = utils.getAttribute(element, 'data-orig-title'),
+            var origTitle = utils.getAttribute(element, 'data-orig-title'),
                 elementTitle = element.title,
                 titleIsErrorMsg = utils.getAttribute(element, 'data-orig-title') === "true";
 
@@ -947,16 +947,16 @@
                 return observable.__valid__();
             });
 
-			//manually set error state
+            //manually set error state
             observable.setError = function (error) {
-				observable.error(error);
-            	observable.__valid__(false);
+                observable.error(error);
+                observable.__valid__(false);
             };
 
-			//manually clear error state
+            //manually clear error state
             observable.clearError = function () {
-            	observable.error(null);
-				observable.__valid__(true);
+                observable.error(null);
+                observable.__valid__(true);
             }
 
             //subscribe to changes in the observable
