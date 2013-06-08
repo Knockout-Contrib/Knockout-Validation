@@ -612,7 +612,7 @@ test('Custom Rule Is NOT Valid Test', function () {
 
     equal(testObj(), 6, 'observable still works');
     ok(testObj.error(), testObj.error());
-    equal(testObj.isValid(), false, 'testObj is valid');
+	equal(testObj.isValid(), false, 'testObj is valid');
 });
 
 //#endregion
@@ -822,7 +822,7 @@ test('Issue #78 - Falsy Params', function () {
 //#endregion
 
 //#region Manual Validation
-module("Manual Validation")
+module("Manual Validation");
 test("setError sets isValid and error message", function () {
     var testObj = ko.observable();
     testObj.extend({ validatable: true });
@@ -845,7 +845,7 @@ test("clearError clears manually-specified error", function () {
 	testObj.setError("oh no!");
 
 	//fail the validation
-	ok(!testObj.isValid())
+	ok(!testObj.isValid());
 
 	//clear the validation
 	testObj.clearError();
@@ -1054,6 +1054,41 @@ test('Issue #31 - Recursively Show All Messages - using computed', function () {
     equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
 });
 
+test('Allow Nested Models with computed and only show message for observable once', function () {
+	var childrenTestData=[{name:"",isNice:false},{name:"Stella",isNice:true},{name:"Jupiler",isNice:true}];
+	var child=function(d){
+		var that={};
+		that.name=ko.observable(d.name).extend({ required: true});
+		that.isNice=ko.observable(d.isNice);
+		return that;
+	};
+	var parentWithComputed=function(d){
+		var that={};
+		that.allChildren=ko.observableArray(ko.utils.arrayMap(d, function(item) {
+			return child(item);
+		}));
+		that.niceChildren=ko.computed(function(){
+			return ko.utils.arrayFilter(that.allChildren(), function(item) {
+				return item.isNice();
+			});
+		});
+		that.naughtyChildren=ko.computed(function(){
+			return ko.utils.arrayFilter(that.allChildren(), function(item) {
+				return !item.isNice();
+			});
+		});	
+		return that;
+	};
+	
+    var vm = parentWithComputed(childrenTestData);
+	ok(vm.allChildren().length===3, "All testdata is in vm");
+	ok(vm.niceChildren().length===2, "Some objects are also in niceChildren");
+	ok(vm.naughtyChildren().length===1, "Some object is also in naughtyChildren");
+	
+	var errors = ko.validation.group(vm, { deep: true, observable: false  });
+    equals(errors().length, 1, 'Grouping correctly only shows onlye 1 error for the child with the empty name. Not 2 because object is also in vm.naughtyChildren');
+});
+
 test('Issue #37 - Toggle ShowAllMessages', function () {
     var vm = {
         one: ko.observable().extend({ required: true }),
@@ -1119,6 +1154,7 @@ test("Issue #235 - formatMessage should unwrap observable parameters", function 
     formatted = ko.validation.formatMessage(format, "a value");
     equal("Format message: a value", formatted, "Message should be formatted with the non-observable value");
 });
+
 //#endregion
 
 //#region Conditional Validation
@@ -1147,16 +1183,16 @@ test('isValid returns False When onlyIf Condition evaluates to true and Value is
 
 test('Changing the value of observable used in onlyIf condition triggers validation', function () {
     var person = {
-        isMarried: ko.observable(false).extend({ required: true }),
+        isMarried: ko.observable(false).extend({ required: true })
     };
     person.spouseName = ko.observable('').extend({
                           required: { onlyIf: person.isMarried }
                         });
     person.isMarried(false);
-    ok(person.spouseName.isValid(), 'Unmarried person is valid without spouse name')
+    ok(person.spouseName.isValid(), 'Unmarried person is valid without spouse name');
 
     person.isMarried(true);
-    equal(person.spouseName.isValid(), false, 'Married person is not valid without spouse name')
+    equal(person.spouseName.isValid(), false, 'Married person is not valid without spouse name');
 });
 //#endregion
 
@@ -1339,3 +1375,7 @@ asyncTest('Async Rule Is NOT Valid Test', function () {
 });
 
 //#endregion
+
+
+
+
