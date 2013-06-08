@@ -233,6 +233,7 @@
 
                 var validatables = ko.observableArray([]),
                 result = null,
+				isAlreadyInValidatables=false,  
 
                 //anonymous, immediate function to traverse objects hierarchically
                 //if !options.deep then it will stop on top level
@@ -245,10 +246,18 @@
 
                     // if object is observable then add it to the list
                     if (ko.isObservable(obj)) {
-
-                        //make sure it is validatable object
-                        if (!obj.isValid) { obj.extend({ validatable: true }); }
-                        validatables.push(obj);
+						//do not add the same object twice because it will give duplicate error messages
+						isAlreadyInValidatables = false;
+                        for (var j = 0; j < validatables().length; j++){
+                            if (validatables()[j] === obj){
+                                isAlreadyInValidatables = true;
+							}
+						}
+                        if (!isAlreadyInValidatables) {
+							//make sure it is validatable object
+							if (!obj.isValid) { obj.extend({ validatable: true }); }
+							validatables.push(obj);
+						}
                     }
 
                     //get list of values either from array or object but ignore non-objects
@@ -950,14 +959,14 @@
 			//manually set error state
             observable.setError = function (error) {
 				observable.error(error);
-            	observable.__valid__(false);
+				observable.__valid__(false);
             };
 
 			//manually clear error state
             observable.clearError = function () {
-            	observable.error(null);
+				observable.error(null);
 				observable.__valid__(true);
-            }
+            };
 
             //subscribe to changes in the observable
             var h_change = observable.subscribe(function () {
