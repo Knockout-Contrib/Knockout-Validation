@@ -377,6 +377,17 @@ test('Issue 74 - Object is NOT Valid with a step of 0.1 and isValid returns Fals
     equal(testObj(), 5.15, 'observable still works');
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
+
+test('Step validation fix regression check', function() {
+    var testObj = ko.observable(33.34).extend({ step: 0.01});
+    ok(!testObj.error(), 'step validation not triggered');
+});
+
+test('Step validation any value is allowed', function() {
+    var testObj = ko.observable(33.34).extend({ step: 'any' });
+    ok(!testObj.error(), '"any" value for step is allowed');
+});
+
 //#endregion
 
 //#region Email Validation
