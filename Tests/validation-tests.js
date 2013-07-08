@@ -1350,3 +1350,84 @@ asyncTest('Async Rule Is NOT Valid Test', function () {
 });
 
 //#endregion
+
+//#region Extended validation details
+module('Extended validation details');
+
+test('Basic required', function() {
+    var o = { required: true };
+
+    var vm = {
+        testObj: ko.observable().extend(o)
+    };
+    
+    vm.errors = ko.validation.group(vm);
+
+    ok(!vm.testObj.isValid(), vm.testObj.error());
+
+    var details = vm.errors.getDetails();
+
+    ok(details && details.length == 1, 'Results are available');
+    
+    equal(details[0].observable, vm.testObj, 'Result references the correct observable')
+    equal(details[0].rule, 'required', 'Result references the correct rule');
+    equal(details[0].error, vm.testObj.error(), 'Result contains the correct error message');
+
+    ok(details[0].data != null, 'Result contains data container');
+    equal(details[0].data[details[0].rule], o[details[0].rule], 'Result references the correct extension data');
+});
+
+test('Required with options', function() {
+    var o = { required: { fieldId: 'some_id' } };
+
+    var vm = {
+        testObj: ko.observable().extend(o)
+    };
+    
+    vm.errors = ko.validation.group(vm);
+
+    ok(!vm.testObj.isValid(), vm.testObj.error());
+
+    var details = vm.errors.getDetails();
+
+    ok(details && details.length == 1, 'Results are available');
+    
+    equal(details[0].observable, vm.testObj, 'Result references the correct observable')
+    equal(details[0].rule, 'required', 'Result references the correct rule');
+    equal(details[0].error, vm.testObj.error(), 'Result contains the correct error message');
+
+    ok(details[0].data != null, 'Result contains data container');
+    equal(details[0].data[details[0].rule], o[details[0].rule], 'Result references the correct extension data');
+    equal(details[0].data[details[0].rule].fieldId, 'some_id', 'Result\'s extension data is the same');
+});
+
+test('Multiple errors', function() {
+    var vm = {
+        testObj: ko.observable().extend({ required: true }),
+        anotherProp: ko.observable().extend({ required: true })
+    };
+
+    vm.errors = ko.validation.group(vm);
+
+    ok(!vm.testObj.isValid(), vm.testObj.error());
+
+    var details = vm.errors.getDetails();
+
+    ok(details && details.length == 2, 'Results are available');
+
+    var ensureResult = function (i, p) {
+        var observable = p();
+
+        equal(details[i].observable, observable, 'Result references the correct observable')
+        equal(details[i].rule, 'required', 'Result references the correct rule');
+        equal(details[i].error, observable.error(), 'Result contains the correct error message');
+
+        ok(details[i].data != null, 'Result contains data container');
+        equal(details[i].data[details[i].rule], true, 'Result contains the same values for extension data');    
+    }
+
+    ensureResult(0, function () { return vm.testObj; });
+    ensureResult(1, function () { return vm.anotherProp; });
+});
+
+//#endregion
