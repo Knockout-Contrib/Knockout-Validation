@@ -918,6 +918,7 @@
         if (enable && !utils.isValidatable(observable)) {
 
             observable.error = ko.observable(null); // holds the error message, we only need one since we stop processing validators when one is invalid
+            observable.errorData = ko.observable(null); // holds the error information, rule etc
 
             // observable.rules:
             // ObservableArray of Rule Contexts, where a Rule Context is simply the name of a rule and the params to supply to it
@@ -951,12 +952,17 @@
 
 			//manually set error state
             observable.setError = function (error) {
-				observable.error(error);
+            	if (typeof error == 'string') {
+            		error = { message: error };
+            	}
+            	observable.errorData(error);
+            	observable.error(error.message);
             	observable.__valid__(false);
             };
 
 			//manually clear error state
             observable.clearError = function () {
+                observable.errorData(null);
             	observable.error(null);
 				observable.__valid__(true);
             }
@@ -978,6 +984,7 @@
 
                 delete observable['rules'];
                 delete observable['error'];
+                delete observable['errorData'];
                 delete observable['isValid'];
                 delete observable['isValidating'];
                 delete observable['__valid__'];
@@ -997,7 +1004,9 @@
         if (!rule.validator(observable(), ctx.params === undefined ? true : ctx.params)) { // default param is true, eg. required = true
 
             //not valid, so format the error message and stick it in the 'error' variable
-            observable.error(exports.formatMessage(ctx.message || rule.message, ctx.params));
+            var message = exports.formatMessage(ctx.message || rule.message, ctx.params);
+            observable.errorData({ message: message, context: ctx, rule: rule });
+            observable.error(message);
             observable.__valid__(false);
             return false;
         } else {
@@ -1030,7 +1039,9 @@
 
             if (!isValid) {
                 //not valid, so format the error message and stick it in the 'error' variable
-                observable.error(exports.formatMessage(msg || ctx.message || rule.message, ctx.params));
+                var message = exports.formatMessage(ctx.message || rule.message, ctx.params);
+                observable.errorData({ message: message, context: ctx, rule: rule });
+                observable.error(message);
                 observable.__valid__(isValid);
             }
 
@@ -1075,6 +1086,7 @@
         }
         //finally if we got this far, make the observable valid again!
         observable.error(null);
+        observable.errorData(null);
         observable.__valid__(true);
         return true;
     };
