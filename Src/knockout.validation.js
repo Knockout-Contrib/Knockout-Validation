@@ -406,10 +406,11 @@
                     //      }
                     //  )};
                     //
-                    if (params.message || params.onlyIf) { //if it has a message or condition object, then its an object literal to use
+                    if (params.message || params.onlyIf || params.customClass) { //if it has a message, condition object or customClass, then its an object literal to use
                         return exports.addRule(observable, {
                             rule: ruleName,
                             message: params.message,
+                            customClass: params.customClass,
                             params: utils.isEmptyVal(params.params) ? true : params.params,
                             condition: params.onlyIf
                         });
@@ -798,6 +799,14 @@
                     return null;
                 }
             };
+            
+            var errorClassAccessor = function () {
+                if (!config.messagesOnModified || isModified) {
+                    return isValid || !obsv.errorData() ? null : obsv.errorData().context.customClass;
+                } else {
+                    return null;
+                }
+            };
 
             //toggle visibility on validation messages when validation hasn't been evaluated, or when the object isValid
             var visiblityAccessor = function () {
@@ -805,6 +814,7 @@
             };
 
             ko.bindingHandlers.text.update(element, errorMsgAccessor);
+            ko.bindingHandlers.css.update(element, errorClassAccessor);
             ko.bindingHandlers.visible.update(element, visiblityAccessor);
         }
     };
@@ -834,6 +844,16 @@
 
                 // css: { validationElement: false }
                 css[config.errorElementClass] = shouldShow;
+                
+                //Add or remove custom class
+                if (obsv.lastCustomClass) {
+                    css[obsv.lastCustomClass] = false;
+                }
+                var customClass = obsv.errorData() && obsv.errorData().context.customClass;
+                if (customClass) {
+                    obsv.lastCustomClass = customClass; 
+                    css[obsv.lastCustomClass] = shouldShow;
+                }
 
                 return css;
             };
@@ -1002,7 +1022,6 @@
     function validateSync(observable, rule, ctx) {
         //Execute the validator and see if its valid
         if (!rule.validator(observable(), ctx.params === undefined ? true : ctx.params)) { // default param is true, eg. required = true
-
             //not valid, so format the error message and stick it in the 'error' variable
             var message = exports.formatMessage(ctx.message || rule.message, ctx.params);
             observable.errorData({ message: message, context: ctx, rule: rule });
