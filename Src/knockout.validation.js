@@ -802,7 +802,10 @@
             
             var errorClassAccessor = function () {
                 if (!config.messagesOnModified || isModified) {
-                    return isValid || !obsv.errorData() ? null : obsv.errorData().context.customClass;
+                    if (isValid)
+                        return null;
+                    var errorData = obsv.errorData();
+                    return errorData && errorData.context && errorData.context.customClass ? errorData.context.customClass : null;
                 } else {
                     return null;
                 }
@@ -849,7 +852,8 @@
                 if (obsv.lastCustomClass) {
                     css[obsv.lastCustomClass] = false;
                 }
-                var customClass = obsv.errorData() && obsv.errorData().context.customClass;
+                var errorData = obsv.errorData();
+                var customClass = errorData && errorData.context && errorData.context.customClass;
                 if (customClass) {
                     obsv.lastCustomClass = customClass; 
                     css[obsv.lastCustomClass] = shouldShow;
