@@ -581,10 +581,10 @@ test("Custom error class", function () {
     ok(!$el.hasClass('customErrorClass'), 'Does not have the custom class yet');
     vm.testObj(200); // should not validate the max rule
     ok(!vm.testObj.isValid(), "Object is not valid");
-    ok($el.hasClass('customErrorClass'), 'Have the custom class');
+    ok($el.hasClass('customErrorClass'), 'Has the custom class');
     vm.testObj(50);
     ok(vm.testObj.isValid(), "Object is valid");
-    ok(!$el.hasClass('customErrorClass'), 'Custom class have been removed');
+    ok(!$el.hasClass('customErrorClass'), 'Custom class has been removed');
 
 
 });
