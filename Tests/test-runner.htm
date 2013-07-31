@@ -44,7 +44,7 @@
 
             var viewModel = {
                 firstName: ko.observable().extend({ minLength: 2, maxLength: 10 }),
-                lastName: ko.observable().extend({ required: true }),
+                lastName: ko.observable().extend({ required: { customClass: "customErrorClass", message: "last name is required and it is in blue!" }}),
                 emailAddress: ko.observable().extend({  // custom message
                     required: { message: 'Please supply your email address.' }
                 }),
