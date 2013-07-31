@@ -566,7 +566,7 @@ test("HTML5 Input types", function () {
 test("Custom error class", function () {
 
     var vm = {
-        testObj: ko.observable().extend({ max: { params: 100, customClass: "customErrorClass", message: "Andres" }})
+        testObj: ko.observable().extend({ max: { params: 100, customClass: "customErrorClass" }})
     };
 
     // setup the html
