@@ -805,7 +805,7 @@
                     if (isValid)
                         return null;
                     var errorData = obsv.errorData();
-                    return errorData && errorData.context && errorData.context.customClass ? errorData.context.customClass : null;
+                    return errorData && errorData.context && errorData.context.customClass;
                 } else {
                     return null;
                 }
@@ -854,10 +854,10 @@
                 }
                 var errorData = obsv.errorData();
                 var customClass = errorData && errorData.context && errorData.context.customClass;
+                obsv.lastCustomClass = customClass;
                 if (customClass) {
-                    obsv.lastCustomClass = customClass; 
-                    css[obsv.lastCustomClass] = shouldShow;
-                }
+                    css[customClass] = shouldShow;
+                } 
 
                 return css;
             };
