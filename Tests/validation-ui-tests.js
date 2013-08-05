@@ -90,6 +90,36 @@ test('Inserting Messages Works', function () {
     equal(msg, 'This field is required.', msg);
 });
 
+test('Messages can be appended to the parent of the input', function () {
+
+  addTestHtml('<div id="parent" data-bind="validationOptions: { appendMessageToParent: true }">' +
+      '<input id="testInputWithSibling" data-bind="value: firstName" type="text" />' +
+      '<span id="inputSibling">First input sibling</span>' +
+    '</div>');
+
+
+  var vm = {
+    firstName: ko.observable('').extend({ required: true })
+  };
+
+  applyTestBindings(vm);
+
+  var $testInput = $('#testInputWithSibling');
+  $testInput.val('a');
+  $testInput.change();
+  $testInput.val('');
+  $testInput.change();
+
+  var isValid = vm.firstName.isValid();
+  ok(!isValid, 'First Name is NOT Valid');
+
+  var firstSiblingMsg = $testInput.siblings().first().text();
+  equal(firstSiblingMsg, 'First input sibling', firstSiblingMsg);
+
+  var lastSiblingMsg = $testInput.siblings().last().text();
+  equal(lastSiblingMsg, 'This field is required.', lastSiblingMsg);
+});
+
 //#endregion
 
 //#region Showing errors as titles

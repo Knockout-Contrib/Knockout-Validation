@@ -57,6 +57,7 @@
         errorsAsTitleOnModified: false, // shows the error when hovering the input field (decorateElement must be true)
         messageTemplate: null,
         insertMessages: true,           // automatically inserts validation messages as <span></span>
+        appendMessageToParent: false,   // if true, inserted messages are appended to the parent of the element
         parseInputAttributes: false,    // parses the HTML5 validation attribute from a form element and adds that to the object
         writeInputAttributes: false,    // adds HTML5 input validation attributes to form elements that ko observable's are bound to
         decorateElement: false,         // false to keep backward compatibility
@@ -121,6 +122,9 @@
             },
             insertAfter: function (node, newNode) {
                 node.parentNode.insertBefore(newNode, node.nextSibling);
+            },
+            appendToParent: function (node, newNode) {
+                node.parentNode.appendChild(newNode);
             },
             newId: function () {
                 return seedId += 1;
@@ -439,8 +443,13 @@
             //creates a span next to the @element with the specified error class
             insertValidationMessage: function (element) {
                 var span = document.createElement('SPAN');
-                span.className = utils.getConfigOptions(element).errorMessageClass;
-                utils.insertAfter(element, span);
+                var config = utils.getConfigOptions(element);
+                span.className = config.errorMessageClass;
+                if (config.appendMessageToParent) {
+                  utils.appendToParent(element, span);
+                } else {
+                  utils.insertAfter(element, span);
+                }
                 return span;
             },
 
