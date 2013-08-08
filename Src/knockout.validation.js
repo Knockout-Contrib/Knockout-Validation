@@ -117,6 +117,7 @@
                 return element.setAttribute(attr, value);
             },
             isValidatable: function (o) {
+            	if (o === undefined) return false;
                 return o && o.rules && o.isValid && o.isModified;
             },
             insertAfter: function (node, newNode) {
