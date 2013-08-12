@@ -805,7 +805,7 @@
                     if (isValid)
                         return null;
                     var errorData = obsv.errorData();
-                    return errorData && errorData.context && errorData.context.customClass;
+                    return errorData && errorData.customClass;
                 } else {
                     return null;
                 }
@@ -853,7 +853,7 @@
                     css[obsv.lastCustomClass] = false;
                 }
                 var errorData = obsv.errorData();
-                var customClass = errorData && errorData.context && errorData.context.customClass;
+                var customClass = errorData && errorData.customClass;
                 obsv.lastCustomClass = customClass;
                 if (customClass) {
                     css[customClass] = shouldShow;
@@ -1028,7 +1028,7 @@
         if (!rule.validator(observable(), ctx.params === undefined ? true : ctx.params)) { // default param is true, eg. required = true
             //not valid, so format the error message and stick it in the 'error' variable
             var message = exports.formatMessage(ctx.message || rule.message, ctx.params);
-            observable.errorData({ message: message, context: ctx, rule: rule });
+            observable.errorData({ message: message, customClass: ctx.customClass, context: ctx, rule: rule });
             observable.error(message);
             observable.__valid__(false);
             return false;
@@ -1063,7 +1063,7 @@
             if (!isValid) {
                 //not valid, so format the error message and stick it in the 'error' variable
                 var message = exports.formatMessage(ctx.message || rule.message, ctx.params);
-                observable.errorData({ message: message, context: ctx, rule: rule });
+                observable.errorData({ message: message, customClass: ctx.customClass, context: ctx, rule: rule });
                 observable.error(message);
                 observable.__valid__(isValid);
             }
