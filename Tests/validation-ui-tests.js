@@ -563,5 +563,32 @@ test("HTML5 Input types", function () {
 });
 
 
+test("Custom error class", function () {
+
+    var vm = {
+        testObj: ko.observable().extend({ max: { params: 100, customClass: "customErrorClass" }})
+    };
+
+    // setup the html
+    addTestHtml('<input type="text" id="testElement1" data-bind="value: testObj"/>');
+
+    // make sure we allow element decorations
+    ko.validation.init({ decorateElement: true }, true);
+
+    applyTestBindings(vm);
+
+    var $el = $('#testElement1');
+    ok(!$el.hasClass('customErrorClass'), 'Does not have the custom class yet');
+    vm.testObj(200); // should not validate the max rule
+    ok(!vm.testObj.isValid(), "Object is not valid");
+    ok($el.hasClass('customErrorClass'), 'Has the custom class');
+    vm.testObj(50);
+    ok(vm.testObj.isValid(), "Object is valid");
+    ok(!$el.hasClass('customErrorClass'), 'Custom class has been removed');
+
+
+});
+
+
 
 //#endregion
