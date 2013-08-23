@@ -42,7 +42,7 @@
         // <script> tag: use the global `ko` object, attaching a `mapping` property
         factory(ko, ko.validation = {});
     }
-}(function ( ko, exports ) {
+}(function (ko, exports) {
 
     if (typeof (ko) === undefined) { throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in'; }
 
@@ -61,7 +61,9 @@
         writeInputAttributes: false,    // adds HTML5 input validation attributes to form elements that ko observable's are bound to
         decorateElement: false,         // false to keep backward compatibility
         errorClass: null,               // single class for error message and element
+
         errorElementClass: 'validationElement',  // class to decorate error element
+        errorParentElementClass: 'validationHolderElement',  // class to decorate error element
         errorMessageClass: 'validationMessage',  // class to decorate error message
         grouping: {
             deep: false,        //by default grouping is shallow
@@ -110,10 +112,10 @@
             hasAttribute: function (node, attr) {
                 return node.getAttribute(attr) !== null;
             },
-            getAttribute: function(element, attr){
+            getAttribute: function (element, attr) {
                 return element.getAttribute(attr);
             },
-            setAttribute: function(element, attr, value){
+            setAttribute: function (element, attr, value) {
                 return element.setAttribute(attr, value);
             },
             isValidatable: function (o) {
@@ -174,12 +176,12 @@
                 var savedOriginalTitle = utils.getAttribute(element, 'data-orig-title'),
                     currentTitle = element.title,
                     hasSavedOriginalTitle = utils.hasAttribute(element, 'data-orig-title');
-                
-                return hasSavedOriginalTitle ? 
+
+                return hasSavedOriginalTitle ?
                     savedOriginalTitle : currentTitle;
             }
         };
-    } ());
+    }());
 
     //#endregion
 
@@ -205,6 +207,7 @@
                 //it has to be done on option so that options.errorClass can override default
                 //errorElementClass and errorMessage class but not those provided in options
                 options.errorElementClass = options.errorElementClass || options.errorClass || configuration.errorElementClass;
+                options.errorParentElementClass = options.errorParentElementClass || configuration.errorParentElementClass;
                 options.errorMessageClass = options.errorMessageClass || options.errorClass || configuration.errorMessageClass;
 
                 ko.utils.extend(configuration, options);
@@ -318,12 +321,12 @@
                 obj.isValid = function () {
                     return obj.errors().length === 0;
                 };
-                obj.isAnyMessageShown = function() {
+                obj.isAnyMessageShown = function () {
                     var invalidAndModifiedPresent = false;
-                    
+
                     // ensure we have latest changes
                     result();
-                    
+
                     ko.utils.arrayForEach(validatables(), function (observable) {
                         if (!observable.isValid() && observable.isModified()) {
                             invalidAndModifiedPresent = true;
@@ -374,7 +377,7 @@
             addAnonymousRule: function (observable, ruleObj) {
                 var ruleName = utils.newId();
 
-                if ( ruleObj['message'] === undefined ) {
+                if (ruleObj['message'] === undefined) {
                     ruleObj['message'] = 'Error';
                 }
 
@@ -458,9 +461,9 @@
 
                 var currentType = element.getAttribute('type');
                 ko.utils.arrayForEach(html5InputTypes, function (type) {
-                    if (type === currentType){
+                    if (type === currentType) {
                         exports.addRule(valueAccessor(), {
-                            rule: (type === 'date')?'dateISO':type,
+                            rule: (type === 'date') ? 'dateISO' : type,
                             params: true
                         });
                     }
@@ -718,7 +721,7 @@
     //now register all of these!
     (function () {
         validation.registerExtenders();
-    } ());
+    }());
 
     //#endregion
 
@@ -784,12 +787,12 @@
                 msg = null,
                 isModified = false,
                 isValid = false;
-                
+
             obsv.extend({ validatable: true });
 
             isModified = obsv.isModified();
             isValid = obsv.isValid();
-            
+
             // create a handler to correctly return an error message
             var errorMsgAccessor = function () {
                 if (!config.messagesOnModified || isModified) {
@@ -825,7 +828,7 @@
 
             // create an evaluator function that will return something like:
             // css: { validationElement: true }
-            var cssSettingsAccessor = function () {
+            var cssSettingsAccessor = function (elementClass) {
                 var css = {};
 
                 var shouldShow = (isModified ? !isValid : false);
@@ -833,16 +836,18 @@
                 if (!config.decorateElement) { shouldShow = false; }
 
                 // css: { validationElement: false }
-                css[config.errorElementClass] = shouldShow;
-
+                css[elementClass] = shouldShow;
+             
                 return css;
             };
 
             //add or remove class on the element;
-            ko.bindingHandlers.css.update(element, cssSettingsAccessor);
+
+            ko.bindingHandlers.css.update(element, function() { return cssSettingsAccessor(config.errorElementClass); });
+            ko.bindingHandlers.css.update(element.parentElement, function() { return cssSettingsAccessor(config.errorParentElementClass); });
             if (!config.errorsAsTitle) { return; }
-            
-			var origTitle = utils.getAttribute(element, 'data-orig-title'),
+
+            var origTitle = utils.getAttribute(element, 'data-orig-title'),
                 elementTitle = element.title,
                 titleIsErrorMsg = utils.getAttribute(element, 'data-orig-title') === "true";
 
@@ -880,7 +885,7 @@
                 }
             }
         };
-    } ());
+    }());
     //#endregion
 
     //#region Knockout Extenders
@@ -949,16 +954,16 @@
                 return observable.__valid__();
             });
 
-			//manually set error state
+            //manually set error state
             observable.setError = function (error) {
-				observable.error(error);
-            	observable.__valid__(false);
+                observable.error(error);
+                observable.__valid__(false);
             };
 
-			//manually clear error state
+            //manually clear error state
             observable.clearError = function () {
-            	observable.error(null);
-				observable.__valid__(true);
+                observable.error(null);
+                observable.__valid__(true);
             }
 
             //subscribe to changes in the observable
