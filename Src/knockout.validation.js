@@ -219,7 +219,7 @@
             configure: function (options) { exports.init(options); },
 
             // resets the config back to its original state
-            reset: function () { configuration = jQuery.extend(configuration, defaults); },
+            reset: function () { ko.utils.extend(configuration, defaults); },
 
             // recursivly walks a viewModel and creates an object that
             // provides validation information for the entire viewModel
@@ -959,7 +959,7 @@
             observable.clearError = function () {
             	observable.error(null);
 				observable.__valid__(true);
-            }
+            };
 
             //subscribe to changes in the observable
             var h_change = observable.subscribe(function () {
