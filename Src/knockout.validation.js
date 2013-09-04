@@ -828,7 +828,7 @@
             var cssSettingsAccessor = function () {
                 var css = {};
 
-                var shouldShow = (isModified ? !isValid : false);
+                var shouldShow = !config.messagesOnModified ? !isValid : isModified ? !isValid : false;
 
                 if (!config.decorateElement) { shouldShow = false; }
 
