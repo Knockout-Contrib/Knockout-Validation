@@ -639,6 +639,11 @@
 						|| ((valMatches[1] === minValueMatches[1]) && (valMatches[2] >= minValueMatches[2]))); // same year, newer month
 					break;
 
+				case "number":
+				case "range":
+					return (!isNaN(val) && parseFloat(val) >= minValue);
+					break;					
+
 				default:
 					return val >= minValue;
 			}
@@ -689,7 +694,12 @@
 						((valMatches[1] < maxValueMatches[1]) // older year
 						|| ((valMatches[1] === maxValueMatches[1]) && (valMatches[2] <= maxValueMatches[2]))); // same year, older week
 					break;
-					
+			
+				case "number":
+				case "range":
+					return (!isNaN(val) && parseFloat(val) <= maxValue);
+					break;					
+			
 				default:
 					return val <= maxValue;
 			}
