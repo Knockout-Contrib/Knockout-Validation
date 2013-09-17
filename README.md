@@ -113,15 +113,39 @@ Learn more about Custom Rules on the [WIKI](https://github.com/Knockout-Contrib/
 
 ##HTML5 Validation Attributes
 
-Required: `<input type="text" data-bind="value: myProp" required />`
+**Required**: 
 
-Min: `<input type="text" data-bind="value: myProp" min="2" />`
+```html
+<input type="text" data-bind="value: myProp" required />
+```
 
-Max: `<input type="text" data-bind="value: myProp" max="99" />`
+**Min**:
 
-Pattern: `<input type="text" data-bind="value: myProp" pattern="^[a-z0-9].*" />`
+```html
+<input type="number" data-bind="value: myProp" min="2" />
+<input type="week" data-bind="value:myWeek" min="2012-W03" />
+<input type="month" data-bind="value:myMonth" min="2012-08" />
+```
 
-Step: `<input type="text" data-bind="value: myProp" step="3" />`
+**Max**: 
+
+```html
+<input type="number" data-bind="value: myProp" max="99" />
+<input type="week" data-bind="value:myWeek" max="2010-W15" />
+<input type="month" data-bind="value:myMonth" min="2012-08" />
+```
+
+**Pattern**: 
+
+```html
+<input type="text" data-bind="value: myProp" pattern="^[a-z0-9].*" />
+```
+
+**Step**: 
+
+```html
+<input type="text" data-bind="value: myProp" step="3" />
+```
 
 **Special Note, the 'MinLength' attribute was removed until the HTML5 spec fully supports it**
 
