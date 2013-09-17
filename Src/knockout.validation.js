@@ -451,20 +451,20 @@
                 ko.utils.arrayForEach(html5Attributes, function (attr) {
                     if (utils.hasAttribute(element, attr)) {
 
-						var params = element.getAttribute(attr) || true;
+                        var params = element.getAttribute(attr) || true;
 
-						if (attr === 'min' || attr === 'max')
-						{
-							var typeAttr = element.getAttribute('type');
-							if (typeof typeAttr === "undefined" || !typeAttr)
-							{
-								// From http://www.w3.org/TR/html-markup/input:
-								//   An input element with no type attribute specified represents the 
-								//   same thing as an input element with its type attribute set to "text".
-								typeAttr = "text"; 
-							}							
-							params = {typeAttr: typeAttr, value: params}; 
-						}
+                        if (attr === 'min' || attr === 'max')
+                        {
+                            var typeAttr = element.getAttribute('type');
+                            if (typeof typeAttr === "undefined" || !typeAttr)
+                            {
+                                // From http://www.w3.org/TR/html-markup/input:
+                                //   An input element with no type attribute specified represents the 
+                                //   same thing as an input element with its type attribute set to "text".
+                                typeAttr = "text"; 
+                            }                            
+                            params = {typeAttr: typeAttr, value: params}; 
+                        }
 
                         exports.addRule(valueAccessor(), {
                             rule: attr,
@@ -566,7 +566,7 @@
     validation.rules = {};
     validation.rules['required'] = {
         validator: function (val, required) {
-			var stringTrimRegEx = /^\s+|\s+$/g,
+            var stringTrimRegEx = /^\s+|\s+$/g,
                 testVal;
 
             if (val === undefined || val === null) {
@@ -589,112 +589,112 @@
 
     validation.rules['min'] = {
         validator: function (val, options) {
-			if (utils.isEmptyVal(val))
-				return true;
+            if (utils.isEmptyVal(val))
+                return true;
 
-			var minValue, type;
-			if (options.typeAttr === undefined) {
-				type = "text";
-				minValue = options;
-			} else {
-				type = options.typeAttr;
-				minValue = options.value;
-			}
+            var minValue, type;
+            if (options.typeAttr === undefined) {
+                type = "text";
+                minValue = options;
+            } else {
+                type = options.typeAttr;
+                minValue = options.value;
+            }
 
-			// From http://www.w3.org/TR/2012/WD-html5-20121025/common-input-element-attributes.html#attr-input-min,
-			// if the value is parseable to a number, then the minimum should be numeric
-			if (!isNaN(minValue))
-				type = "number";
+            // From http://www.w3.org/TR/2012/WD-html5-20121025/common-input-element-attributes.html#attr-input-min,
+            // if the value is parseable to a number, then the minimum should be numeric
+            if (!isNaN(minValue))
+                type = "number";
 
-			switch(type.toLowerCase()) 
-			{
-				case "week":
-					var regex = /^(\d{4})-W(\d{2})$/;
-					var valMatches = val.match(regex);
-					if (valMatches === null)
-						throw "Invalid value for min attribute for week input.  Should look like '2000-W33' http://www.w3.org/TR/html-markup/input.week.html#input.week.attrs.min"
-					var minValueMatches = minValue.match(regex);
-					return minValueMatches && // If no matches were found, validation fails
-						((valMatches[1] > minValueMatches[1]) // newer year
-						|| ((valMatches[1] === minValueMatches[1]) && (valMatches[2] >= minValueMatches[2]))); // same year, newer week
-					break;
-					
-				case "month":
-					var regex = /^(\d{4})-(\d{2})$/;
-					var valMatches = val.match(regex);
-					if (valMatches === null)
-							throw "Invalid value for min attribute for month input.  Should look like '2000-03' http://www.w3.org/TR/html-markup/input.month.html#input.month.attrs.min"
-					var minValueMatches = minValue.match(regex);
-					return minValueMatches && // If no matches were found, validation fails
-						((valMatches[1] > minValueMatches[1]) // newer year
-						|| ((valMatches[1] === minValueMatches[1]) && (valMatches[2] >= minValueMatches[2]))); // same year, newer month
-					break;
+            switch(type.toLowerCase()) 
+            {
+                case "week":
+                    var regex = /^(\d{4})-W(\d{2})$/;
+                    var valMatches = val.match(regex);
+                    if (valMatches === null)
+                        throw "Invalid value for min attribute for week input.  Should look like '2000-W33' http://www.w3.org/TR/html-markup/input.week.html#input.week.attrs.min"
+                    var minValueMatches = minValue.match(regex);
+                    return minValueMatches && // If no matches were found, validation fails
+                        ((valMatches[1] > minValueMatches[1]) // newer year
+                        || ((valMatches[1] === minValueMatches[1]) && (valMatches[2] >= minValueMatches[2]))); // same year, newer week
+                    break;
+                    
+                case "month":
+                    var regex = /^(\d{4})-(\d{2})$/;
+                    var valMatches = val.match(regex);
+                    if (valMatches === null)
+                            throw "Invalid value for min attribute for month input.  Should look like '2000-03' http://www.w3.org/TR/html-markup/input.month.html#input.month.attrs.min"
+                    var minValueMatches = minValue.match(regex);
+                    return minValueMatches && // If no matches were found, validation fails
+                        ((valMatches[1] > minValueMatches[1]) // newer year
+                        || ((valMatches[1] === minValueMatches[1]) && (valMatches[2] >= minValueMatches[2]))); // same year, newer month
+                    break;
 
-				case "number":
-				case "range":
-					return (!isNaN(val) && parseFloat(val) >= minValue);
-					break;					
+                case "number":
+                case "range":
+                    return (!isNaN(val) && parseFloat(val) >= minValue);
+                    break;                    
 
-				default:
-					return val >= minValue;
-			}
-			
+                default:
+                    return val >= minValue;
+            }
+            
         },
         message: 'Please enter a value greater than or equal to {0}.'
     };
 
     validation.rules['max'] = {
         validator: function (val, options) {
-			if (utils.isEmptyVal(val))
-				return true;
-				
-			var maxValue, type;
-			if (options.typeAttr === undefined) {
-				type = "text";
-				maxValue = options;
-			} else {
-				type = options.typeAttr;
-				maxValue = options.value;
-			}
-			
-			// From http://www.w3.org/TR/2012/WD-html5-20121025/common-input-element-attributes.html#attr-input-max,
-			// if the value is parseable to a number, then the maximum should be numeric
-			if (!isNaN(maxValue))
-				type = "number";
-				
-			switch(type.toLowerCase()) 
-			{
-				case "week":
-					var regex = /^(\d{4})-W(\d{2})$/;
-					var valMatches = val.match(regex);
-					if (valMatches === null)
-						throw "Invalid value for max attribute for week input.  Should look like '2000-W33' http://www.w3.org/TR/html-markup/input.week.html#input.week.attrs.max"
-					var maxValueMatches = maxValue.match(regex);
-					return maxValueMatches && // If no matches were found, validation fails
-						((valMatches[1] < maxValueMatches[1]) // older year
-						|| ((valMatches[1] === maxValueMatches[1]) && (valMatches[2] <= maxValueMatches[2]))); // same year, older week
-					break;
+            if (utils.isEmptyVal(val))
+                return true;
+                
+            var maxValue, type;
+            if (options.typeAttr === undefined) {
+                type = "text";
+                maxValue = options;
+            } else {
+                type = options.typeAttr;
+                maxValue = options.value;
+            }
+            
+            // From http://www.w3.org/TR/2012/WD-html5-20121025/common-input-element-attributes.html#attr-input-max,
+            // if the value is parseable to a number, then the maximum should be numeric
+            if (!isNaN(maxValue))
+                type = "number";
+                
+            switch(type.toLowerCase()) 
+            {
+                case "week":
+                    var regex = /^(\d{4})-W(\d{2})$/;
+                    var valMatches = val.match(regex);
+                    if (valMatches === null)
+                        throw "Invalid value for max attribute for week input.  Should look like '2000-W33' http://www.w3.org/TR/html-markup/input.week.html#input.week.attrs.max"
+                    var maxValueMatches = maxValue.match(regex);
+                    return maxValueMatches && // If no matches were found, validation fails
+                        ((valMatches[1] < maxValueMatches[1]) // older year
+                        || ((valMatches[1] === maxValueMatches[1]) && (valMatches[2] <= maxValueMatches[2]))); // same year, older week
+                    break;
 
-				case "month":
-					var regex = /^(\d{4})-(\d{2})$/;
-					var valMatches = val.match(regex);
-					if (valMatches === null)
-							throw "Invalid value for max attribute for month input.  Should look like '2000-03' http://www.w3.org/TR/html-markup/input.month.html#input.month.attrs.min"
-					var maxValueMatches = maxValue.match(regex);
-					return maxValueMatches && // If no matches were found, validation fails
-						((valMatches[1] < maxValueMatches[1]) // older year
-						|| ((valMatches[1] === maxValueMatches[1]) && (valMatches[2] <= maxValueMatches[2]))); // same year, older week
-					break;
-			
-				case "number":
-				case "range":
-					return (!isNaN(val) && parseFloat(val) <= maxValue);
-					break;					
-			
-				default:
-					return val <= maxValue;
-			}
-			
+                case "month":
+                    var regex = /^(\d{4})-(\d{2})$/;
+                    var valMatches = val.match(regex);
+                    if (valMatches === null)
+                            throw "Invalid value for max attribute for month input.  Should look like '2000-03' http://www.w3.org/TR/html-markup/input.month.html#input.month.attrs.min"
+                    var maxValueMatches = maxValue.match(regex);
+                    return maxValueMatches && // If no matches were found, validation fails
+                        ((valMatches[1] < maxValueMatches[1]) // older year
+                        || ((valMatches[1] === maxValueMatches[1]) && (valMatches[2] <= maxValueMatches[2]))); // same year, older week
+                    break;
+            
+                case "number":
+                case "range":
+                    return (!isNaN(val) && parseFloat(val) <= maxValue);
+                    break;                    
+            
+                default:
+                    return val <= maxValue;
+            }
+            
         },
         message: 'Please enter a value less than or equal to {0}.'
     };
@@ -715,7 +715,7 @@
 
     validation.rules['pattern'] = {
         validator: function (val, regex) {
-			return utils.isEmptyVal(val) || val.toString().match(regex) !== null;
+            return utils.isEmptyVal(val) || val.toString().match(regex) !== null;
         },
         message: 'Please check this value.'
     };
@@ -956,7 +956,7 @@
             ko.bindingHandlers.css.update(element, cssSettingsAccessor);
             if (!config.errorsAsTitle) { return; }
             
-			var origTitle = utils.getAttribute(element, 'data-orig-title'),
+            var origTitle = utils.getAttribute(element, 'data-orig-title'),
                 elementTitle = element.title,
                 titleIsErrorMsg = utils.getAttribute(element, 'data-orig-title') === "true";
 
@@ -1063,16 +1063,16 @@
                 return observable.__valid__();
             });
 
-			//manually set error state
+            //manually set error state
             observable.setError = function (error) {
-				observable.error(error);
-            	observable.__valid__(false);
+                observable.error(error);
+                observable.__valid__(false);
             };
 
-			//manually clear error state
+            //manually clear error state
             observable.clearError = function () {
-            	observable.error(null);
-				observable.__valid__(true);
+                observable.error(null);
+                observable.__valid__(true);
             };
 
             //subscribe to changes in the observable
