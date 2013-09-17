@@ -1069,12 +1069,12 @@
 			//manually set error state
             observable.setError = function (error) {
 				observable.error(error);
-				observable.__valid__(false);
+              observable.__valid__(false);
             };
 
 			//manually clear error state
             observable.clearError = function () {
-				observable.error(null);
+              observable.error(null);
 				observable.__valid__(true);
             };
 
