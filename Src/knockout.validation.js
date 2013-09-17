@@ -74,7 +74,6 @@
     var configuration = ko.utils.extend({}, defaults);
 
     var html5Attributes = ['required', 'pattern', 'min', 'max', 'step'];
-	var html5NumericAttributes = ['min', 'max', 'step'];
     var html5InputTypes = ['email', 'number', 'date'];
 
     var async = function (expr) {
@@ -461,19 +460,20 @@
                 ko.utils.arrayForEach(html5Attributes, function (attr) {
                     if (utils.hasAttribute(element, attr)) {
 
-                        // If the attribute is a numeric attribute, such as min/max,  
-                        // parse the attribute value to a number so that values 
-                        // can be compared as numbers rather than as strings.
-                        // The observable being validated should be stored as a number
-                        // for the comparison to work properly.  The numeric extender
-                        // at http://knockoutjs.com/documentation/extenders.html
-                        // can help force the user input to be stored as a numeric value.
-                        var attrVal = element.getAttribute(attr);
-                        if (utils.isNumericAttribute(attr)) { attrVal = parseFloat(attrVal); }
+						var typeAttr = element.getAttribute('type');
+						if (typeof type === "undefined" || !type)
+						{
+							// From http://www.w3.org/TR/html-markup/input:
+							//   An input element with no type attribute specified represents the 
+							//   same thing as an input element with its type attribute set to "text".
+							type = "text"; 
+						}
+
+                        var attrVal = element.getAttribute(attr) || true;
 
                         exports.addRule(valueAccessor(), {
                             rule: attr,
-                            params: attrVal || true
+                            params: {type: typeAttr, value: attrVal}
                         });
                     }
                 });
@@ -570,8 +570,10 @@
     //
     validation.rules = {};
     validation.rules['required'] = {
-        validator: function (val, required) {
-            var stringTrimRegEx = /^\s+|\s+$/g,
+        validator: function (val, options) {
+			var required = options.attrVal;
+
+			var stringTrimRegEx = /^\s+|\s+$/g,
                 testVal;
 
             if (val === undefined || val === null) {
@@ -593,15 +595,57 @@
     };
 
     validation.rules['min'] = {
-        validator: function (val, min) {
-            return utils.isEmptyVal(val) || val >= min;
+        validator: function (val, options) {
+			var type = options.typeAttr;
+			var minValue = options.attrVal;
+
+			// From http://www.w3.org/TR/2012/WD-html5-20121025/common-input-element-attributes.html#attr-input-min,
+			// if the value is parseable to a number, then the minimum should be numeric
+			if (!isNaN(val))
+				type = "number";
+			
+			switch(type) 
+			{
+				case "month":
+					var regex = /\d{4}-(\d{2})/;
+					var matches = val.match(regex);
+					if (matches === null || matches[0].length !== value.length)
+						throw "Invalid value for month type of input.  Should look like '2000-03' http://www.w3.org/TR/html-markup/input.month.html"
+					var month = matches[1];
+					return month >= minValue;
+					break;
+				default:
+					return val >= minValue;
+			}
+			
         },
         message: 'Please enter a value greater than or equal to {0}.'
     };
 
     validation.rules['max'] = {
-        validator: function (val, max) {
-            return utils.isEmptyVal(val) || val <= max;
+        validator: function (val, options) {
+			var type = options.typeAttr;
+			var maxValue = options.attrVal;
+
+			// From http://www.w3.org/TR/2012/WD-html5-20121025/common-input-element-attributes.html#attr-input-min,
+			// if the value is parseable to a number, then the minimum should be numeric
+			if (!isNaN(val))
+				type = "number";
+
+			switch(type) 
+			{
+				case "month":
+					var regex = /\d{4}-(\d{2})/;
+					var matches = val.match(regex);
+					if (matches === null || matches[0].length !== value.length)
+						throw "Invalid value for month type of input.  Should look like '2000-03' http://www.w3.org/TR/html-markup/input.month.html"
+					var month = matches[1];
+					return month <= maxValue;
+					break;
+				default:
+					return val <= maxValue;
+			}
+			
         },
         message: 'Please enter a value less than or equal to {0}.'
     };
@@ -621,14 +665,17 @@
     };
 
     validation.rules['pattern'] = {
-        validator: function (val, regex) {
-            return utils.isEmptyVal(val) || val.toString().match(regex) !== null;
+        validator: function (val, options) {
+			var regex = options.attrVal;
+
+			return utils.isEmptyVal(val) || val.toString().match(regex) !== null;
         },
         message: 'Please check this value.'
     };
 
     validation.rules['step'] = {
-        validator: function (val, step) {
+        validator: function (val, options) {
+			var step = options.attrVal;
 
             // in order to handle steps of .1 & .01 etc.. Modulus won't work
             // if the value is a decimal, so we have to correct for that
