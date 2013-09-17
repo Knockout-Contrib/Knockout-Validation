@@ -838,46 +838,46 @@ test("setError sets isValid and error message", function () {
     var testObj = ko.observable();
     testObj.extend({ validatable: true });
 
-	//check initial validation state
+    //check initial validation state
     ok(testObj.isValid());
     equal(testObj.error(), null);
 
-	//manually set an error
+    //manually set an error
     testObj.setError("oh no!");
 
-	//check state was set
+    //check state was set
     ok(!testObj.isValid());
-	equal("oh no!", testObj.error());
+    equal("oh no!", testObj.error());
 });
 
 test("clearError clears manually-specified error", function () {
-	var testObj = ko.observable();
-	testObj.extend({ validatable: true });
-	testObj.setError("oh no!");
+    var testObj = ko.observable();
+    testObj.extend({ validatable: true });
+    testObj.setError("oh no!");
 
-	//fail the validation
-	ok(!testObj.isValid())
+    //fail the validation
+    ok(!testObj.isValid())
 
-	//clear the validation
-	testObj.clearError();
+    //clear the validation
+    testObj.clearError();
 
-	//check state was cleared
-	ok(testObj.isValid());
-	equal(testObj.error(), null);
+    //check state was cleared
+    ok(testObj.isValid());
+    equal(testObj.error(), null);
 });
 
 test("clearError clears automatic errors", function () {
-	var testObj = ko.observable(5);
-	testObj.extend({ min: 6 });
+    var testObj = ko.observable(5);
+    testObj.extend({ min: 6 });
 
-	//check initial state
-	ok(!testObj.isValid());
+    //check initial state
+    ok(!testObj.isValid());
 
-	testObj.clearError();
+    testObj.clearError();
 
-	//check validation was cleared
-	ok(testObj.isValid());
-	equal(testObj.error(), null);
+    //check validation was cleared
+    ok(testObj.isValid());
+    equal(testObj.error(), null);
 });
 
 //#endregion
