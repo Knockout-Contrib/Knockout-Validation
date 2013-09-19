@@ -512,7 +512,7 @@
 
                 ko.bindingHandlers[handlerName].init = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 
-                    init(element, valueAccessor, allBindingsAccessor);
+                    init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
 
                     return ko.bindingHandlers['validationCore'].init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
                 };
