@@ -450,9 +450,27 @@
             parseInputValidationAttributes: function (element, valueAccessor) {
                 ko.utils.arrayForEach(html5Attributes, function (attr) {
                     if (utils.hasAttribute(element, attr)) {
+
+                        var params = element.getAttribute(attr) || true;
+
+                        if (attr === 'min' || attr === 'max')
+                        {
+                            // If we're validating based on the min and max attributes, we'll
+                            // need to know what the 'type' attribute is set to
+                            var typeAttr = element.getAttribute('type');
+                            if (typeof typeAttr === "undefined" || !typeAttr)
+                            {
+                                // From http://www.w3.org/TR/html-markup/input:
+                                //   An input element with no type attribute specified represents the 
+                                //   same thing as an input element with its type attribute set to "text".
+                                typeAttr = "text"; 
+                            }                            
+                            params = {typeAttr: typeAttr, value: params}; 
+                        }
+
                         exports.addRule(valueAccessor(), {
                             rule: attr,
-                            params: element.getAttribute(attr) || true
+                            params: params
                         });
                     }
                 });
@@ -572,15 +590,102 @@
     };
 
     validation.rules['min'] = {
-        validator: function (val, min) {
-            return utils.isEmptyVal(val) || val >= min;
+        validator: function (val, options, inverted) {
+            if (utils.isEmptyVal(val))
+                return true;
+
+            // If options.min is truthy, then we're really running max validation
+            var validatorName = inverted ? 'max' : 'min';
+
+            var minValue, type;
+            if (options.typeAttr === undefined) {
+                // This validator is being called from javascript rather than
+                // being bound from markup
+                type = "text";
+                minValue = options;
+            } else {
+                type = options.typeAttr;
+                minValue = options.value;
+            }
+
+            // From http://www.w3.org/TR/2012/WD-html5-20121025/common-input-element-attributes.html#attr-input-min,
+            // if the value is parseable to a number, then the minimum should be numeric
+            if (!isNaN(minValue))
+                type = "number";
+
+            switch(type.toLowerCase()) 
+            {
+                case "week":
+                    var regex = /^(\d{4})-W(\d{2})$/;
+                    var valMatches = val.match(regex);
+                    if (valMatches === null)
+                        throw "Invalid value for " + validatorName + " attribute for week input.  Should look like " +
+                            "'2000-W33' http://www.w3.org/TR/html-markup/input.week.html#input.week.attrs.min"
+                    var minValueMatches = minValue.match(regex);
+                    // If no regex matches were found, validation fails
+                    if (!minValueMatches) 
+                        return false;
+
+                    if (inverted) {
+                        return (valMatches[1] < minValueMatches[1])// older year
+                            // same year, older week
+                            || ((valMatches[1] === minValueMatches[1]) && (valMatches[2] <= minValueMatches[2])); 
+                    } else {
+                        return (valMatches[1] > minValueMatches[1]) // newer year
+                            // same year, newer week
+                            || ((valMatches[1] === minValueMatches[1]) && (valMatches[2] >= minValueMatches[2])); 
+                    }
+                    break;
+                    
+                case "month":
+                    var regex = /^(\d{4})-(\d{2})$/;
+                    var valMatches = val.match(regex);
+                    if (valMatches === null)
+                        throw "Invalid value for " + validatorName + " attribute for month input.  Should look like " +
+                            "'2000-03' http://www.w3.org/TR/html-markup/input.month.html#input.month.attrs.min"
+                    var minValueMatches = minValue.match(regex);
+                    // If no regex matches were found, validation fails
+                    if (!minValueMatches) 
+                        return false;
+
+                    if (inverted) {
+                        return ((valMatches[1] < minValueMatches[1])// older year
+                            // same year, older month
+                            || ((valMatches[1] === minValueMatches[1]) && (valMatches[2] <= minValueMatches[2])));
+                    } else {
+                        return (valMatches[1] > minValueMatches[1]) // newer year
+                            // same year, newer month
+                            || ((valMatches[1] === minValueMatches[1]) && (valMatches[2] >= minValueMatches[2]));
+                    }
+                    break;
+
+                case "number":
+                case "range":
+                    if (inverted) {
+                        return (!isNaN(val) && parseFloat(val) <= minValue);
+                    } else {
+                        return (!isNaN(val) && parseFloat(val) >= minValue);
+                    }
+                    break;                    
+
+                default:
+                    if (inverted)
+                        return val <= minValue;
+                    else
+                        return val >= minValue;
+            }
+            
         },
         message: 'Please enter a value greater than or equal to {0}.'
     };
 
     validation.rules['max'] = {
-        validator: function (val, max) {
-            return utils.isEmptyVal(val) || val <= max;
+        validator: function (val, options) {
+            // We pass in true as the third parameter to tell the 'min'
+            // validator to run the validation in inverted mode.
+            // The logic for 'min' is the exact same as for 'max'
+            // except that the comparison should be <= instead of >=.
+            return validation.rules['min'].validator(val, options, true);
         },
         message: 'Please enter a value less than or equal to {0}.'
     };
@@ -953,12 +1058,12 @@
 			//manually set error state
             observable.setError = function (error) {
 				observable.error(error);
-            	observable.__valid__(false);
+              observable.__valid__(false);
             };
 
 			//manually clear error state
             observable.clearError = function () {
-            	observable.error(null);
+              observable.error(null);
 				observable.__valid__(true);
             };
 
