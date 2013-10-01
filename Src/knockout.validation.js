@@ -590,12 +590,17 @@
     };
 
     validation.rules['min'] = {
-        validator: function (val, options) {
+        validator: function (val, options, inverted) {
             if (utils.isEmptyVal(val))
                 return true;
 
+            // If options.min is truthy, then we're really running max validation
+            var validatorName = inverted ? 'max' : 'min';
+
             var minValue, type;
             if (options.typeAttr === undefined) {
+                // This validator is being called from javascript rather than
+                // being bound from markup
                 type = "text";
                 minValue = options;
             } else {
@@ -614,31 +619,60 @@
                     var regex = /^(\d{4})-W(\d{2})$/;
                     var valMatches = val.match(regex);
                     if (valMatches === null)
-                        throw "Invalid value for min attribute for week input.  Should look like '2000-W33' http://www.w3.org/TR/html-markup/input.week.html#input.week.attrs.min"
+                        throw "Invalid value for " + validatorName + " attribute for week input.  Should look like " +
+                            "'2000-W33' http://www.w3.org/TR/html-markup/input.week.html#input.week.attrs.min"
                     var minValueMatches = minValue.match(regex);
-                    return minValueMatches && // If no matches were found, validation fails
-                        ((valMatches[1] > minValueMatches[1]) // newer year
-                        || ((valMatches[1] === minValueMatches[1]) && (valMatches[2] >= minValueMatches[2]))); // same year, newer week
+                    // If no regex matches were found, validation fails
+                    if (!minValueMatches) 
+                        return false;
+
+                    if (inverted) {
+                        return (valMatches[1] < minValueMatches[1])// older year
+                            // same year, older week
+                            || ((valMatches[1] === minValueMatches[1]) && (valMatches[2] <= minValueMatches[2])); 
+                    } else {
+                        return (valMatches[1] > minValueMatches[1]) // newer year
+                            // same year, newer week
+                            || ((valMatches[1] === minValueMatches[1]) && (valMatches[2] >= minValueMatches[2])); 
+                    }
                     break;
                     
                 case "month":
                     var regex = /^(\d{4})-(\d{2})$/;
                     var valMatches = val.match(regex);
                     if (valMatches === null)
-                            throw "Invalid value for min attribute for month input.  Should look like '2000-03' http://www.w3.org/TR/html-markup/input.month.html#input.month.attrs.min"
+                        throw "Invalid value for " + validatorName + " attribute for month input.  Should look like " +
+                            "'2000-03' http://www.w3.org/TR/html-markup/input.month.html#input.month.attrs.min"
                     var minValueMatches = minValue.match(regex);
-                    return minValueMatches && // If no matches were found, validation fails
-                        ((valMatches[1] > minValueMatches[1]) // newer year
-                        || ((valMatches[1] === minValueMatches[1]) && (valMatches[2] >= minValueMatches[2]))); // same year, newer month
+                    // If no regex matches were found, validation fails
+                    if (!minValueMatches) 
+                        return false;
+
+                    if (inverted) {
+                        return ((valMatches[1] < minValueMatches[1])// older year
+                            // same year, older month
+                            || ((valMatches[1] === minValueMatches[1]) && (valMatches[2] <= minValueMatches[2])));
+                    } else {
+                        return (valMatches[1] > minValueMatches[1]) // newer year
+                            // same year, newer month
+                            || ((valMatches[1] === minValueMatches[1]) && (valMatches[2] >= minValueMatches[2]));
+                    }
                     break;
 
                 case "number":
                 case "range":
-                    return (!isNaN(val) && parseFloat(val) >= minValue);
+                    if (inverted) {
+                        return (!isNaN(val) && parseFloat(val) <= minValue);
+                    } else {
+                        return (!isNaN(val) && parseFloat(val) >= minValue);
+                    }
                     break;                    
 
                 default:
-                    return val >= minValue;
+                    if (inverted)
+                        return val <= minValue;
+                    else
+                        return val >= minValue;
             }
             
         },
@@ -647,56 +681,11 @@
 
     validation.rules['max'] = {
         validator: function (val, options) {
-            if (utils.isEmptyVal(val))
-                return true;
-                
-            var maxValue, type;
-            if (options.typeAttr === undefined) {
-                type = "text";
-                maxValue = options;
-            } else {
-                type = options.typeAttr;
-                maxValue = options.value;
-            }
-            
-            // From http://www.w3.org/TR/2012/WD-html5-20121025/common-input-element-attributes.html#attr-input-max,
-            // if the value is parseable to a number, then the maximum should be numeric
-            if (!isNaN(maxValue))
-                type = "number";
-                
-            switch(type.toLowerCase()) 
-            {
-                case "week":
-                    var regex = /^(\d{4})-W(\d{2})$/;
-                    var valMatches = val.match(regex);
-                    if (valMatches === null)
-                        throw "Invalid value for max attribute for week input.  Should look like '2000-W33' http://www.w3.org/TR/html-markup/input.week.html#input.week.attrs.max"
-                    var maxValueMatches = maxValue.match(regex);
-                    return maxValueMatches && // If no matches were found, validation fails
-                        ((valMatches[1] < maxValueMatches[1]) // older year
-                        || ((valMatches[1] === maxValueMatches[1]) && (valMatches[2] <= maxValueMatches[2]))); // same year, older week
-                    break;
-
-                case "month":
-                    var regex = /^(\d{4})-(\d{2})$/;
-                    var valMatches = val.match(regex);
-                    if (valMatches === null)
-                            throw "Invalid value for max attribute for month input.  Should look like '2000-03' http://www.w3.org/TR/html-markup/input.month.html#input.month.attrs.min"
-                    var maxValueMatches = maxValue.match(regex);
-                    return maxValueMatches && // If no matches were found, validation fails
-                        ((valMatches[1] < maxValueMatches[1]) // older year
-                        || ((valMatches[1] === maxValueMatches[1]) && (valMatches[2] <= maxValueMatches[2]))); // same year, older week
-                    break;
-            
-                case "number":
-                case "range":
-                    return (!isNaN(val) && parseFloat(val) <= maxValue);
-                    break;                    
-            
-                default:
-                    return val <= maxValue;
-            }
-            
+            // We pass in true as the third parameter to tell the 'min'
+            // validator to run the validation in inverted mode.
+            // The logic for 'min' is the exact same as for 'max'
+            // except that the comparison should be <= instead of >=.
+            return validation.rules['min'].validator(val, options, true);
         },
         message: 'Please enter a value less than or equal to {0}.'
     };
