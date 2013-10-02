@@ -950,6 +950,9 @@
                 return observable.__valid__();
             });
 
+            // Holds which rule is in error
+            observable.errorRule = ko.observable(null);
+
 			//manually set error state
             observable.setError = function (error) {
 				observable.error(error);
@@ -1000,6 +1003,7 @@
             //not valid, so format the error message and stick it in the 'error' variable
             observable.error(exports.formatMessage(ctx.message || rule.message, ctx.params));
             observable.__valid__(false);
+            observable.errorRule(rule);
             return false;
         } else {
             return true;
@@ -1070,6 +1074,7 @@
             } else {
                 //run normal sync validation
                 if (!validateSync(observable, rule, ctx)) {
+                    observable.errorRule(null); // Clear the errored rule
                     return false; //break out of the loop
                 }
             }
