@@ -950,6 +950,9 @@
                 return observable.__valid__();
             });
 
+            // Holds which rule is in error
+            observable.errorRule = ko.observable(null);
+
 			//manually set error state
             observable.setError = function (error) {
 				observable.error(error);
@@ -1000,6 +1003,7 @@
             //not valid, so format the error message and stick it in the 'error' variable
             observable.error(exports.formatMessage(ctx.message || rule.message, ctx.params));
             observable.__valid__(false);
+            observable.errorRule(rule);
             return false;
         } else {
             return true;
@@ -1075,6 +1079,9 @@
             }
         }
         //finally if we got this far, make the observable valid again!
+        if (observable.errorRule) {
+            observable.errorRule(null); // Clear the errored rule
+        }
         observable.error(null);
         observable.__valid__(true);
         return true;
