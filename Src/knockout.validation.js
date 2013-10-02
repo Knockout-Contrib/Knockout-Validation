@@ -1074,12 +1074,14 @@
             } else {
                 //run normal sync validation
                 if (!validateSync(observable, rule, ctx)) {
-                    observable.errorRule(null); // Clear the errored rule
                     return false; //break out of the loop
                 }
             }
         }
         //finally if we got this far, make the observable valid again!
+        if (observable.errorRule) {
+            observable.errorRule(null); // Clear the errored rule
+        }
         observable.error(null);
         observable.__valid__(true);
         return true;
