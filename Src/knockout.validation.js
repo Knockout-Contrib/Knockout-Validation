@@ -315,6 +315,38 @@
                     });
                 };
 
+                result.getDetails = function() {
+                    var details = [];
+
+                    // ensure we have latest changes
+                    var latest = result();
+
+                    if (!latest.length) {
+                        // don't do anything if no errors occured
+                        return [];
+                    }
+
+                    ko.utils.arrayForEach(validatables(), function (observable) {
+                        if (!observable.isValid()) {
+                            var data = {}; // observable data for every rule
+                            
+                            ko.utils.arrayForEach(observable.rules(), function(ctx) {
+                                // allowing the caller to examine rule parameters for every rule
+                                data[ctx.rule] = ctx.params;
+                            });
+                            
+                            details.push({
+                                data: data,
+                                observable: observable, 
+                                error: observable.error(),
+                                rule: observable.failedRule()
+                            });
+                        }
+                    });
+
+                    return details;
+                };
+
                 obj.errors = result;
                 obj.isValid = function () {
                     return obj.errors().length === 0;
@@ -934,6 +966,16 @@
 
             observable.isModified = ko.observable(false);
 
+            // holds the name of the validation rule that has failed during the last validation procedure
+            observable.failedRule = ko.observable(null);
+
+            observable.error.subscribe(function (v) {
+                if(!v) {
+                    // clearing the failed rule name when validation message is empty
+                    observable.failedRule(null);
+                }
+            });
+
             // we use a computed here to ensure that anytime a dependency changes, the
             // validation logic evaluates
             var h_obsValidationTrigger = ko.computed(function () {
@@ -999,6 +1041,10 @@
 
             //not valid, so format the error message and stick it in the 'error' variable
             observable.error(exports.formatMessage(ctx.message || rule.message, ctx.params));
+
+            // remembering the name of the failed rule (passing it when "getDetails" is called)
+            observable.failedRule(ctx.rule);
+
             observable.__valid__(false);
             return false;
         } else {
@@ -1032,6 +1078,10 @@
             if (!isValid) {
                 //not valid, so format the error message and stick it in the 'error' variable
                 observable.error(exports.formatMessage(msg || ctx.message || rule.message, ctx.params));
+
+                // remembering the name of the failed rule (passing it when "getDetails" is called)
+                observable.failedRule(ctx.rule);
+
                 observable.__valid__(isValid);
             }
 
