@@ -8,7 +8,8 @@
 	asyncTest:false,
 	start: false,
 	stop: false,
-	$: false
+	$: false,
+	expect: false
 */
 
 module('UI Tests', {

@@ -7,7 +7,8 @@
 	ok:false,
 	asyncTest:false,
 	start: false,
-	stop: false
+	stop: false,
+	expect: false
 */
 
 //#region Required Validation
@@ -319,6 +320,8 @@ test('Pattern validation doesn\'t break with non-string values', function () {
 
     testObj({});
     testObj.isValid();
+
+    expect(0);
 });
 
 //#endregion
@@ -1345,5 +1348,4 @@ asyncTest('Async Rule Is NOT Valid Test', function () {
 
     testObj.extend({ mustEqualAsync: 5 });
 });
-
 //#endregion

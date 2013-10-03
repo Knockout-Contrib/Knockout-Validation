@@ -1,28 +1,11 @@
-/*
-===============================================================================
-    Author:     Eric M. Barnard - @ericmbarnard                                
-    License:    MIT (http://opensource.org/licenses/mit-license.php)           
-                                                                               
-    Description: Validation Library for KnockoutJS                             
+/*=============================================================================
+	Author:			Eric M. Barnard - @ericmbarnard								
+	License:		MIT (http://opensource.org/licenses/mit-license.php)		
+																				
+	Description:	Validation Library for KnockoutJS							
 ===============================================================================
 */
-
-/*jshint
-    sub:true, 
-    curly: true,eqeqeq: true,
-    immed: true,
-    latedef: true,
-    newcap: true,
-    noarg: true,
-    sub: true,
-    undef: true,
-    boss: true,
-    eqnull: true,
-    browser: true
-*/
-
 /*globals
-    jQuery: false,
     require: false,
     exports: false,
     define: false,
@@ -946,6 +929,18 @@
             observable.isValid = ko.computed(function () {
                 return observable.__valid__();
             });
+
+			//manually set error state
+            observable.setError = function (error) {
+				observable.error(error);
+				observable.__valid__(false);
+            };
+
+			//manually clear error state
+            observable.clearError = function () {
+				observable.error(null);
+				observable.__valid__(true);
+            };
 
             //subscribe to changes in the observable
             var h_change = observable.subscribe(function () {

@@ -5,14 +5,12 @@ module.exports = function (grunt) {
 	grunt.initConfig({
 		pkg: grunt.file.readJSON("package.json"),
 		meta: {
-			banner: "/*\n" + 
-					"===============================================================================\n" +
+			banner: "/*=============================================================================\n" +
 					"	Author:			Eric M. Barnard - @ericmbarnard								\n" +
 					"	License:		MIT (http://opensource.org/licenses/mit-license.php)		\n" +
 					"																				\n" +
 					"	Description:	Validation Library for KnockoutJS							\n" +
-					"===============================================================================\n" +
-					"*/"
+					"===============================================================================\n*/\n"
 		},
 		concat: {
 			options: {
