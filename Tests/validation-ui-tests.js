@@ -1,7 +1,15 @@
-﻿/// <reference path="jquery-1.7.1.js" />
-/// <reference path="../Lib/knockout-latest.debug.js" />
-/// <reference path="../Src/knockout.validation.js" />
-/// <reference path="Qunit/qunit.js" />
+﻿/*global 
+	module:false, 
+	equal:false, 
+	notEqual:false,
+	strictEqual:false,
+	test:false, 
+	ok:false,
+	asyncTest:false,
+	start: false,
+	stop: false,
+	$: false
+*/
 
 module('UI Tests', {
     setup: function () {
@@ -121,7 +129,7 @@ test('Showing Errors As Titles Works', function () {
     var isValid = vm.firstName.isValid();
 
     ok(!isValid, 'First Name is NOT Valid');
-    console.log($testInput)
+
     var msg = $testInput.attr('title');
 
     equal(msg, 'This field is required.', msg);
@@ -157,44 +165,44 @@ test('Original titles are restored', function () {
     $testInput.val("a"); //set it 
     $testInput.change(); //trigger change event
 
-    var msg = $testInput.attr('title');
+    msg = $testInput.attr('title');
     equal(msg, 'my-orig-title', msg);
 
 });
 
 test("Original titles are restored to blank", function () {
-        addTestHtml('<input id="myTestInput" data-bind="value: firstName" type="text" />');
+	addTestHtml('<input id="myTestInput" data-bind="value: firstName" type="text" />');
 
-    var vm = {
-        firstName: ko.observable('').extend({ required: true })
-    };
+	var vm = {
+		firstName: ko.observable('').extend({ required: true })
+	};
 
-    // make sure the options are ok.
-    ko.validation.init({
-        errorsAsTitleOnModified: true,
-        decorateElement: true
-    }, true);
+	// make sure the options are ok.
+	ko.validation.init({
+		errorsAsTitleOnModified: true,
+		decorateElement: true
+	}, true);
 
-    applyTestBindings(vm);
+	applyTestBindings(vm);
 
-    var $testInput = $('#myTestInput');
+	var $testInput = $('#myTestInput');
 
-    $testInput.val("a"); //set it 
-    $testInput.change(); //trigger change event
+	$testInput.val("a"); //set it 
+	$testInput.change(); //trigger change event
 
-    $testInput.val(""); //set it 
-    $testInput.change(); //trigger change event
+	$testInput.val(""); //set it 
+	$testInput.change(); //trigger change event
 
-    ok(!vm.firstName.isValid(), 'First Name is NOT Valid');
+	ok(!vm.firstName.isValid(), 'First Name is NOT Valid');
 
-    //now make the name valid
-    vm.firstName("valid name");
-    ok(vm.firstName.isValid(), "Should now be valid");
+	//now make the name valid
+	vm.firstName("valid name");
+	ok(vm.firstName.isValid(), "Should now be valid");
 
-    //and check that the title was reset to blank
-    var updatedTitle = $testInput.attr("title")
-    ok(!updatedTitle, "Title should have been reset to blank");
-})
+	//and check that the title was reset to blank
+	var updatedTitle = $testInput.attr("title");
+	ok(!updatedTitle, "Title should have been reset to blank");
+});
 
 test('Original titles are restored with multiple validators, too', function () {
 
@@ -226,13 +234,13 @@ test('Original titles are restored with multiple validators, too', function () {
     $testInput.val("a"); //set it 
     $testInput.change(); //trigger change event
 
-    var msg = $testInput.attr('title');
+    msg = $testInput.attr('title');
     equal(msg, 'Please enter at least 2 characters.', msg);
 
     $testInput.val("aa"); //set it 
     $testInput.change(); //trigger change event
 
-    var msg = $testInput.attr('title');
+    msg = $testInput.attr('title');
     equal(msg, 'my-orig-title', msg);
 
 });
@@ -265,7 +273,7 @@ test('Showing Errors As Titles is disabled sucessfully', function () {
     var isValid = vm.firstName.isValid();
 
     ok(!isValid, 'First Name is NOT Valid');
-    console.log($testInput)
+
     var msg = $testInput.attr('title');
 
     notEqual(msg, 'This field is required.', msg);

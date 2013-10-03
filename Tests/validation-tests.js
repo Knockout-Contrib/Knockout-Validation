@@ -1,6 +1,14 @@
-/// <reference path="Qunit/qunit.js" />
-/// <reference path="../Lib/knockout-latest.debug.js" />
-/// <reference path="../Src/knockout.validation.js" />
+/*global 
+	module:false, 
+	equal:false, 
+	notEqual:false,
+	strictEqual:false,
+	test:false, 
+	ok:false,
+	asyncTest:false,
+	start: false,
+	stop: false
+*/
 
 //#region Required Validation
 
@@ -82,7 +90,7 @@ test('Object is Valid and isValid returns True', function () {
 });
 
 test('Object is Valid and isValid returns True (with min: 0)', function () {
-    testObj = ko.observable('')
+    var testObj = ko.observable('')
             .extend({ min: 0 });
 
     testObj("0");
@@ -822,7 +830,7 @@ test('Issue #78 - Falsy Params', function () {
 //#endregion
 
 //#region Manual Validation
-module("Manual Validation")
+module("Manual Validation");
 test("setError sets isValid and error message", function () {
     var testObj = ko.observable();
     testObj.extend({ validatable: true });
@@ -845,7 +853,7 @@ test("clearError clears manually-specified error", function () {
 	testObj.setError("oh no!");
 
 	//fail the validation
-	ok(!testObj.isValid())
+	ok(!testObj.isValid());
 
 	//clear the validation
 	testObj.clearError();
@@ -957,7 +965,7 @@ test('Error Grouping works', function () {
 
     var errors = ko.validation.group(vm);
 
-    equals(errors().length, 2, 'Grouping correctly finds 2 invalid properties');
+    equal(errors().length, 2, 'Grouping correctly finds 2 invalid properties');
 });
 
 test('Nested Grouping works - Observable', function () {
@@ -975,7 +983,7 @@ test('Nested Grouping works - Observable', function () {
 
     var errors = ko.validation.group(vm, { deep: true, observable: true });
 
-    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+    equal(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
 });
 
 test('Nested Grouping works - Not Observable', function () {
@@ -993,7 +1001,7 @@ test('Nested Grouping works - Not Observable', function () {
 
     var errors = ko.validation.group(vm, { deep: true, observable: false });
 
-    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+    equal(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
 });
 
 test('Issue #31 - Recursively Show All Messages', function () {
@@ -1022,7 +1030,7 @@ test('Issue #31 - Recursively Show All Messages', function () {
     ok(vm.two.one.isModified(), "Level 2 is modified");
     ok(vm.three.two.one.isModified(), "Level 3 is modified");
 
-    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+    equal(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
 });
 
 test('Issue #31 - Recursively Show All Messages - using computed', function () {
@@ -1051,7 +1059,7 @@ test('Issue #31 - Recursively Show All Messages - using computed', function () {
     ok(vm.two.one.isModified(), "Level 2 is modified");
     ok(vm.three.two.one.isModified(), "Level 3 is modified");
 
-    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+    equal(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
 });
 
 test('Issue #37 - Toggle ShowAllMessages', function () {
@@ -1080,7 +1088,7 @@ test('Issue #37 - Toggle ShowAllMessages', function () {
     ok(vm.two.one.isModified(), "Level 2 is modified");
     ok(vm.three.two.one.isModified(), "Level 3 is modified");
 
-    equals(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+    equal(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
 
     // now shut them off
     errors.showAllMessages(false);
@@ -1105,7 +1113,7 @@ test('Grouping options does not overwrite global configuration options', functio
 
     var errors = ko.validation.group(vm);
 
-    equals(errors().length, 1, 'Grouping finds one invalid object because deep option was not specified.');
+    equal(errors().length, 1, 'Grouping finds one invalid object because deep option was not specified.');
 });
 
 test("Issue #235 - formatMessage should unwrap observable parameters", function () {
@@ -1153,10 +1161,10 @@ test('Changing the value of observable used in onlyIf condition triggers validat
                           required: { onlyIf: person.isMarried }
                         });
     person.isMarried(false);
-    ok(person.spouseName.isValid(), 'Unmarried person is valid without spouse name')
+    ok(person.spouseName.isValid(), 'Unmarried person is valid without spouse name');
 
     person.isMarried(true);
-    equal(person.spouseName.isValid(), false, 'Married person is not valid without spouse name')
+    equal(person.spouseName.isValid(), false, 'Married person is not valid without spouse name');
 });
 //#endregion
 

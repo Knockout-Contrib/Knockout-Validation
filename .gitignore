@@ -17,3 +17,5 @@
 *.iws
 target
 *.ncrunchsolution
+node_modules
+*.webinfo
