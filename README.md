@@ -1,6 +1,8 @@
 #Knockout Validation
 A KnockoutJS Plugin for model and property validation
 
+[![Build Status](https://travis-ci.org/Knockout-Contrib/Knockout-Validation.png)](https://travis-ci.org/Knockout-Contrib/Knockout-Validation)
+
 Contributors:
 
 * [Eric Barnard](https://github.com/ericmbarnard)
