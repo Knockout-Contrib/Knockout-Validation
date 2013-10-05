@@ -101,6 +101,64 @@ test('Inserting Messages Works', function () {
 
 //#endregion
 
+//#region Inserting Messages
+
+test('Decorating Elements Works', function () {
+
+    addTestHtml('<input id="myTestInput" data-bind="value: firstName" type="text" />');
+
+    var vm = {
+        firstName: ko.observable('').extend({ required: true })
+    };
+    
+    // make sure the options are ok.
+    ko.validation.init({
+        decorateElement: true
+    }, true);
+
+    applyTestBindings(vm);
+
+    var $testInput = $('#myTestInput');
+    
+    ok(!$testInput.hasClass('validationElement'), "CSS class shouldn't present");
+
+    $testInput.val("a"); //set it 
+    $testInput.change(); //trigger change event
+
+    $testInput.val(""); //set it 
+    $testInput.change(); //trigger change event
+    
+    ok($testInput.hasClass('validationElement'), "CSS class should present");
+});
+
+test('Decorating Elements On Modified Works', function () {
+
+    addTestHtml('<input id="myTestInput" data-bind="value: firstName" type="text" />');
+
+    var vm = {
+        firstName: ko.observable('').extend({ required: true })
+    };
+    
+    // make sure the options are ok.
+    ko.validation.init({
+        decorateElement: true,
+        decorateElementOnModified: false
+    }, true);
+
+    applyTestBindings(vm);
+
+    var $testInput = $('#myTestInput');
+    
+    ok($testInput.hasClass('validationElement'), "CSS class should present");
+
+    $testInput.val("a"); //set it 
+    $testInput.change(); //trigger change event
+    
+    ok(!$testInput.hasClass('validationElement'), "CSS class shouldn't present");
+});
+
+//#endregion
+
 //#region Showing errors as titles
 
 test('Showing Errors As Titles Works', function () {

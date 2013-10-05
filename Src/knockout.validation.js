@@ -36,6 +36,7 @@
         parseInputAttributes: false,    // parses the HTML5 validation attribute from a form element and adds that to the object
         writeInputAttributes: false,    // adds HTML5 input validation attributes to form elements that ko observable's are bound to
         decorateElement: false,         // false to keep backward compatibility
+        decorateElementOnModified: true,// true to keep backward compatibility
         errorClass: null,               // single class for error message and element
         errorElementClass: 'validationElement',  // class to decorate error element
         errorMessageClass: 'validationMessage',  // class to decorate error message
@@ -195,7 +196,7 @@
             configure: function (options) { exports.init(options); },
 
             // resets the config back to its original state
-            reset: function () { configuration = jQuery.extend(configuration, defaults); },
+            reset: function () { ko.utils.extend(configuration, defaults); },
 
             // recursivly walks a viewModel and creates an object that
             // provides validation information for the entire viewModel
@@ -487,7 +488,7 @@
 
                 ko.bindingHandlers[handlerName].init = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 
-                    init(element, valueAccessor, allBindingsAccessor);
+                    init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
 
                     return ko.bindingHandlers['validationCore'].init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
                 };
@@ -586,7 +587,9 @@
 
             // in order to handle steps of .1 & .01 etc.. Modulus won't work
             // if the value is a decimal, so we have to correct for that
-            return utils.isEmptyVal(val) || (val * 100) % (step * 100) === 0;
+            if (utils.isEmptyVal(val) || step == 'any') return true;
+            var dif = (val * 100) % (step * 100);
+            return Math.abs(dif) < 0.00001 || Math.abs(1 - dif) < 0.00001;
         },
         message: 'The value must increment by {0}'
     };
@@ -802,7 +805,7 @@
             var cssSettingsAccessor = function () {
                 var css = {};
 
-                var shouldShow = (isModified ? !isValid : false);
+                var shouldShow = ((!config.decorateElementOnModified || isModified) ? !isValid : false);
 
                 if (!config.decorateElement) { shouldShow = false; }
 
