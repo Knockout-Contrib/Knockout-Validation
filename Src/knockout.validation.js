@@ -587,7 +587,7 @@
 
             // in order to handle steps of .1 & .01 etc.. Modulus won't work
             // if the value is a decimal, so we have to correct for that
-            if (utils.isEmptyVal(val) || step == 'any') return true;
+			if (utils.isEmptyVal(val) || step === 'any') { return true; }
             var dif = (val * 100) % (step * 100);
             return Math.abs(dif) < 0.00001 || Math.abs(1 - dif) < 0.00001;
         },
