@@ -20,7 +20,16 @@ module.exports = function (grunt) {
 			dist: {
 				src: [
 					"<%= meta.banner %>",
-					"src/<%= pkg.name %>.js",
+					"src/ko.validation.start.frag",
+					"src/configuration.js",
+					"src/utils.js",
+					"src/api.js",
+					"src/rules.js",
+					"src/bindingHandlers.js",
+					"src/extenders.js",
+					"src/localization.js",
+					"src/ko.extensions.js",
+					"src/ko.validation.end.frag",
 				],
 				dest: "dist/<%= pkg.name %>.js"
 			}
@@ -58,6 +67,6 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks("grunt-clear");
 
 	// Default task.
-	grunt.registerTask("default", ["qunit", "jshint", "concat", "uglify"]);
-	grunt.registerTask("test", ["qunit", "jshint"]);
+	grunt.registerTask("default", ["test", "uglify"]);
+	grunt.registerTask("test", ["concat", "qunit", "jshint"]);
 };
