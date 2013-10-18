@@ -329,6 +329,51 @@
 
 				return ko.bindingHandlers['validationCore'].init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
 			};
+		},
+
+		// visit an objects properties and apply validation rules from a definition
+		setRules: function (target, definition) {
+			var setRules = function (target, definition) {
+				if (!target || !definition) { return; }
+
+				for (var prop in definition) {
+					if (!definition.hasOwnProperty(prop)) { continue; }
+					var ruleDefinitions = definition[prop];
+
+					//check the target property exists and has a value
+					if (!target[prop]) { continue; }
+					var targetValue = target[prop],
+						unwrappedTargetValue = ko.utils.unwrapObservable(targetValue),
+						rules = {},
+						nonRules = {};
+
+					for (var rule in ruleDefinitions) {
+						if (!ruleDefinitions.hasOwnProperty(rule)) { continue; }
+						if (ko.validation.rules[rule]) {
+							rules[rule] = ruleDefinitions[rule];
+						} else {
+							nonRules[rule] = ruleDefinitions[rule];
+						}
+					}
+
+					//apply rules
+					if (ko.isObservable(targetValue)) {
+						targetValue.extend(rules);
+					}
+
+					//then apply child rules
+					//if it's an array, apply rules to all children
+					if (unwrappedTargetValue && utils.isArray(unwrappedTargetValue)) {
+						for (var i = 0; i < unwrappedTargetValue.length; i++) {
+							setRules(unwrappedTargetValue[i], nonRules);
+						}
+						//otherwise, just apply to this property
+					} else {
+						setRules(unwrappedTargetValue, nonRules);
+					}
+				}
+			};
+			setRules(target, definition);
 		}
 	};
 }());

@@ -2,6 +2,7 @@
 	module:false, 
 	equal:false, 
 	notEqual:false,
+	deepEqual: false,
 	strictEqual:false,
 	test:false, 
 	ok:false,
@@ -1359,4 +1360,87 @@ asyncTest('Async Rule Is NOT Valid Test', function () {
 
     testObj.extend({ mustEqualAsync: 5 });
 });
+//#endregion
+
+//#region setRules Tests
+module("setRules Tests");
+
+test("setRules applies rules to all properties", function () {
+	    var definition = {
+		        property1: {
+			            required: true,
+			            min: 10,
+			            max: 99,
+			            ignoredDefinition: { required: true }
+			        },
+			        child: {
+				            property2: {
+					                pattern: {
+						                    params: "^[a-z0-9].$",
+						                    message: "Only AlphaNumeric please"
+						                }
+					            },
+					            grandchild: {
+						                property3: {
+							                    number: true
+							                }
+						            },
+						            ignoredDefinition: { required: true }
+				        },
+				        nestedArray: {
+					            property4: { email: true },
+					            ignoredDefinition: { required: true }
+					        }
+	    };
+
+    var target = {
+	        property1: ko.observable(),
+	        ignoredProperty: ko.observable(),
+	        child: {
+	            property2: ko.observable(),
+	            ignoredProperty: ko.observable(),
+	            grandchild: {
+		                property3: ko.observable(),
+		                ignoredProperty: ko.observable(),
+		            }
+	        },
+        nestedArray: ko.observableArray([
+            { property4: ko.observable(), ignoredProperty: ko.observable() },
+            { property4: ko.observable(), ignoredProperty: ko.observable() },
+            { property4: ko.observable(), ignoredProperty: ko.observable() }
+        ])
+    };
+
+    ko.validation.setRules(target, definition);
+
+    //check that all rules have been applied
+    deepEqual(target.property1.rules(), [
+        { rule: "required", params: true },
+        { rule: "min", params: 10 },
+        { rule: "max", params: 99 }
+    ]);
+
+    deepEqual(target.child.property2.rules(), [
+        { rule: "pattern", message: "Only AlphaNumeric please", params: "^[a-z0-9].$", condition: undefined }
+    ]);
+
+    deepEqual(target.child.grandchild.property3.rules(), [
+        { rule: "number", params: true }
+    ]);
+
+    for (var i = 0; i < target.nestedArray.length; i) {
+	        deepEqual(target.nestedArray[i].property3.rules(), [
+	            { rule: "email", params: true }
+	        ]);
+	    }
+
+    //check that ignored properties have not had rules added
+    ok(!target.ignoredProperty.rules);
+    ok(!target.child.ignoredProperty.rules);
+    ok(!target.child.grandchild.ignoredProperty.rules);
+    ok(!target.nestedArray()[0].ignoredProperty.rules);
+    ok(!target.nestedArray()[1].ignoredProperty.rules);
+    ok(!target.nestedArray()[2].ignoredProperty.rules);
+});
+
 //#endregion
