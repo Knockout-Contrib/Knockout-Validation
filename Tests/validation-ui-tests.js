@@ -613,7 +613,29 @@ test("HTML5 Input types", function () {
     applyTestBindings(vm);
     stop();
 
-    setTimeout(function() {
+    // The validators for the HTML5 Input types are applied asynchronously,
+    // so we need to wait until the validators have been applied.  This is
+    // done by checking to make sure that the rule has been added to the rules
+    // list of each observable.
+    var intervalsWaited = 0;
+    var intervalId = setInterval(function() {
+        if (intervalsWaited++ > 1000) {
+            clearInterval(intervalId);
+            ok(false, 'Async HTML5 Input validators did not apply within a reasonable amount of time');
+            start();
+        }
+        var validatorsReady =
+            vm.invalidEmail.rules().length > 0 &&
+            vm.invalidDate.rules().length > 0 &&
+            vm.invalidNumber.rules().length > 0;
+        if (validatorsReady) 
+            runAssertions();
+    }, 1);
+    
+    function runAssertions()
+    {
+        clearInterval(intervalId);
+        
         var $emailInput = $('#emailInput');
         var emailInput = $emailInput.get(0);
         var $dateInput = $('#dateInput');
@@ -625,8 +647,8 @@ test("HTML5 Input types", function () {
         ok(!vm.invalidDate.isValid(), 'Expected date to be considered as invalid.');
         ok(!vm.invalidNumber.isValid(), 'Expected date to be considered as invalid.');
 
-      start();
-    }, 1 );
+        start();
+    }    
 });
 
 
