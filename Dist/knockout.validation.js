@@ -207,12 +207,28 @@ ko.validation.configuration = configuration;;ko.validation.utils = (function () 
 
 			var validatables = ko.observableArray([]),
 			result = null,
+			flagged = [],
+
+            dispose = function () {
+                if (options.deep) {
+                    ko.utils.arrayForEach(flagged, function (obj) {
+                        delete obj.__kv_traversed;
+                    });
+                }
+            },
 
 			//anonymous, immediate function to traverse objects hierarchically
 			//if !options.deep then it will stop on top level
 			traverse = function traverse(obj, level) {
 				var objValues = [],
 					val = ko.utils.unwrapObservable(obj);
+
+				if (obj.__kv_traversed === true) { return; }
+				
+				if (options.deep) {
+				    obj.__kv_traversed = true;
+				    flagged.push(obj);
+				}
 
 				//default level value depends on deep option.
 				level = (level !== undefined ? level : options.deep ? 1 : -1);
@@ -248,6 +264,7 @@ ko.validation.configuration = configuration;;ko.validation.utils = (function () 
 			if (options.observable) {
 
 				traverse(obj);
+				dispose();
 
 				result = ko.computed(function () {
 					var errors = [];
@@ -264,6 +281,8 @@ ko.validation.configuration = configuration;;ko.validation.utils = (function () 
 					var errors = [];
 					validatables([]); //clear validatables
 					traverse(obj); // and traverse tree again
+					dispose();
+
 					ko.utils.arrayForEach(validatables(), function (observable) {
 						if (!observable.isValid()) {
 							errors.push(observable.error);
@@ -271,8 +290,6 @@ ko.validation.configuration = configuration;;ko.validation.utils = (function () 
 					});
 					return errors;
 				};
-
-
 			}
 
 			result.showAllMessages = function (show) { // thanks @heliosPortal

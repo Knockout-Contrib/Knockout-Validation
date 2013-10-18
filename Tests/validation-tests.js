@@ -1317,6 +1317,18 @@ test("Issue #235 - formatMessage should unwrap observable parameters", function 
     formatted = ko.validation.formatMessage(format, "a value");
     equal("Format message: a value", formatted, "Message should be formatted with the non-observable value");
 });
+
+test("Issue #313 - When recursivly iterating object tree with deep option", function() {
+    var ViewModel = function() {
+        this.required = ko.observable().extend({ required: true});
+        this.child = this;
+    };
+
+    var errors = ko.validation.group(new ViewModel(), { observable: true, deep: true});
+
+    ok(true, "It should not throw stack overflow");
+    equal(errors().length, 1);
+});
 //#endregion
 
 //#region Conditional Validation
