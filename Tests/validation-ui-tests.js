@@ -628,8 +628,9 @@ test("HTML5 Input types", function () {
             vm.invalidEmail.rules().length > 0 &&
             vm.invalidDate.rules().length > 0 &&
             vm.invalidNumber.rules().length > 0;
-        if (validatorsReady) 
-            runAssertions();
+        if (validatorsReady) {
+			runAssertions();
+        }
     }, 1);
     
     function runAssertions()
