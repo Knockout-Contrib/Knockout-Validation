@@ -523,6 +523,15 @@ test('Object is Valid and isValid returns True', function () {
     ok(testObj.isValid(), 'testObj is Valid');
 });
 
+test('Number is Valid (starting with point) and isValid returns True', function () {
+    var testObj = ko.observable('').extend({ number: true });
+
+    testObj(".15");
+
+    equal(testObj(), ".15", 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
 test('Object is NOT Valid and isValid returns False', function () {
     var testObj = ko.observable('').extend({ number: true });
 
