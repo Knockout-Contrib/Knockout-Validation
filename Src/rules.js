@@ -139,8 +139,8 @@ ko.validation.rules['digit'] = {
 ko.validation.rules['phoneUS'] = {
 	validator: function (phoneNumber, validate) {
 		if (!validate) { return true; }
-		if (typeof (phoneNumber) !== 'string') { return false; }
 		if (ko.validation.utils.isEmptyVal(phoneNumber)) { return true; } // makes it optional, use 'required' rule if it should be required
+		if (typeof (phoneNumber) !== 'string') { return false; }
 		phoneNumber = phoneNumber.replace(/\s+/g, "");
 		return validate && phoneNumber.length > 9 && phoneNumber.match(/^(1-?)?(\([2-9]\d{2}\)|[2-9]\d{2})-?[2-9]\d{2}-?\d{4}$/);
 	},
