@@ -23,3 +23,5 @@
     var kv = ko.validation;
     var koUtils = ko.utils;
     var unwrap = koUtils.unwrapObservable;
+    var forEach = koUtils.arrayForEach;
+    var extend = koUtils.extend;
