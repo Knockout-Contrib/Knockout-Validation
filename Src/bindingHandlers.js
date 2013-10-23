@@ -6,6 +6,7 @@ ko.bindingHandlers['validationCore'] = (function () {
 	return {
 		init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 			var config = ko.validation.utils.getConfigOptions(element);
+			var observable = valueAccessor();
 
 			// parse html5 input validation attributes, optional feature
 			if (config.parseInputAttributes) {
@@ -13,28 +14,28 @@ ko.bindingHandlers['validationCore'] = (function () {
 			}
 
 			// if requested insert message element and apply bindings
-			if (config.insertMessages && ko.validation.utils.isValidatable(valueAccessor())) {
+			if (config.insertMessages && ko.validation.utils.isValidatable(observable)) {
 
 				// insert the <span></span>
 				var validationMessageElement = ko.validation.insertValidationMessage(element);
 
 				// if we're told to use a template, make sure that gets rendered
 				if (config.messageTemplate) {
-					ko.renderTemplate(config.messageTemplate, { field: valueAccessor() }, null, validationMessageElement, 'replaceNode');
+					ko.renderTemplate(config.messageTemplate, { field: observable }, null, validationMessageElement, 'replaceNode');
 				} else {
-					ko.applyBindingsToNode(validationMessageElement, { validationMessage: valueAccessor() });
+					ko.applyBindingsToNode(validationMessageElement, { validationMessage: observable });
 				}
 			}
 
 			// write the html5 attributes if indicated by the config
-			if (config.writeInputAttributes && ko.validation.utils.isValidatable(valueAccessor())) {
+			if (config.writeInputAttributes && ko.validation.utils.isValidatable(observable)) {
 
 				ko.validation.writeInputValidationAttributes(element, valueAccessor);
 			}
 
 			// if requested, add binding to decorate element
-			if (config.decorateElement && ko.validation.utils.isValidatable(valueAccessor())) {
-				ko.applyBindingsToNode(element, { validationElement: valueAccessor() });
+			if (config.decorateElement && ko.validation.utils.isValidatable(observable)) {
+				ko.applyBindingsToNode(element, { validationElement: observable });
 			}
 		},
 
