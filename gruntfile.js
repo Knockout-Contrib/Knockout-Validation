@@ -19,6 +19,8 @@ module.exports = function (grunt) {
 				process: function (src, filepath) {
 					return src
 						.replace(/ko\.validation\./g, 'kv.')
+						.replace(/ko\.utils\.arrayForEach/g, 'forEach')
+						.replace(/ko\.utils\.extend/g, 'extend')
 						.replace(/ko\.utils\.unwrapObservable/g, 'unwrap')
 						.replace(/ko\.utils\./g, 'koUtils.');
 				}
@@ -76,4 +78,6 @@ module.exports = function (grunt) {
 	// Default task.
 	grunt.registerTask("default", ["test", "uglify"]);
 	grunt.registerTask("test", ["concat", "qunit", "jshint"]);
+
+	grunt.registerTask("compile", ["concat", "qunit", "uglify"]);
 };

@@ -1,9 +1,9 @@
-/*global 
-	module:false, 
-	equal:false, 
+/*global
+	module:false,
+	equal:false,
 	notEqual:false,
 	strictEqual:false,
-	test:false, 
+	test:false,
 	ok:false,
 	asyncTest:false,
 	start: false,
@@ -59,7 +59,7 @@ test('Issue #90 - "required: false" doesnt force validation', function () {
                     .extend({ required: false });
 
     equal(testObj.isValid(), true, 'testObj is valid without value');
-    
+
     testObj('blah');
     equal(testObj.isValid(), true, 'testObj is valid with value');
 
@@ -372,7 +372,7 @@ test('Pattern validation mismatches numbers', function () {
 test('Pattern validation doesn\'t break with non-string values', function () {
     var testObj = ko.observable('')
                     .extend({ pattern: '^$' });
-    
+
     testObj(12345);
     testObj.isValid();
 
@@ -610,7 +610,7 @@ test('Object is Valid when empty string is present - Preserves Optional Properti
 });
 
 test('Object is Valid and isValid returns True', function () {
-    var testObj = ko.observable('').extend({ dateISO: true }); 
+    var testObj = ko.observable('').extend({ dateISO: true });
 
     testObj('2011-11-18');
 
@@ -878,7 +878,7 @@ test( 'Issue #81 - Dynamic messages', function () {
 
     var CustomRule = function () {
         var self = this;
-        
+
         this.message = 'before';
         this.params = 0;
 
@@ -928,9 +928,9 @@ test('Object is Valid and isValid returns True', function () {
 });
 
 test('Object is Valid and isValid returns True', function () {
-    var testObj = ko.observable().extend({ 
+    var testObj = ko.observable().extend({
                     required: true,
-                    minLength: 2, 
+                    minLength: 2,
                     pattern: {
                         message: 'It must contain some',
                         params: 'some'
@@ -1212,7 +1212,7 @@ test('Issue #31 - Recursively Show All Messages', function () {
     ok(!vm.one.isModified(), "Level 1 is not modified");
     ok(!vm.two.one.isModified(), "Level 2 is not modified");
     ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
-    
+
     // now show all the messages
     errors.showAllMessages();
 
@@ -1547,4 +1547,52 @@ asyncTest('Async Rule Is NOT Valid Test', function () {
 
     testObj.extend({ mustEqualAsync: 5 });
 });
+//#endregion
+
+//# validation process tests
+module("Validation process", {
+    setup: function () {
+        var isStarted = false;
+        ko.validation._validateObservable = ko.validation.validateObservable;
+        ko.validation.validateObservable = function () {
+            ok(true, "Triggered only once");
+            if (!isStarted) {
+                isStarted = true;
+                start();
+            }
+
+            return ko.validation._validateObservable.apply(this, arguments);
+        };
+    },
+
+    teardown: function () {
+        ko.validation.validateObservable = ko.validation._validateObservable;
+    }
+});
+
+asyncTest("can be throttled using global configuration", function () {
+    expect(2); // one for initialization and when value changed
+
+    ko.validation.init({ validate: {
+        throttle: 10
+    }}, true);
+
+    var observable = ko.observable().extend({ validatable: true });
+    observable("1");
+    observable.extend({ minLength: 2 });
+
+    ko.validation.init({ validate: {} }, true);
+});
+
+asyncTest("can be throttled using using local configuration", function () {
+    expect(2); // one for initialization and when value changed
+
+    var observable = ko.observable().extend({ validatable: {
+        throttle: 10
+    } });
+
+    observable.extend({ minLength: 2 });
+    observable("1");
+});
+
 //#endregion
