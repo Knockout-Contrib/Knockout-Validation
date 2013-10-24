@@ -64,7 +64,7 @@
 					val = ko.utils.unwrapObservable(obj);
 
 				if (obj.__kv_traversed === true) { return; }
-				
+
 				if (options.deep) {
 				    obj.__kv_traversed = true;
 				    flagged.push(obj);
@@ -155,10 +155,8 @@
 				// ensure we have latest changes
 				result();
 
-				ko.utils.arrayForEach(validatables(), function (observable) {
-					if (!observable.isValid() && observable.isModified()) {
-						invalidAndModifiedPresent = true;
-					}
+				invalidAndModifiedPresent = !!ko.utils.arrayFirst(validatables(), function (observable) {
+					return !observable.isValid() && observable.isModified();
 				});
 				return invalidAndModifiedPresent;
 			};
@@ -203,20 +201,12 @@
 		//      }
 		//  )};
 		addAnonymousRule: function (observable, ruleObj) {
-			var ruleName = utils.newId();
-
 			if (ruleObj['message'] === undefined) {
 				ruleObj['message'] = 'Error';
 			}
 
-			//Create an anonymous rule to reference
-			ko.validation.rules[ruleName] = ruleObj;
-
 			//add the anonymous rule to the observable
-			ko.validation.addRule(observable, {
-				rule: ruleName,
-				params: ruleObj.params
-			});
+			ko.validation.addRule(observable, ruleObj);
 		},
 
 		addExtender: function (ruleName) {
