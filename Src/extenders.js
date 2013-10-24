@@ -173,7 +173,7 @@ ko.validation.validateObservable = function (observable) {
 		}
 
 		//get the core Rule to use for validation
-		rule = ko.validation.rules[ctx.rule];
+		rule = ctx.rule ? ko.validation.rules[ctx.rule] : ctx;
 
 		if (rule['async'] || ctx['async']) {
 			//run async validation
