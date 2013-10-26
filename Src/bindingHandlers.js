@@ -117,20 +117,17 @@ ko.bindingHandlers['validationElement'] = {
 		ko.bindingHandlers.css.update(element, cssSettingsAccessor);
 		if (!config.errorsAsTitle) { return; }
 
-		var origTitle = ko.validation.utils.getAttribute(element, 'data-orig-title'),
-			elementTitle = element.title,
-			titleIsErrorMsg = ko.validation.utils.getAttribute(element, 'data-orig-title') === "true";
+		ko.bindingHandlers.attr.update(element, function () {
+			var
+				hasModification = !config.errorsAsTitleOnModified || isModified,
+				title = ko.validation.utils.getOriginalElementTitle(element);
 
-		var errorMsgTitleAccessor = function () {
-			if (!config.errorsAsTitleOnModified || isModified) {
-				if (!isValid) {
-					return { title: obsv.error, 'data-orig-title': ko.validation.utils.getOriginalElementTitle(element) };
-				} else {
-					return { title: ko.validation.utils.getOriginalElementTitle(element), 'data-orig-title': null };
-				}
+			if (hasModification && !isValid) {
+				return { title: obsv.error, 'data-orig-title': title };
+			} else if (!hasModification || isValid) {
+				return { title: title, 'data-orig-title': null };
 			}
-		};
-		ko.bindingHandlers.attr.update(element, errorMsgTitleAccessor);
+		});
 	}
 };
 
