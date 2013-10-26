@@ -885,7 +885,11 @@ koBindingHandlers.exposeValidationResult = (function () {
 
 			if (config.insertMessages) {
 				var messageNode = kv.insertValidationMessage(element);
-				ko.applyBindingsToNode(messageNode, { validationMessage: observable });
+				if (config.messageTemplate) {
+					ko.renderTemplate(config.messageTemplate, { field: observable }, null, messageNode, 'replaceNode');
+				} else {
+					ko.applyBindingsToNode(messageNode, { validationMessage: observable });
+				}
 			}
 
 			// write the html5 attributes if indicated by the config
