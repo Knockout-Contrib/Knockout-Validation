@@ -107,13 +107,13 @@ ko.bindingHandlers.validationStyle = {
 			isModified = validatable.isModified();
 
 		ko.bindingHandlers.attr.update(element, function () {
-			if (!config.errorsAsTitleOnModified || isModified) {
-				var title = ko.validation.utils.getOriginalElementTitle(element);
-				if (!isValid) {
-					return { title: validatable.error, 'data-orig-title': title };
-				} else {
-					return { title: title, 'data-orig-title': null };
-				}
+			var title = ko.validation.utils.getOriginalElementTitle(element);
+			var hasModification = !config.errorsAsTitleOnModified || isModified;
+
+			if (hasModification && !isValid) {
+				return { title: validatable.error, 'data-orig-title': title };
+			} else if (!hasModification || isValid) {
+				return { title: title, 'data-orig-title': null };
 			}
 		});
 	}
