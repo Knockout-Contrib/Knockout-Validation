@@ -123,7 +123,7 @@ ko.bindingHandlers.validationStyle = {
 //      <input type="text" data-bind="value: someValue"/>
 //      <input type="text" data-bind="value: someValue2"/>
 // </div>
-ko.bindingHandlers['validationOptions'] = {
+ko.bindingHandlers.validationOptions = {
 	init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 		var options = ko.utils.unwrapObservable(valueAccessor());
 		if (options) {

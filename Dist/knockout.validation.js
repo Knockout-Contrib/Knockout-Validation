@@ -1,5 +1,6 @@
 /*=============================================================================
 	Author:			Eric M. Barnard - @ericmbarnard								
+ Modified:   Sergiy Stotskiy - @stalniy                    
 	License:		MIT (http://opensource.org/licenses/mit-license.php)		
 																				
 	Description:	Validation Library for KnockoutJS							
@@ -32,6 +33,7 @@
     var unwrap = koUtils.unwrapObservable;
     var forEach = koUtils.arrayForEach;
     var extend = koUtils.extend;
+    var koBindingHandlers = ko.bindingHandlers;
 ;/*global ko: false*/
 
 var defaults = {
@@ -526,7 +528,7 @@ kv.configuration = configuration;
 
 			ko.bindingHandlers[handlerName].init = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 				init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
-				return ko.bindingHandlers.exposeValidationResult.init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
+				return koBindingHandlers.exposeValidationResult.init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
 			};
 		},
 
@@ -866,7 +868,7 @@ kv.rules['unique'] = {
 ;// The core binding handler
 // this allows us to setup any value binding that internally always
 // performs the same functionality
-ko.bindingHandlers.exposeValidationResult = (function () {
+koBindingHandlers.exposeValidationResult = (function () {
 	return {
 		init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 			var config = kv.utils.getConfigOptions(element);
@@ -905,7 +907,7 @@ kv.makeBindingHandlerValidatable("value");
 kv.makeBindingHandlerValidatable("checked");
 
 
-ko.bindingHandlers.validationMessage = { // individual error message, if modified or post binding
+koBindingHandlers.validationMessage = { // individual error message, if modified or post binding
 	update: function (element, valueAccessor) {
 		var validatable = valueAccessor();
 
@@ -936,7 +938,7 @@ ko.bindingHandlers.validationMessage = { // individual error message, if modifie
 	}
 };
 
-ko.bindingHandlers.validationStyle = {
+koBindingHandlers.validationStyle = {
 	update: function (element, valueAccessor) {
 		var validatable = valueAccessor();
 
@@ -950,7 +952,7 @@ ko.bindingHandlers.validationStyle = {
 			isValid    = validatable.error.isEmpty();
 
 		//add or remove class on the element;
-		ko.bindingHandlers.css.update(element, function () {
+		koBindingHandlers.css.update(element, function () {
 			var classes = {};
 			classes[config.errorElementClass] = !config.decorateElementOnModified || isModified ? !isValid : false;
 
@@ -958,7 +960,7 @@ ko.bindingHandlers.validationStyle = {
 		});
 
 		if (config.errorsAsTitle) {
-			ko.bindingHandlers.validationStyle.setErrorAsTitleOn(element, validatable, config);
+			koBindingHandlers.validationStyle.setErrorAsTitleOn(element, validatable, config);
 		}
 	},
 
@@ -967,7 +969,7 @@ ko.bindingHandlers.validationStyle = {
 			isValid = validatable.error.isEmpty(),
 			isModified = validatable.isModified();
 
-		ko.bindingHandlers.attr.update(element, function () {
+		koBindingHandlers.attr.update(element, function () {
 			if (!config.errorsAsTitleOnModified || isModified) {
 				var title = kv.utils.getOriginalElementTitle(element);
 				if (!isValid) {
@@ -988,7 +990,7 @@ ko.bindingHandlers.validationStyle = {
 //      <input type="text" data-bind="value: someValue"/>
 //      <input type="text" data-bind="value: someValue2"/>
 // </div>
-ko.bindingHandlers['validationOptions'] = {
+koBindingHandlers.validationOptions = {
 	init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 		var options = unwrap(valueAccessor());
 		if (options) {

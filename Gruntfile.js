@@ -7,6 +7,7 @@ module.exports = function (grunt) {
 		meta: {
 			banner: "/*=============================================================================\n" +
 					"	Author:			Eric M. Barnard - @ericmbarnard								\n" +
+					" Modified:   Sergiy Stotskiy - @stalniy                    \n" +
 					"	License:		MIT (http://opensource.org/licenses/mit-license.php)		\n" +
 					"																				\n" +
 					"	Description:	Validation Library for KnockoutJS							\n" +
@@ -22,6 +23,7 @@ module.exports = function (grunt) {
 						.replace(/ko\.utils\.arrayForEach/g, 'forEach')
 						.replace(/ko\.utils\.extend/g, 'extend')
 						.replace(/ko\.utils\.unwrapObservable/g, 'unwrap')
+						.replace(/ko\.bindingHandlers\./g, 'koBindingHandlers.')
 						.replace(/ko\.utils\./g, 'koUtils.');
 				}
 			},
