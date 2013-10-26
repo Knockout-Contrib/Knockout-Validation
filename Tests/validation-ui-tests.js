@@ -508,12 +508,10 @@ test('Validation Options - Options only apply to their HTML Contexts', function 
 });
 
 test("Issue #43 & #47 - Error messages are not switched correctly", function () {
-    var vm = {
+    var vm = ko.validation.model({
         testObj: ko.observable().extend({ min: 1, max: 100 }),
         dummyProp: ko.observable().extend({ required: true })
-    };
-
-    vm.errors = ko.validation.group(vm);
+    });
 
     // setup the html
     addTestHtml('<span id="testMessage" data-bind="validationMessage: testObj"></span>');
@@ -538,7 +536,7 @@ test("Issue #44 - Validation Element - Is Valid Test", function () {
     };
 
     // setup the html
-    addTestHtml('<input type="text" id="testElement" data-bind="value: testObj, validationElement: testObj"/>');
+    addTestHtml('<input type="text" id="testElement" data-bind="value: testObj, validationStyle: testObj"/>');
 
     // make sure we allow element decorations
     ko.validation.init({ decorateInputElement: true }, true);
@@ -561,7 +559,7 @@ test("Issue #44 - Validation Element - Is Invalid Test", function () {
     };
 
     // setup the html
-    addTestHtml('<input type="text" id="testElement" data-bind="value: testObj, validationElement: testObj"/>');
+    addTestHtml('<input type="text" id="testElement" data-bind="value: testObj, validationStyle: testObj"/>');
 
     // make sure we allow element decorations
     ko.validation.init({ decorateInputElement: true }, true);
@@ -1238,5 +1236,4 @@ test('min Attribute of 2012-W03 should succeed for value of 2013-W01', function 
         start();
     }, 1);
 });
-
 //#endregion
