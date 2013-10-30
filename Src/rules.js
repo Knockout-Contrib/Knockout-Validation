@@ -43,20 +43,110 @@ ko.validation.rules['required'] = {
 	message: 'This field is required.'
 };
 
+function minMaxValidatorFactory(validatorName) {
+    var isMaxValidation = validatorName === "max";
+
+    return function (val, options) {
+        if (ko.validation.utils.isEmptyVal(val)) {
+            return true;
+        }
+
+        var comparisonValue, type;
+        if (options.typeAttr === undefined) {
+            // This validator is being called from javascript rather than
+            // being bound from markup
+            type = "text";
+            comparisonValue = options;
+        } else {
+            type = options.typeAttr;
+            comparisonValue = options.value;
+        }
+
+        // From http://www.w3.org/TR/2012/WD-html5-20121025/common-input-element-attributes.html#attr-input-min,
+        // if the value is parseable to a number, then the minimum should be numeric
+        if (!isNaN(comparisonValue)) {
+            type = "number";
+        }
+
+        var regex, valMatches, comparisonValueMatches;
+        switch (type.toLowerCase()) {
+            case "week":
+                regex = /^(\d{4})-W(\d{2})$/;
+                valMatches = val.match(regex);
+                if (valMatches === null) {
+                    throw "Invalid value for " + validatorName + " attribute for week input.  Should look like " +
+                        "'2000-W33' http://www.w3.org/TR/html-markup/input.week.html#input.week.attrs.min";
+                }
+                comparisonValueMatches = comparisonValue.match(regex);
+                // If no regex matches were found, validation fails
+                if (!comparisonValueMatches) {
+                    return false;
+                }
+
+                if (isMaxValidation) {
+                    return (valMatches[1] < comparisonValueMatches[1]) || // older year
+                        // same year, older week
+                        ((valMatches[1] === comparisonValueMatches[1]) && (valMatches[2] <= comparisonValueMatches[2]));
+                } else {
+                    return (valMatches[1] > comparisonValueMatches[1]) || // newer year
+                        // same year, newer week
+                        ((valMatches[1] === comparisonValueMatches[1]) && (valMatches[2] >= comparisonValueMatches[2]));
+                }
+                break;
+
+            case "month":
+                regex = /^(\d{4})-(\d{2})$/;
+                valMatches = val.match(regex);
+                if (valMatches === null) {
+                    throw "Invalid value for " + validatorName + " attribute for month input.  Should look like " +
+                        "'2000-03' http://www.w3.org/TR/html-markup/input.month.html#input.month.attrs.min";
+                }
+                comparisonValueMatches = comparisonValue.match(regex);
+                // If no regex matches were found, validation fails
+                if (!comparisonValueMatches) {
+                    return false;
+                }
+
+                if (isMaxValidation) {
+                    return ((valMatches[1] < comparisonValueMatches[1]) || // older year
+                        // same year, older month
+                        ((valMatches[1] === comparisonValueMatches[1]) && (valMatches[2] <= comparisonValueMatches[2])));
+                } else {
+                    return (valMatches[1] > comparisonValueMatches[1]) || // newer year
+                        // same year, newer month
+                        ((valMatches[1] === comparisonValueMatches[1]) && (valMatches[2] >= comparisonValueMatches[2]));
+                }
+                break;
+
+            case "number":
+            case "range":
+                if (isMaxValidation) {
+                    return (!isNaN(val) && parseFloat(val) <= parseFloat(comparisonValue));
+                } else {
+                    return (!isNaN(val) && parseFloat(val) >= parseFloat(comparisonValue));
+                }
+                break;
+
+            default:
+                if (isMaxValidation) {
+                    return val <= comparisonValue;
+                } else {
+                    return val >= comparisonValue;
+                }
+        }
+    };
+}
+
 ko.validation.rules['min'] = {
-	validator: function (val, min) {
-		return ko.validation.utils.isEmptyVal(val) || val >= min;
-	},
+	validator: minMaxValidatorFactory("min"),
 	message: 'Please enter a value greater than or equal to {0}.'
 };
 
 ko.validation.rules['max'] = {
-	validator: function (val, max) {
-		return ko.validation.utils.isEmptyVal(val) || val <= max;
-	},
+	validator: minMaxValidatorFactory("max"),
 	message: 'Please enter a value less than or equal to {0}.'
 };
-
+    
 ko.validation.rules['minLength'] = {
 	validator: function (val, minLength) {
 		return ko.validation.utils.isEmptyVal(val) || val.length >= minLength;
