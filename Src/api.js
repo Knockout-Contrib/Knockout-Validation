@@ -280,9 +280,27 @@
 		parseInputValidationAttributes: function (element, valueAccessor) {
 			ko.utils.arrayForEach(ko.validation.configuration.html5Attributes, function (attr) {
 				if (utils.hasAttribute(element, attr)) {
+
+                    var params = element.getAttribute(attr) || true;
+
+                    if (attr === 'min' || attr === 'max')
+                    {
+                        // If we're validating based on the min and max attributes, we'll
+                        // need to know what the 'type' attribute is set to
+                        var typeAttr = element.getAttribute('type');
+                        if (typeof typeAttr === "undefined" || !typeAttr)
+                        {
+                            // From http://www.w3.org/TR/html-markup/input:
+                            //   An input element with no type attribute specified represents the 
+                            //   same thing as an input element with its type attribute set to "text".
+                            typeAttr = "text"; 
+                        }                            
+                        params = {typeAttr: typeAttr, value: params}; 
+                    }
+                
 					ko.validation.addRule(valueAccessor(), {
 						rule: attr,
-						params: element.getAttribute(attr) || true
+						params: params
 					});
 				}
 			});
