@@ -4,8 +4,7 @@
   "description": "A KnockoutJS Plugin for model and property validation",
   "main": "gruntfile.js",
   "dependencies": {
-    "grunt": "~0.4.1",
-    "grunt-cli": "~0.1.9"
+    "knockout": "~3.0.0"
   },
   "devDependencies": {
     "grunt": "~0.4.1",
