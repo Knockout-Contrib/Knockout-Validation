@@ -15,7 +15,7 @@
 * when validated
 *
 * This message replacement obviously only works with primitives
-* such as numbers and strings. We do not stringify complex objects 
+* such as numbers and strings. We do not stringify complex objects
 * or anything like that currently.
 */
 
