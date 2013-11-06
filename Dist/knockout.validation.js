@@ -5,7 +5,7 @@
 	Description:	Validation Library for KnockoutJS							
 ===============================================================================
 */
-/*globals require: false, exports: false, define: false, ko: false */
+/*globals require: false, : false, define: false, ko: false */
 
 (function (factory) {
     // Module systems magic dance.
