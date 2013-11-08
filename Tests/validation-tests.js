@@ -3,6 +3,7 @@
 	equal:false,
 	notEqual:false,
 	strictEqual:false,
+	deepEqual:false,
 	test:false,
 	ok:false,
 	asyncTest:false,
