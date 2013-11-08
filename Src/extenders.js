@@ -27,8 +27,20 @@ ko.extenders['validation'] = function (observable, rules) { // allow single rule
 //
 // 2. test.extend({validatable: false});
 // this will remove the validation properties from the Observable object should you need to do that.
-ko.extenders['validatable'] = function (observable, enable) {
-	if (enable && !ko.validation.utils.isValidatable(observable)) {
+ko.extenders['validatable'] = function (observable, options) {
+	if (!ko.validation.utils.isObject(options)) {
+		options = { enable: options };
+	}
+
+	if (!('enable' in options)) {
+		options.enable = true;
+	}
+
+	if (options.enable && !ko.validation.utils.isValidatable(observable)) {
+		var config = ko.validation.configuration.validate || {};
+		var validationOptions = {
+			throttleEvaluation : options.throttle || config.throttle
+		};
 
 		observable.error = ko.observable(null); // holds the error message, we only need one since we stop processing validators when one is invalid
 
@@ -46,21 +58,8 @@ ko.extenders['validatable'] = function (observable, enable) {
 
 		observable.isModified = ko.observable(false);
 
-		// we use a computed here to ensure that anytime a dependency changes, the
-		// validation logic evaluates
-		var h_obsValidationTrigger = ko.computed(function () {
-			var obs = observable(),
-				ruleContexts = observable.rules();
-
-			ko.validation.validateObservable(observable);
-
-			return true;
-		});
-
 		// a semi-protected observable
-		observable.isValid = ko.computed(function () {
-			return observable.__valid__();
-		});
+		observable.isValid = ko.computed(observable.__valid__);
 
 		//manually set error state
 		observable.setError = function (error) {
@@ -79,6 +78,21 @@ ko.extenders['validatable'] = function (observable, enable) {
 			observable.isModified(true);
 		});
 
+		// we use a computed here to ensure that anytime a dependency changes, the
+		// validation logic evaluates
+		var h_obsValidationTrigger = ko.computed(ko.utils.extend({
+			read: function () {
+				var obs = observable(),
+					ruleContexts = observable.rules();
+
+				ko.validation.validateObservable(observable);
+
+				return true;
+			}
+		}, validationOptions));
+
+		ko.utils.extend(h_obsValidationTrigger, validationOptions);
+
 		observable._disposeValidation = function () {
 			//first dispose of the subscriptions
 			observable.isValid.dispose();
@@ -96,11 +110,8 @@ ko.extenders['validatable'] = function (observable, enable) {
 			delete observable['__valid__'];
 			delete observable['isModified'];
 		};
-	} else if (enable === false && ko.validation.utils.isValidatable(observable)) {
-
-		if (observable._disposeValidation) {
-			observable._disposeValidation();
-		}
+	} else if (options.enable === false && observable._disposeValidation) {
+		observable._disposeValidation();
 	}
 	return observable;
 };
@@ -110,8 +121,7 @@ function validateSync(observable, rule, ctx) {
 	if (!rule.validator(observable(), ctx.params === undefined ? true : ctx.params)) { // default param is true, eg. required = true
 
 		//not valid, so format the error message and stick it in the 'error' variable
-		observable.error(ko.validation.formatMessage(ctx.message || rule.message, ctx.params));
-		observable.__valid__(false);
+		observable.setError(ko.validation.formatMessage(ctx.message || rule.message, ctx.params));
 		return false;
 	} else {
 		return true;
@@ -187,7 +197,6 @@ ko.validation.validateObservable = function (observable) {
 		}
 	}
 	//finally if we got this far, make the observable valid again!
-	observable.error(null);
-	observable.__valid__(true);
+	observable.clearError();
 	return true;
 };

@@ -15,32 +15,41 @@ module.exports = function (grunt) {
 		concat: {
 			options: {
 				separator: ";",
-				banner: "<%= meta.banner %>"
+				banner: "<%= meta.banner %>",
+				process: function (src, filepath) {
+					return src
+						.replace(/ko\.validation\./g, 'kv.')
+						.replace(/ko\.utils\.arrayForEach/g, 'forEach')
+						.replace(/ko\.utils\.extend/g, 'extend')
+						.replace(/ko\.utils\.unwrapObservable/g, 'unwrap')
+						.replace(/ko\.utils\./g, 'koUtils.');
+				}
 			},
 			dist: {
 				src: [
 					"<%= meta.banner %>",
-					"src/ko.validation.start.frag",
-					"src/configuration.js",
-					"src/utils.js",
-					"src/api.js",
-					"src/rules.js",
-					"src/bindingHandlers.js",
-					"src/extenders.js",
-					"src/localization.js",
-					"src/ko.extensions.js",
-					"src/ko.validation.end.frag",
+					"Src/ko.validation.start.frag",
+					"Src/configuration.js",
+					"Src/utils.js",
+					"Src/api.js",
+					"Src/rules.js",
+					"Src/bindingHandlers.js",
+					"Src/extenders.js",
+					"Src/localization.js",
+					"Src/ko.extensions.js",
+					"Src/ko.validation.end.frag",
 				],
-				dest: "dist/<%= pkg.name %>.js"
+				dest: "Dist/<%= pkg.name %>.js"
 			}
 		},
 		uglify: {
 			options: {
-				banner: "<%= meta.banner %>"
+				banner: "<%= meta.banner %>",
+				report: "min"
 			},
 			dist: {
 				files: {
-					"dist/<%= pkg.name %>.min.js": ["<%= concat.dist.dest %>"]
+					"Dist/<%= pkg.name %>.min.js": ["<%= concat.dist.dest %>"]
 				}
 			}
 		},
@@ -48,12 +57,12 @@ module.exports = function (grunt) {
 			files: ["Tests/test-runner.htm"]
 		},
 		jshint: {
-			files: ["src/**/*.js", "Tests/*.js"],
+			files: ["Src/**/*.js", "Tests/*.js"],
 			options: grunt.file.readJSON(".jshintrc"),
 		},
 		watch: {
 			clear: {
-				files: ["src/**/*.js", "Tests/*.js"],
+				files: ["Src/**/*.js", "Tests/*.js"],
 				tasks: ["clear", "test"]
 			}
 		}
@@ -69,4 +78,6 @@ module.exports = function (grunt) {
 	// Default task.
 	grunt.registerTask("default", ["test", "uglify"]);
 	grunt.registerTask("test", ["concat", "qunit", "jshint"]);
+
+	grunt.registerTask("compile", ["concat", "qunit", "uglify"]);
 };

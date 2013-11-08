@@ -17,6 +17,9 @@ var defaults = {
 	grouping: {
 		deep: false,        //by default grouping is shallow
 		observable: true    //and using observables
+	},
+	validate: {
+		// throttle: 10
 	}
 };
 

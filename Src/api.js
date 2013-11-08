@@ -47,12 +47,28 @@
 
 			var validatables = ko.observableArray([]),
 			result = null,
+			flagged = [],
+
+            dispose = function () {
+                if (options.deep) {
+                    ko.utils.arrayForEach(flagged, function (obj) {
+                        delete obj.__kv_traversed;
+                    });
+                }
+            },
 
 			//anonymous, immediate function to traverse objects hierarchically
 			//if !options.deep then it will stop on top level
 			traverse = function traverse(obj, level) {
 				var objValues = [],
 					val = ko.utils.unwrapObservable(obj);
+
+				if (obj.__kv_traversed === true) { return; }
+				
+				if (options.deep) {
+				    obj.__kv_traversed = true;
+				    flagged.push(obj);
+				}
 
 				//default level value depends on deep option.
 				level = (level !== undefined ? level : options.deep ? 1 : -1);
@@ -88,6 +104,7 @@
 			if (options.observable) {
 
 				traverse(obj);
+				dispose();
 
 				result = ko.computed(function () {
 					var errors = [];
@@ -104,6 +121,8 @@
 					var errors = [];
 					validatables([]); //clear validatables
 					traverse(obj); // and traverse tree again
+					dispose();
+
 					ko.utils.arrayForEach(validatables(), function (observable) {
 						if (!observable.isValid()) {
 							errors.push(observable.error);
@@ -111,8 +130,6 @@
 					});
 					return errors;
 				};
-
-
 			}
 
 			result.showAllMessages = function (show) { // thanks @heliosPortal
@@ -263,9 +280,27 @@
 		parseInputValidationAttributes: function (element, valueAccessor) {
 			ko.utils.arrayForEach(ko.validation.configuration.html5Attributes, function (attr) {
 				if (utils.hasAttribute(element, attr)) {
+
+                    var params = element.getAttribute(attr) || true;
+
+                    if (attr === 'min' || attr === 'max')
+                    {
+                        // If we're validating based on the min and max attributes, we'll
+                        // need to know what the 'type' attribute is set to
+                        var typeAttr = element.getAttribute('type');
+                        if (typeof typeAttr === "undefined" || !typeAttr)
+                        {
+                            // From http://www.w3.org/TR/html-markup/input:
+                            //   An input element with no type attribute specified represents the 
+                            //   same thing as an input element with its type attribute set to "text".
+                            typeAttr = "text"; 
+                        }                            
+                        params = {typeAttr: typeAttr, value: params}; 
+                    }
+                
 					ko.validation.addRule(valueAccessor(), {
 						rule: attr,
-						params: element.getAttribute(attr) || true
+						params: params
 					});
 				}
 			});

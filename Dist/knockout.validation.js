@@ -207,12 +207,28 @@ ko.validation.configuration = configuration;;ko.validation.utils = (function () 
 
 			var validatables = ko.observableArray([]),
 			result = null,
+			flagged = [],
+
+            dispose = function () {
+                if (options.deep) {
+                    ko.utils.arrayForEach(flagged, function (obj) {
+                        delete obj.__kv_traversed;
+                    });
+                }
+            },
 
 			//anonymous, immediate function to traverse objects hierarchically
 			//if !options.deep then it will stop on top level
 			traverse = function traverse(obj, level) {
 				var objValues = [],
 					val = ko.utils.unwrapObservable(obj);
+
+				if (obj.__kv_traversed === true) { return; }
+				
+				if (options.deep) {
+				    obj.__kv_traversed = true;
+				    flagged.push(obj);
+				}
 
 				//default level value depends on deep option.
 				level = (level !== undefined ? level : options.deep ? 1 : -1);
@@ -248,6 +264,7 @@ ko.validation.configuration = configuration;;ko.validation.utils = (function () 
 			if (options.observable) {
 
 				traverse(obj);
+				dispose();
 
 				result = ko.computed(function () {
 					var errors = [];
@@ -264,6 +281,8 @@ ko.validation.configuration = configuration;;ko.validation.utils = (function () 
 					var errors = [];
 					validatables([]); //clear validatables
 					traverse(obj); // and traverse tree again
+					dispose();
+
 					ko.utils.arrayForEach(validatables(), function (observable) {
 						if (!observable.isValid()) {
 							errors.push(observable.error);
@@ -271,8 +290,6 @@ ko.validation.configuration = configuration;;ko.validation.utils = (function () 
 					});
 					return errors;
 				};
-
-
 			}
 
 			result.showAllMessages = function (show) { // thanks @heliosPortal
@@ -664,7 +681,7 @@ ko.validation.rules['dateISO'] = {
 ko.validation.rules['number'] = {
 	validator: function (value, validate) {
 		if (!validate) { return true; }
-		return ko.validation.utils.isEmptyVal(value) || (validate && /^-?(?:\d+|\d{1,3}(?:,\d{3})+)(?:\.\d+)?$/.test(value));
+		return ko.validation.utils.isEmptyVal(value) || (validate && /^-?(?:\d+|\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$/.test(value));
 	},
 	message: 'Please enter a number'
 };
@@ -680,8 +697,8 @@ ko.validation.rules['digit'] = {
 ko.validation.rules['phoneUS'] = {
 	validator: function (phoneNumber, validate) {
 		if (!validate) { return true; }
-		if (typeof (phoneNumber) !== 'string') { return false; }
 		if (ko.validation.utils.isEmptyVal(phoneNumber)) { return true; } // makes it optional, use 'required' rule if it should be required
+		if (typeof (phoneNumber) !== 'string') { return false; }
 		phoneNumber = phoneNumber.replace(/\s+/g, "");
 		return validate && phoneNumber.length > 9 && phoneNumber.match(/^(1-?)?(\([2-9]\d{2}\)|[2-9]\d{2})-?[2-9]\d{2}-?\d{4}$/);
 	},
