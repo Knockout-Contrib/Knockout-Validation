@@ -20,8 +20,8 @@
     // create our namespace object
     ko.validation = exports;
 
-    var kv = ko.validation;
-    var koUtils = ko.utils;
-    var unwrap = koUtils.unwrapObservable;
-    var forEach = koUtils.arrayForEach;
-    var extend = koUtils.extend;
+    var kv = ko.validation,
+		koUtils = ko.utils,
+		unwrap = koUtils.unwrapObservable,
+		forEach = koUtils.arrayForEach,
+		extend = koUtils.extend;

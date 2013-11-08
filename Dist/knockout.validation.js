@@ -5,7 +5,7 @@
 	Description:	Validation Library for KnockoutJS							
 ===============================================================================
 */
-/*globals require: false, : false, define: false, ko: false */
+/*globals require: false, exports: false, define: false, ko: false */
 
 (function (factory) {
     // Module systems magic dance.
@@ -27,11 +27,11 @@
     // create our namespace object
     ko.validation = exports;
 
-    var kv = ko.validation;
-    var koUtils = ko.utils;
-    var unwrap = koUtils.unwrapObservable;
-    var forEach = koUtils.arrayForEach;
-    var extend = koUtils.extend;
+    var kv = ko.validation,
+		koUtils = ko.utils,
+		unwrap = koUtils.unwrapObservable,
+		forEach = koUtils.arrayForEach,
+		extend = koUtils.extend;
 ;/*global ko: false*/
 
 var defaults = {
