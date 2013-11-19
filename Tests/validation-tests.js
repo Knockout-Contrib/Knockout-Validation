@@ -800,7 +800,7 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, testObj.error());
 });
 
-test('Object is Valid and isValid returns True', function () {
+test('Object is Valid and dateISO is observable and isValid returns True', function () {
 	var dateISO = ko.observable(true);
     var testObj = ko.observable('').extend({ dateISO: dateISO });
 
@@ -810,7 +810,7 @@ test('Object is Valid and isValid returns True', function () {
     ok(testObj.isValid(), 'testObj is Valid');
 });
 
-test('Object is NOT Valid and isValid returns False', function () {
+test('Object is NOT Valid and dateISO is observable and isValid returns False', function () {
 	var dateISO = ko.observable(true);
     var testObj = ko.observable('').extend({ dateISO: dateISO });
 
@@ -1064,7 +1064,7 @@ test('Custom Rule Is NOT Valid Test', function () {
     equal(testObj.isValid(), false, 'testObj is valid');
 });
 
-test('Custom Rule Is Valid Test and is observable', function () {
+test('Custom Rule Is Valid Test and params is observable', function () {
 	var mustEqual = ko.observable(5);
     ko.validation.rules['mustEqual'] = {
         validator: function (val, otherVal) {
@@ -1083,7 +1083,7 @@ test('Custom Rule Is Valid Test and is observable', function () {
     equal(testObj.isValid(), true, 'testObj is valid');
 });
 
-test('Custom Rule Is NOT Valid Test and is observable', function () {
+test('Custom Rule Is NOT Valid Test and params is observable', function () {
 	var mustEqual = ko.observable(5);
     ko.validation.rules['mustEqual'] = {
         validator: function (val, otherVal) {
@@ -1189,7 +1189,7 @@ test( 'Issue #81 - Dynamic messages', function () {
     equal( testObj.error(), 'after', 'testObj changes messages dynamically' );
 });
 
-test('Object is Valid and is observable and isValid returns True', function () {
+test('Object is Valid and params is observable and isValid returns True', function () {
 	var params = ko.observable(5);
     var testObj = ko.observable(3).extend({
         validation: {
@@ -1207,7 +1207,7 @@ test('Object is Valid and is observable and isValid returns True', function () {
     equal(testObj.isValid(), true, 'testObj is valid');
 });
 
-test('Object is Valid and isValid returns True', function () {
+test('Object is Valid and params is observable isValid returns True', function () {
 	var params = ko.observable(5);
     var testObj = ko.observable(3).extend({
         validation: {
