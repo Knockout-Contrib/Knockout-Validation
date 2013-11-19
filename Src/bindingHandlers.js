@@ -34,13 +34,9 @@ ko.bindingHandlers['validationCore'] = (function () {
 			}
 
 			// if requested, add binding to decorate element
-			if (config.decorateElement && ko.validation.utils.isValidatable(observable)) {
+			if (config.decorateInputElement && ko.validation.utils.isValidatable(observable)) {
 				ko.applyBindingsToNode(element, { validationElement: observable });
 			}
-		},
-
-		update: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-			// hook for future extensibility
 		}
 	};
 
@@ -60,27 +56,27 @@ ko.bindingHandlers['validationMessage'] = { // individual error message, if modi
 			isModified = false,
 			isValid = false;
 
-		obsv.extend({ validatable: true });
+		if (!obsv.isValid || !obsv.isModified) {
+			throw new Error("Observable is not validatable");
+		}
 
 		isModified = obsv.isModified();
 		isValid = obsv.isValid();
 
-		// create a handler to correctly return an error message
-		var errorMsgAccessor = function () {
-			if (!config.messagesOnModified || isModified) {
-				return isValid ? null : obsv.error;
-			} else {
-				return null;
-			}
-		};
+		var error = null;
+		if (!config.messagesOnModified || isModified) {
+			error =  isValid ? null : obsv.error;
+		}
+		ko.utils.setTextContent(element, error);
 
-		//toggle visibility on validation messages when validation hasn't been evaluated, or when the object isValid
-		var visiblityAccessor = function () {
-			return (!config.messagesOnModified || isModified) ? !isValid : false;
-		};
+		var isVisible = !config.messagesOnModified || isModified ? !isValid : false;
+		var isCurrentlyVisible = element.style.display !== "none";
 
-		ko.bindingHandlers.text.update(element, errorMsgAccessor);
-		ko.bindingHandlers.visible.update(element, visiblityAccessor);
+		if (isCurrentlyVisible && !isVisible) {
+			element.style.display = 'none';
+		} else if (!isCurrentlyVisible && isVisible) {
+			element.style.display = '';
+		}
 	}
 };
 
@@ -93,7 +89,9 @@ ko.bindingHandlers['validationElement'] = {
 			isModified = false,
 			isValid = false;
 
-		obsv.extend({ validatable: true });
+		if (!obsv.isValid || !obsv.isModified) {
+			throw new Error("Observable is not validatable");
+		}
 
 		isModified = obsv.isModified();
 		isValid = obsv.isValid();
@@ -104,8 +102,6 @@ ko.bindingHandlers['validationElement'] = {
 			var css = {};
 
 			var shouldShow = ((!config.decorateElementOnModified || isModified) ? !isValid : false);
-
-			if (!config.decorateElement) { shouldShow = false; }
 
 			// css: { validationElement: false }
 			css[config.errorElementClass] = shouldShow;

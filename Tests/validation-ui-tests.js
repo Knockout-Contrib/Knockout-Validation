@@ -53,7 +53,7 @@ test("checked binding sets error class on radio buttons", function() {
         vm = {
             result: ko.observable("").extend({ required: true })
         };
-    ko.validation.init({ decorateElement: true }, true);
+    ko.validation.init({ decorateInputElement: true }, true);
 
     vm.result.isModified(true); //fake a modification
 
@@ -113,7 +113,7 @@ test('Decorating Elements Works', function () {
 
     // make sure the options are ok.
     ko.validation.init({
-        decorateElement: true
+        decorateInputElement: true
     }, true);
 
     applyTestBindings(vm);
@@ -141,7 +141,7 @@ test('Decorating Elements On Modified Works', function () {
 
     // make sure the options are ok.
     ko.validation.init({
-        decorateElement: true,
+        decorateInputElement: true,
         decorateElementOnModified: false
     }, true);
 
@@ -172,7 +172,7 @@ test('Showing Errors As Titles Works', function () {
     // make sure the options are ok.
     ko.validation.init({
         errorsAsTitleOnModified: true,
-        decorateElement: true
+        decorateInputElement: true
     }, true);
 
     applyTestBindings(vm);
@@ -205,7 +205,7 @@ test('Original titles are restored', function () {
     // make sure the options are ok.
     ko.validation.init({
         errorsAsTitleOnModified: true,
-        decorateElement: true
+        decorateInputElement: true
     }, true);
 
     applyTestBindings(vm);
@@ -239,7 +239,7 @@ test("Original titles are restored to blank", function () {
 	// make sure the options are ok.
 	ko.validation.init({
 		errorsAsTitleOnModified: true,
-		decorateElement: true
+		decorateInputElement: true
 	}, true);
 
 	applyTestBindings(vm);
@@ -274,7 +274,7 @@ test('Original titles are restored with multiple validators, too', function () {
     // make sure the options are ok.
     ko.validation.init({
         errorsAsTitleOnModified: true,
-        decorateElement: true
+        decorateInputElement: true
     }, true);
 
     applyTestBindings(vm);
@@ -315,7 +315,7 @@ test('Showing Errors As Titles is disabled sucessfully', function () {
     // make sure the options are ok.
     ko.validation.init({
         errorsAsTitleOnModified: true,
-        decorateElement: true,
+        decorateInputElement: true,
 		errorsAsTitle: false
     }, true);
 
@@ -510,7 +510,7 @@ test("Issue #44 - Validation Element - Is Valid Test", function () {
     addTestHtml('<input type="text" id="testElement" data-bind="value: testObj, validationElement: testObj"/>');
 
     // make sure we allow element decorations
-    ko.validation.init({ decorateElement: true }, true);
+    ko.validation.init({ decorateInputElement: true }, true);
 
     applyTestBindings(vm);
 
@@ -533,7 +533,7 @@ test("Issue #44 - Validation Element - Is Invalid Test", function () {
     addTestHtml('<input type="text" id="testElement" data-bind="value: testObj, validationElement: testObj"/>');
 
     // make sure we allow element decorations
-    ko.validation.init({ decorateElement: true }, true);
+    ko.validation.init({ decorateInputElement: true }, true);
 
     applyTestBindings(vm);
 
@@ -558,7 +558,7 @@ test("Issue #80 - Write HTML5 Validation Attributes programmatically", function 
 
     // make sure we allow element decorations
     ko.validation.init({
-        decorateElement: true,
+        decorateInputElement: true,
         writeInputAttributes: true
     }, true);
 
@@ -595,7 +595,7 @@ test("Issue #80 - HTML5 attributes - pattern", function () {
 
     // make sure we allow element decorations
     ko.validation.init({
-        decorateElement: true,
+        decorateInputElement: true,
         writeInputAttributes: true
     }, true);
 
@@ -691,7 +691,7 @@ test('min Attribute of 20 should fail for value of 8', function () {
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="number" min="20" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
@@ -699,10 +699,10 @@ test('min Attribute of 20 should fail for value of 8', function () {
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber(8); // should fail the max rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
@@ -717,17 +717,17 @@ test('min Attribute of 20 should fail for value of "8"', function () {
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="text" min="20" data-bind="value:someNumber", validationElement: someNumber" />');
     ko.validation.init({
         parseInputAttributes: true
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber("8"); // should fail the min rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
@@ -742,7 +742,7 @@ test('min Attribute of 20 should fail for value of "8" with text type', function
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="text" min="20" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
@@ -750,10 +750,10 @@ test('min Attribute of 20 should fail for value of "8" with text type', function
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber("8"); // should fail the min rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
@@ -768,7 +768,7 @@ test('min Attribute of 20 should pass for value of 110', function () {
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="number" min="20" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
@@ -776,18 +776,18 @@ test('min Attribute of 20 should pass for value of 110', function () {
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber(110); // should validate the min rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
         ok(vm.someNumber.isValid(), "Object is valid");
-        
+
         start();
     }, 1);
-    
+
 });
 
 test('MIN Attribute of 20 should pass for value of "110"', function () {
@@ -795,7 +795,7 @@ test('MIN Attribute of 20 should pass for value of "110"', function () {
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="number" min="20" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
@@ -803,18 +803,18 @@ test('MIN Attribute of 20 should pass for value of "110"', function () {
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber("110"); // should validate the min rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
         ok(vm.someNumber.isValid(), "Object is valid");
-        
+
         start();
     }, 1);
-    
+
 });
 
 test('max Attribute of 30 should fail for value of 100', function () {
@@ -822,7 +822,7 @@ test('max Attribute of 30 should fail for value of 100', function () {
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="number" max="30" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
@@ -830,10 +830,10 @@ test('max Attribute of 30 should fail for value of 100', function () {
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber(100); // should fail the max rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
@@ -848,17 +848,17 @@ test('max Attribute of 30 should fail for value of "100"', function () {
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="text" max="30" data-bind="value:someNumber", validationElement: someNumber" />');
     ko.validation.init({
         parseInputAttributes: true
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber("100"); // should fail the min rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
@@ -873,7 +873,7 @@ test('max Attribute of 30 should fail for value of "100" with text type', functi
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="text" max="30" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
@@ -881,10 +881,10 @@ test('max Attribute of 30 should fail for value of "100" with text type', functi
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber(100); // should fail the min rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
@@ -899,7 +899,7 @@ test('max Attribute of 30 should pass for value of 5', function () {
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="number" max="30" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
@@ -907,18 +907,18 @@ test('max Attribute of 30 should pass for value of 5', function () {
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber(5); // should validate the min rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
         ok(vm.someNumber.isValid(), "Object is valid");
-        
+
         start();
     }, 1);
-    
+
 });
 
 test('max Attribute of 30 should pass for value of "5"', function () {
@@ -926,7 +926,7 @@ test('max Attribute of 30 should pass for value of "5"', function () {
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="number" max="30" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
@@ -934,18 +934,18 @@ test('max Attribute of 30 should pass for value of "5"', function () {
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber("5"); // should validate the min rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
         ok(vm.someNumber.isValid(), "Object is valid");
-        
+
         start();
     }, 1);
-    
+
 });
 
 test('max Attribute of 2010-09 should fail for value of 2011-03', function () {
@@ -953,7 +953,7 @@ test('max Attribute of 2010-09 should fail for value of 2011-03', function () {
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="month" max="2010-09" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
@@ -961,10 +961,10 @@ test('max Attribute of 2010-09 should fail for value of 2011-03', function () {
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber("2011-03"); // should fail the max rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
@@ -979,7 +979,7 @@ test('max Attribute of 2010-09 should succeed for value of 2010-08', function ()
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="month" max="2010-09" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
@@ -987,10 +987,10 @@ test('max Attribute of 2010-09 should succeed for value of 2010-08', function ()
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber("2010-08"); // should succeed the max rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
@@ -1005,7 +1005,7 @@ test('min Attribute of 2010-09 should fail for value of 2010-08', function () {
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="month" min="2010-09" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
@@ -1013,10 +1013,10 @@ test('min Attribute of 2010-09 should fail for value of 2010-08', function () {
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber("2010-08"); // should fail the min rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
@@ -1031,7 +1031,7 @@ test('min Attribute of 2012-05 should fail for value of 2011-01', function () {
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="month" min="2012-05" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
@@ -1039,10 +1039,10 @@ test('min Attribute of 2012-05 should fail for value of 2011-01', function () {
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber("2011-01"); // should fail the min rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
@@ -1057,7 +1057,7 @@ test('min Attribute of 2012-03 should succeed for value of 2013-01', function ()
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="month" min="2012-03" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
@@ -1065,10 +1065,10 @@ test('min Attribute of 2012-03 should succeed for value of 2013-01', function ()
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber("2013-01"); // should succeed the min rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
@@ -1083,7 +1083,7 @@ test('max Attribute of 2010-W09 should fail for value of 2011-W03', function () 
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="week" max="2010-W09" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
@@ -1091,10 +1091,10 @@ test('max Attribute of 2010-W09 should fail for value of 2011-W03', function () 
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber("2011-W03"); // should fail the max rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
@@ -1109,7 +1109,7 @@ test('max Attribute of 2010-W09 should succeed for value of 2010-W08', function 
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="week" max="2010-W09" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
@@ -1117,10 +1117,10 @@ test('max Attribute of 2010-W09 should succeed for value of 2010-W08', function 
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber("2010-W08"); // should succeed the max rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
@@ -1135,7 +1135,7 @@ test('min Attribute of 2010-W09 should fail for value of 2010-W08', function () 
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="Week" min="2010-W09" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
@@ -1143,10 +1143,10 @@ test('min Attribute of 2010-W09 should fail for value of 2010-W08', function () 
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber("2010-W08"); // should fail the min rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
@@ -1161,7 +1161,7 @@ test('min Attribute of 2012-W05 should fail for value of 2011-W01', function () 
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="week" min="2012-W05" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
@@ -1169,10 +1169,10 @@ test('min Attribute of 2012-W05 should fail for value of 2011-W01', function () 
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber("2011-W01"); // should fail the min rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
@@ -1187,7 +1187,7 @@ test('min Attribute of 2012-W03 should succeed for value of 2013-W01', function 
     var vm = {
         someNumber: ko.validatedObservable()
     };
-    
+
     addTestHtml('<input id="myTestInput" type="week" min="2012-W03" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
@@ -1195,10 +1195,10 @@ test('min Attribute of 2012-W03 should succeed for value of 2013-W01', function 
     }, true);
     applyTestBindings(vm);
     stop();
-    
+
     setTimeout(function() {
         vm.someNumber("2013-W01"); // should succeed the min rule
-        
+
         var el = $('#myTestInput');
 
         ok(el, 'found element');
