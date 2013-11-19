@@ -43,14 +43,14 @@
 
             var viewModel = {
                 firstName: ko.observable().extend({ minLength: 2, maxLength: 10 }),
-                lastName: ko.observable().extend({ required: true }),
+                lastName: ko.observable().extend({ required: { message: 'lastname is required' } }),
                 emailAddress: ko.observable().extend({  // custom message
                     required: { message: 'Please supply your email address.' }
                 }),
                 age: ko.observable().extend({ min: 1, max: 100 }),
                 location: ko.observable(),
                 subscriptionOptions: ['Technology', 'Music'],
-                subscription: ko.observable().extend({ required: true }),
+                subscription: ko.observable().extend({ required: { message: 'subscription is required' } }),
                 password: ko.observable(),
                 captcha: ko.observable().extend({  // custom Anonymous validator
                     validation: { validator: captcha, message: 'Please check.' }
@@ -66,13 +66,14 @@
             };
 
             viewModel.confirmPassword = ko.observable().extend({
+				required: true,
                 validation: { validator: mustEqual, message: 'Passwords do not match.', params: viewModel.password }
             }),
 
             viewModel.errors = ko.validation.group(viewModel);
 
             viewModel.requireLocation = function () {
-                viewModel.location.extend({ required: true });
+                viewModel.location.extend({ required: { message: 'location is required' } });
             };        
         </script>
         <script id="customMessageTemplate" type="text/html">

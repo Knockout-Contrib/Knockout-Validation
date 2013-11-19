@@ -118,10 +118,10 @@ ko.extenders['validatable'] = function (observable, options) {
 
 function validateSync(observable, rule, ctx) {
 	//Execute the validator and see if its valid
-	if (!rule.validator(observable(), ctx.params === undefined ? true : ctx.params)) { // default param is true, eg. required = true
+	if (!rule.validator(observable(), (ctx.params === undefined ? true : ko.utils.unwrapObservable(ctx.params)))) { // default param is true, eg. required = true
 
 		//not valid, so format the error message and stick it in the 'error' variable
-		observable.setError(ko.validation.formatMessage(ctx.message || rule.message, ctx.params));
+		observable.setError(ko.validation.formatMessage(ctx.message || rule.message, ko.utils.unwrapObservable(ctx.params)));
 		return false;
 	} else {
 		return true;
@@ -153,7 +153,7 @@ function validateAsync(observable, rule, ctx) {
 
 		if (!isValid) {
 			//not valid, so format the error message and stick it in the 'error' variable
-			observable.error(ko.validation.formatMessage(msg || ctx.message || rule.message, ctx.params));
+			observable.error(ko.validation.formatMessage(msg || ctx.message || rule.message, ko.utils.unwrapObservable(ctx.params)));
 			observable.__valid__(isValid);
 		}
 
@@ -162,7 +162,7 @@ function validateAsync(observable, rule, ctx) {
 	};
 
 	//fire the validator and hand it the callback
-	rule.validator(observable(), ctx.params || true, callBack);
+	rule.validator(observable(), ko.utils.unwrapObservable(ctx.params || true), callBack);
 }
 
 ko.validation.validateObservable = function (observable) {
