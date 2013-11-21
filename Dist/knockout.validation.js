@@ -43,7 +43,7 @@ var defaults = {
 	insertMessages: true,           // automatically inserts validation messages as <span></span>
 	parseInputAttributes: false,    // parses the HTML5 validation attribute from a form element and adds that to the object
 	writeInputAttributes: false,    // adds HTML5 input validation attributes to form elements that ko observable's are bound to
-	decorateElement: false,         // false to keep backward compatibility
+	decorateInputElement: false,         // false to keep backward compatibility
 	decorateElementOnModified: true,// true to keep backward compatibility
 	errorClass: null,               // single class for error message and element
 	errorElementClass: 'validationElement',  // class to decorate error element
@@ -341,10 +341,8 @@ kv.configuration = configuration;
 				// ensure we have latest changes
 				result();
 
-				forEach(validatables(), function (observable) {
-					if (!observable.isValid() && observable.isModified()) {
-						invalidAndModifiedPresent = true;
-					}
+				invalidAndModifiedPresent = !!koUtils.arrayFirst(validatables(), function (observable) {
+					return !observable.isValid() && observable.isModified();
 				});
 				return invalidAndModifiedPresent;
 			};
@@ -389,20 +387,12 @@ kv.configuration = configuration;
 		//      }
 		//  )};
 		addAnonymousRule: function (observable, ruleObj) {
-			var ruleName = utils.newId();
-
 			if (ruleObj['message'] === undefined) {
 				ruleObj['message'] = 'Error';
 			}
 
-			//Create an anonymous rule to reference
-			kv.rules[ruleName] = ruleObj;
-
 			//add the anonymous rule to the observable
-			kv.addRule(observable, {
-				rule: ruleName,
-				params: ruleObj.params
-			});
+			kv.addRule(observable, ruleObj);
 		},
 
 		addExtender: function (ruleName) {
@@ -921,13 +911,9 @@ ko.bindingHandlers['validationCore'] = (function () {
 			}
 
 			// if requested, add binding to decorate element
-			if (config.decorateElement && kv.utils.isValidatable(observable)) {
+			if (config.decorateInputElement && kv.utils.isValidatable(observable)) {
 				ko.applyBindingsToNode(element, { validationElement: observable });
 			}
-		},
-
-		update: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-			// hook for future extensibility
 		}
 	};
 
@@ -947,32 +933,32 @@ ko.bindingHandlers['validationMessage'] = { // individual error message, if modi
 			isModified = false,
 			isValid = false;
 
-		obsv.extend({ validatable: true });
+		if (!obsv.isValid || !obsv.isModified) {
+			throw new Error("Observable is not validatable");
+		}
 
 		isModified = obsv.isModified();
 		isValid = obsv.isValid();
 
-		// create a handler to correctly return an error message
-		var errorMsgAccessor = function () {
-			if (!config.messagesOnModified || isModified) {
-				return isValid ? null : obsv.error;
-			} else {
-				return null;
-			}
-		};
-
-		//toggle visibility on validation messages when validation hasn't been evaluated, or when the object isValid
-		var visiblityAccessor = function () {
-			return (!config.messagesOnModified || isModified) ? !isValid : false;
-		};
-
-		if (config.allowHtmlMessages) {
-			ko.bindingHandlers.html.update(element, errorMsgAccessor);
-		} else {
-			ko.bindingHandlers.text.update(element, errorMsgAccessor);
+		var error = null;
+		if (!config.messagesOnModified || isModified) {
+			error = isValid ? null : obsv.error;
 		}
 
-		ko.bindingHandlers.visible.update(element, visiblityAccessor);
+		var isVisible = !config.messagesOnModified || isModified ? !isValid : false;
+		var isCurrentlyVisible = element.style.display !== "none";
+
+		if (config.allowHtmlMessages) {
+			koUtils.setHtml(element, error);
+		} else {
+			koUtils.setTextContent(element, error);
+		}
+
+		if (isCurrentlyVisible && !isVisible) {
+			element.style.display = 'none';
+		} else if (!isCurrentlyVisible && isVisible) {
+			element.style.display = '';
+		}
 	}
 };
 
@@ -985,7 +971,9 @@ ko.bindingHandlers['validationElement'] = {
 			isModified = false,
 			isValid = false;
 
-		obsv.extend({ validatable: true });
+		if (!obsv.isValid || !obsv.isModified) {
+			throw new Error("Observable is not validatable");
+		}
 
 		isModified = obsv.isModified();
 		isValid = obsv.isValid();
@@ -996,8 +984,6 @@ ko.bindingHandlers['validationElement'] = {
 			var css = {};
 
 			var shouldShow = ((!config.decorateElementOnModified || isModified) ? !isValid : false);
-
-			if (!config.decorateElement) { shouldShow = false; }
 
 			// css: { validationElement: false }
 			css[config.errorElementClass] = shouldShow;
@@ -1231,7 +1217,7 @@ kv.validateObservable = function (observable) {
 		}
 
 		//get the core Rule to use for validation
-		rule = kv.rules[ctx.rule];
+		rule = ctx.rule ? kv.rules[ctx.rule] : ctx;
 
 		if (rule['async'] || ctx['async']) {
 			//run async validation

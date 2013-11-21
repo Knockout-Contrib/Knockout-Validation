@@ -64,18 +64,17 @@ ko.bindingHandlers['validationMessage'] = { // individual error message, if modi
 		isValid = obsv.isValid();
 
 		var error = null;
-			if (!config.messagesOnModified || isModified) {
-			error =  isValid ? null : obsv.error;
-			}
-		ko.utils.setTextContent(element, error);
+		if (!config.messagesOnModified || isModified) {
+			error = isValid ? null : obsv.error;
+		}
 
 		var isVisible = !config.messagesOnModified || isModified ? !isValid : false;
 		var isCurrentlyVisible = element.style.display !== "none";
 
 		if (config.allowHtmlMessages) {
-			ko.bindingHandlers.html.update(element, errorMsgAccessor);
+			ko.utils.setHtml(element, error);
 		} else {
-			ko.bindingHandlers.text.update(element, errorMsgAccessor);
+			ko.utils.setTextContent(element, error);
 		}
 
 		if (isCurrentlyVisible && !isVisible) {
