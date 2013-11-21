@@ -93,6 +93,10 @@ ko.extenders['validatable'] = function (observable, options) {
 
 		ko.utils.extend(h_obsValidationTrigger, validationOptions);
 
+		observable.resetValidation = function () {
+			observable.isModified(false).clearError();
+		};
+
 		observable._disposeValidation = function () {
 			//first dispose of the subscriptions
 			observable.isValid.dispose();

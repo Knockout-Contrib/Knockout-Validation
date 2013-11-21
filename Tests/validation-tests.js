@@ -1394,6 +1394,19 @@ test("clearError clears automatic errors", function () {
 	equal(testObj.error(), null);
 });
 
+test("resetValidation clears error and set isModified to false", function () {
+    var testObj = ko.observable(5);
+    testObj.extend({ min: 6 });
+
+    ok(!testObj.isValid());
+
+    testObj.resetValidation();
+
+    ok(testObj.isValid());
+    equal(testObj.error(), null);
+    ok(!testObj.isModified());
+});
+
 //#endregion
 
 //#region Equal tests
