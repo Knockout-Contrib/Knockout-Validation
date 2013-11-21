@@ -1473,6 +1473,31 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
 
+test('Correct unique validation behaviour for external values', function () {
+	var compareObj = ko.observableArray([11, 12, 13, 13]);
+	var testObj = ko.observable('').extend({ unique: { collection: compareObj, externalValue: true } });
+
+	testObj(12);
+	equal(testObj.isValid(), false, 'testObj is not valid');
+
+	testObj(13);
+	equal(testObj.isValid(), false, 'testObj is not valid');
+
+	testObj(10);
+	equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Issue #365 - Correct unique validation behaviour for external values that are in the collection', function () {
+	var compareObj = ko.observableArray([11, 12, 13, 13]);
+	var testObj = ko.observable('').extend({ unique: { collection: compareObj, externalValue: 12 } });
+
+	testObj(12);
+	equal(testObj.isValid(), false, 'testObj is not valid');
+
+	testObj(10);
+	equal(testObj.isValid(), true, 'testObj is valid');
+});
+
 //#endregion
 
 //#region Utils Tests
