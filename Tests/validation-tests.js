@@ -124,6 +124,28 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj(), 1, 'observable still works');
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
+
+test('Object is NOT Valid and isValid returns False and min is observable', function () {
+	var minValue = ko.observable(3);
+    var testObj = ko.observable('')
+                    .extend({ min: minValue });
+
+    testObj(1);
+
+    equal(testObj(), 1, 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
+test('Object is Valid and isValid returns True and min is observable', function () {
+	var minValue = ko.observable(3);
+    var testObj = ko.observable('')
+                    .extend({ min: minValue });
+
+    testObj(4);
+
+    equal(testObj(), 4, 'observable still works');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
 //#endregion
 
 //#region Max Validation
@@ -171,6 +193,27 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
 
+test('Object is NOT Valid and isValid returns False and max is observable', function () {
+	var minValue = ko.observable(3);
+    var testObj = ko.observable('')
+                    .extend({ max: minValue });
+
+    testObj(4);
+
+    equal(testObj(), 4, 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
+test('Object is Valid and isValid returns True and max is observable', function () {
+	var minValue = ko.observable(3);
+    var testObj = ko.observable('')
+                    .extend({ max: minValue });
+
+    testObj(1);
+
+    equal(testObj(), 1, 'observable still works');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
 //#endregion
 
 //#region Min Length Validation
@@ -241,6 +284,28 @@ test('Issue #33 - Arrays - Invalid', function () {
     testObj(['one', 'two', 'three']);
     ok(!testObj.isValid(), testObj.error());
 });
+
+test('Object is Valid and minLength is observable and isValid returns True', function () {
+	var minLength = ko.observable(5);
+    var testObj = ko.observable('')
+                    .extend({ minLength: minLength });
+
+    testObj('something');
+
+    equal(testObj(), 'something', 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and minLength is observable and isValid returns False', function () {
+	var minLength = ko.observable(12);
+    var testObj = ko.observable('')
+                    .extend({ minLength: minLength });
+
+    testObj('something');
+
+    equal(testObj(), 'something', 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is not valid');
+});
 //#endregion
 
 //#region Max Length Validation
@@ -303,6 +368,29 @@ test('Issue #33 - Arrays - Invalid', function () {
     testObj(['one', 'two', 'three']);
     ok(!testObj.isValid(), testObj.error());
 });
+
+test('Object is Valid and maxLength is observable and isValid returns True', function () {
+	var maxLength = ko.observable(20);
+    var testObj = ko.observable('')
+                    .extend({ maxLength: maxLength });
+
+    testObj('something');
+
+    equal(testObj(), 'something', 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and maxLength is observable and isValid returns False', function () {
+	var maxLength = ko.observable(3);
+    var testObj = ko.observable('')
+                    .extend({ maxLength: maxLength });
+
+    testObj('something');
+
+    equal(testObj(), 'something', 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
 //#endregion
 
 //#region Pattern Validation
@@ -395,6 +483,27 @@ test('Pattern validation doesn\'t break with non-string values', function () {
     expect(0);
 });
 
+test('Pattern validation matches numbers and pattern is observable', function () {
+	var pattern = ko.observable('^12');
+    var testObj = ko.observable('')
+                    .extend({ pattern: pattern });
+
+    testObj(123);
+
+    equal(testObj(), 123, 'observable still works');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Pattern validation mismatches numbers and pattern is observable', function () {
+	var pattern = ko.observable('none');
+    var testObj = ko.observable('')
+                    .extend({ pattern: 'none' });
+
+    testObj(123);
+
+    equal(testObj(), 123, 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is not valid');
+});
 //#endregion
 
 //#region Step Validation
@@ -484,6 +593,28 @@ test('Step validation any value is allowed', function() {
     ok(!testObj.error(), '"any" value for step is allowed');
 });
 
+test('Object is Valid and step is observable and isValid returns True', function () {
+	var step = ko.observable(3);
+    var testObj = ko.observable('')
+                    .extend({ step: step });
+
+    testObj(6);
+
+    equal(testObj(), 6, 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and step is observable and isValid returns False', function () {
+	var step = ko.observable(3);
+    var testObj = ko.observable('')
+                    .extend({ step: step });
+
+    testObj(5);
+
+    equal(testObj(), 5, 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
 //#endregion
 
 //#region Email Validation
@@ -538,6 +669,27 @@ test('Email with invalid domain', function(){
     equal( testObj.isValid(), false, testObj.error());
     equal( testObj.error(), 'Please enter a proper email address');
 });
+
+test('Object is Valid and email is observable and isValid returns True', function () {
+	var email = ko.observable(true);
+    var testObj = ko.observable('').extend({ email: email });
+
+    testObj('test@example.com');
+
+    equal(testObj(), 'test@example.com', 'observable still works');
+    ok( testObj.isValid(), 'testObj is Valid' );
+});
+
+test('Object is NOT Valid and email is observable and isValid returns False', function () {
+	var email = ko.observable(true);
+    var testObj = ko.observable('').extend({ email: email });
+
+    testObj('text#example.com');
+
+    equal(testObj(), 'text#example.com', 'observable still works');
+    equal( testObj.isValid(), false, testObj.error());
+    equal( testObj.error(), 'Please enter a proper email address', "Error Message Needs to be formatted correctly" );
+});
 //#endregion
 
 //#region Date Validation
@@ -583,6 +735,26 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, testObj.error());
 });
 
+test('Object is Valid and date is observable and isValid returns True', function () {
+	var date = ko.observable(true);
+    var testObj = ko.observable('').extend({ date: date });
+
+    testObj('11/18/2011');
+
+    equal(testObj(), '11/18/2011', 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and isValid returns False', function () {
+	var date = ko.observable(true);
+    var testObj = ko.observable('').extend({ date: date });
+
+    testObj('stuff');
+
+    equal(testObj(), 'stuff', 'observable still works');
+    equal(testObj.isValid(), false, testObj.error());
+});
+
 //#endregion
 
 //#region DateISO Validation
@@ -621,6 +793,26 @@ test('Object is Valid and isValid returns True', function () {
 
 test('Object is NOT Valid and isValid returns False', function () {
     var testObj = ko.observable('').extend({ dateISO: true });
+
+    testObj('stuff');
+
+    equal(testObj(), 'stuff', 'observable still works');
+    equal(testObj.isValid(), false, testObj.error());
+});
+
+test('Object is Valid and dateISO is observable and isValid returns True', function () {
+	var dateISO = ko.observable(true);
+    var testObj = ko.observable('').extend({ dateISO: dateISO });
+
+    testObj('2011-11-18');
+
+    equal(testObj(), '2011-11-18', 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and dateISO is observable and isValid returns False', function () {
+	var dateISO = ko.observable(true);
+    var testObj = ko.observable('').extend({ dateISO: dateISO });
 
     testObj('stuff');
 
@@ -682,6 +874,25 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, testObj.error());
 });
 
+test('Number is Valid (starting with point) and number is observable and isValid returns True', function () {
+	var number = ko.observable(true);
+    var testObj = ko.observable('').extend({ number: number });
+
+    testObj(".15");
+
+    equal(testObj(), ".15", 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and number is observable and isValid returns False', function () {
+	var number = ko.observable(true);
+    var testObj = ko.observable('').extend({ number: number });
+
+    testObj('stuff');
+
+    equal(testObj(), 'stuff', 'observable still works');
+    equal(testObj.isValid(), false, testObj.error());
+});
 //#endregion
 
 //#region Digit Validation
@@ -720,6 +931,26 @@ test('Object is Valid and isValid returns True', function () {
 
 test('Object is NOT Valid and isValid returns False', function () {
     var testObj = ko.observable('').extend({ digit: true });
+
+    testObj('stuff');
+
+    equal(testObj(), 'stuff', 'observable still works');
+    equal(testObj.isValid(), false, testObj.error());
+});
+
+test('Object is Valid and digit is observable and isValid returns True', function () {
+	var digit = ko.observable(true);
+    var testObj = ko.observable('').extend({ digit: digit });
+
+    testObj(2);
+
+    equal(testObj(), 2, 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and digit is observable and isValid returns False', function () {
+	var digit = ko.observable(true);
+    var testObj = ko.observable('').extend({ digit: digit });
 
     testObj('stuff');
 
@@ -771,6 +1002,25 @@ test('Object is NOT Valid and isValid returns False', function () {
     equal(testObj.isValid(), false, 'testObj is not valid');
 });
 
+test('Object is Valid and phoneUS is observable and isValid returns True', function () {
+	var phoneUS = ko.observable(true);
+    var testObj = ko.observable('').extend({ phoneUS: phoneUS });
+
+    testObj('765-523-4569');
+
+    equal(testObj(), '765-523-4569', 'observable still works');
+    ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Object is NOT Valid and phoneUS is observable and isValid returns False', function () {
+	var phoneUS = ko.observable(true);
+    var testObj = ko.observable('').extend({ phoneUS: phoneUS });
+
+    testObj(5);
+
+    equal(testObj(), 5, 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is not valid');
+});
 //#endregion
 
 //#region Custom Rule Validation
@@ -806,6 +1056,45 @@ test('Custom Rule Is NOT Valid Test', function () {
 
 
     var testObj = ko.observable(4).extend({ mustEqual: 5 });
+
+    testObj(6);
+
+    equal(testObj(), 6, 'observable still works');
+    ok(testObj.error(), testObj.error());
+    equal(testObj.isValid(), false, 'testObj is valid');
+});
+
+test('Custom Rule Is Valid Test and params is observable', function () {
+	var mustEqual = ko.observable(5);
+    ko.validation.rules['mustEqual'] = {
+        validator: function (val, otherVal) {
+            return val === otherVal;
+        },
+        message: 'The field must equal {0}'
+    };
+    ko.validation.registerExtenders(); //make sure the new rule is registered
+
+
+    var testObj = ko.observable(4).extend({ mustEqual: mustEqual });
+
+    testObj(5);
+
+    equal(testObj(), 5, 'observable still works');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Custom Rule Is NOT Valid Test and params is observable', function () {
+	var mustEqual = ko.observable(5);
+    ko.validation.rules['mustEqual'] = {
+        validator: function (val, otherVal) {
+            return val === otherVal;
+        },
+        message: 'The field must equal {0}'
+    };
+    ko.validation.registerExtenders(); //make sure the new rule is registered
+
+
+    var testObj = ko.observable(4).extend({ mustEqual: mustEqual });
 
     testObj(6);
 
@@ -898,6 +1187,43 @@ test( 'Issue #81 - Dynamic messages', function () {
 
     equal( testObj.isValid(), false, 'testObj is not valid' );
     equal( testObj.error(), 'after', 'testObj changes messages dynamically' );
+});
+
+test('Object is Valid and params is observable and isValid returns True', function () {
+	var params = ko.observable(5);
+    var testObj = ko.observable(3).extend({
+        validation: {
+            validator: function (val, someOtherVal) {
+                return val === someOtherVal;
+            },
+            message: 'Must Equal 5',
+            params: params
+        }
+    });
+
+    testObj(5);
+
+    equal(testObj(), 5, 'observable still works');
+    equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Object is Valid and params is observable isValid returns True', function () {
+	var params = ko.observable(5);
+    var testObj = ko.observable(3).extend({
+        validation: {
+            validator: function (val, someOtherVal) {
+                return val === someOtherVal;
+            },
+            message: 'Must Equal {0}',
+            params: params
+        }
+    });
+
+    testObj(4);
+
+    equal(testObj(), 4, 'observable still works');
+    equal(testObj.isValid(), false, 'testObj is valid');
+    equal(testObj.error(), 'Must Equal 5', 'Error Message Matches');
 });
 
 //#endregion
