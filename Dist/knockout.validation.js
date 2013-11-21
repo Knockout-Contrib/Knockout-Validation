@@ -51,7 +51,8 @@ var defaults = {
 	allowHtmlMessages: false,		// allows HTML in validation messages
 	grouping: {
 		deep: false,        //by default grouping is shallow
-		observable: true    //and using observables
+		observable: true,   //and using observables
+		live: false		    //react to changes to observableArrays if observable === true
 	},
 	validate: {
 		// throttle: 10
