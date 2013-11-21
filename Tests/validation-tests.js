@@ -1373,7 +1373,8 @@ test("clearError clears manually-specified error", function () {
 	ok(!testObj.isValid());
 
 	//clear the validation
-	testObj.clearError();
+	var result = testObj.clearError();
+	equal(testObj, result, "The result should be returned to support chaining");
 
 	//check state was cleared
 	ok(testObj.isValid());
@@ -1387,7 +1388,8 @@ test("clearError clears automatic errors", function () {
 	//check initial state
 	ok(!testObj.isValid());
 
-	testObj.clearError();
+	var result = testObj.clearError();
+	equal(testObj, result, "The result should be returned to support chaining");
 
 	//check validation was cleared
 	ok(testObj.isValid());

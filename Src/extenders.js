@@ -71,6 +71,7 @@ ko.extenders['validatable'] = function (observable, options) {
 		observable.clearError = function () {
 			observable.error(null);
 			observable.__valid__(true);
+			return observable;
 		};
 
 		//subscribe to changes in the observable
