@@ -1658,6 +1658,12 @@ test("Issue #313 - When recursivly iterating object tree with deep option", func
     ok(true, "It should not throw stack overflow");
     equal(errors().length, 1);
 });
+
+test("isValidatable returns false for undefined", function () {
+	equal(ko.validation.utils.isValidatable(), false);
+	equal(ko.validation.utils.isValidatable(null), false);
+	equal(ko.validation.utils.isValidatable(undefined), false);
+});
 //#endregion
 
 //#region Conditional Validation

@@ -33,7 +33,7 @@
 			return element.setAttribute(attr, value);
 		},
 		isValidatable: function (o) {
-			return o && o.rules && o.isValid && o.isModified;
+			return !!(o && o.rules && o.isValid && o.isModified);
 		},
 		insertAfter: function (node, newNode) {
 			node.parentNode.insertBefore(newNode, node.nextSibling);
