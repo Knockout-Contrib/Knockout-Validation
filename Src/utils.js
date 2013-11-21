@@ -97,6 +97,16 @@
 		async: function (expr) {
 			if (window.setImmediate) { window.setImmediate(expr); }
 			else { window.setTimeout(expr, 0); }
+		},
+		forEach: function (object, callback) {
+			if (ko.validation.utils.isArray(object)) {
+				return ko.utils.arrayForEach(object, callback);
+			}
+			for (var prop in object) {
+				if (object.hasOwnProperty(prop)) {
+					callback(object[prop], prop);
+				}
+			}
 		}
 	};
 }());
