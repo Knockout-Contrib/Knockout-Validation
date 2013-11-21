@@ -168,6 +168,16 @@ kv.configuration = configuration;
 		async: function (expr) {
 			if (window.setImmediate) { window.setImmediate(expr); }
 			else { window.setTimeout(expr, 0); }
+		},
+		forEach: function (object, callback) {
+			if (kv.utils.isArray(object)) {
+				return forEach(object, callback);
+			}
+			for (var prop in object) {
+				if (object.hasOwnProperty(prop)) {
+					callback(object[prop], prop);
+				}
+			}
 		}
 	};
 }());;var api = (function () {
@@ -175,6 +185,65 @@ kv.configuration = configuration;
 	var isInitialized = 0,
 		configuration = kv.configuration,
 		utils = kv.utils;
+
+
+	function traverseGraph(obj, options, level) {
+		var objValues = [],
+			val = unwrap(obj);
+
+		if (!options.flagged) {
+			options.flagged = [];
+		}
+
+		if (!options.toValidate) {
+			options.toValidate = [];
+		}
+
+		if (obj.__kv_traversed === true) { return; }
+
+		if (options.deep) {
+	    obj.__kv_traversed = true;
+	    options.flagged.push(obj);
+		}
+
+		//default level value depends on deep option.
+		level = (level !== undefined ? level : options.deep ? 1 : -1);
+
+		// if object is observable then add it to the list
+		if (ko.isObservable(obj)) {
+
+			//make sure it is validatable object
+			if (!obj.isValid) { obj.extend({ validatable: true }); }
+			options.toValidate.push(obj);
+		}
+
+		//get list of values either from array or object but ignore non-objects
+		if (val && (utils.isArray(val) || utils.isObject(val))) {
+			objValues = val;
+		}
+
+		//process recurisvely if it is deep grouping
+		if (level !== 0) {
+			utils.forEach(objValues, function (observable) {
+
+				//but not falsy things and not HTML Elements
+				if (observable && !observable.nodeType) {
+					traverseGraph(observable, options, level + 1);
+				}
+			});
+		}
+	}
+
+	function collectErrors(array) {
+		var errors = [];
+		forEach(array, function (observable) {
+			if (!observable.isValid()) {
+				errors.push(observable.error);
+			}
+		});
+		return errors;
+	}
+
 
 	return {
 		//Call this on startup
@@ -218,89 +287,34 @@ kv.configuration = configuration;
 			options = extend(extend({}, configuration.grouping), options);
 
 			var validatables = ko.observableArray([]),
-			result = null,
-			flagged = [],
-
-            dispose = function () {
-                if (options.deep) {
-                    forEach(flagged, function (obj) {
-                        delete obj.__kv_traversed;
-                    });
-                }
-            },
-
-			//anonymous, immediate function to traverse objects hierarchically
-			//if !options.deep then it will stop on top level
-			traverse = function traverse(obj, level) {
-				var objValues = [],
-					val = unwrap(obj);
-
-				if (obj.__kv_traversed === true) { return; }
-				
-				if (options.deep) {
-				    obj.__kv_traversed = true;
-				    flagged.push(obj);
-				}
-
-				//default level value depends on deep option.
-				level = (level !== undefined ? level : options.deep ? 1 : -1);
-
-				// if object is observable then add it to the list
-				if (ko.isObservable(obj)) {
-
-					//make sure it is validatable object
-					if (!obj.isValid) { obj.extend({ validatable: true }); }
-					validatables.push(obj);
-				}
-
-				//get list of values either from array or object but ignore non-objects
-				if (val) {
-					if (utils.isArray(val)) {
-						objValues = val;
-					} else if (utils.isObject(val)) {
-						objValues = utils.values(val);
-					}
-				}
-
-				//process recurisvely if it is deep grouping
-				if (level !== 0) {
-					forEach(objValues, function (observable) {
-
-						//but not falsy things and not HTML Elements
-						if (observable && !observable.nodeType) { traverse(observable, level + 1); }
-					});
-				}
-			};
+				result = null,
+        dispose = function () {
+          if (options.deep) {
+            forEach(options.flagged, function (obj) {
+              delete obj.__kv_traversed;
+            });
+	          options.flagged.length = 0;
+          }
+          options.toValidate = [];
+        };
 
 			//if using observables then traverse structure once and add observables
 			if (options.observable) {
-
-				traverse(obj);
+				traverseGraph(obj, options);
+				validatables(options.toValidate);
 				dispose();
 
 				result = ko.computed(function () {
-					var errors = [];
-					forEach(validatables(), function (observable) {
-						if (!observable.isValid()) {
-							errors.push(observable.error);
-						}
-					});
-					return errors;
+					return collectErrors(validatables());
 				});
 
 			} else { //if not using observables then every call to error() should traverse the structure
 				result = function () {
-					var errors = [];
-					validatables([]); //clear validatables
-					traverse(obj); // and traverse tree again
+					traverseGraph(obj, options); // and traverse tree again
+					validatables(options.toValidate);
 					dispose();
 
-					forEach(validatables(), function (observable) {
-						if (!observable.isValid()) {
-							errors.push(observable.error);
-						}
-					});
-					return errors;
+					return collectErrors(validatables());
 				};
 			}
 
@@ -583,6 +597,7 @@ kv.configuration = configuration;
 			setRules(target, definition);
 		}
 	};
+
 }());
 
 // expose api publicly
