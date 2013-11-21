@@ -99,6 +99,37 @@ test('Inserting Messages Works', function () {
     equal(msg, 'This field is required.', msg);
 });
 
+test('Inserting Messages with HTML Works', function () {
+
+    ko.validation.init({
+        allowHtmlMessages: true
+    }, true);
+
+    addTestHtml('<input id="myTestInput" data-bind="value: firstName" type="text" />');
+
+    var vm = {
+        firstName: ko.observable('').extend({ required: {message: 'This field is <b>required</b>.'} })
+    };
+
+    applyTestBindings(vm);
+
+    var $testInput = $('#myTestInput');
+
+    $testInput.val("a"); //set it
+    $testInput.change(); //trigger change event
+
+    $testInput.val(""); //set it
+    $testInput.change(); //trigger change event
+
+    var isValid = vm.firstName.isValid();
+
+    ok(!isValid, 'First Name is NOT Valid');
+
+    var msg = $testInput.siblings().first().html();
+
+    equal(msg, 'This field is <b>required</b>.', msg);
+});
+
 //#endregion
 
 //#region Inserting Messages

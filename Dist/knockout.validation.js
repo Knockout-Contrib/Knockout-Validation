@@ -48,6 +48,7 @@ var defaults = {
 	errorClass: null,               // single class for error message and element
 	errorElementClass: 'validationElement',  // class to decorate error element
 	errorMessageClass: 'validationMessage',  // class to decorate error message
+	allowHtmlMessages: false,		// allows HTML in validation messages
 	grouping: {
 		deep: false,        //by default grouping is shallow
 		observable: true    //and using observables
@@ -950,7 +951,12 @@ ko.bindingHandlers['validationMessage'] = { // individual error message, if modi
 			return (!config.messagesOnModified || isModified) ? !isValid : false;
 		};
 
-		ko.bindingHandlers.text.update(element, errorMsgAccessor);
+		if (config.allowHtmlMessages) {
+			ko.bindingHandlers.html.update(element, errorMsgAccessor);
+		} else {
+			ko.bindingHandlers.text.update(element, errorMsgAccessor);
+		}
+
 		ko.bindingHandlers.visible.update(element, visiblityAccessor);
 	}
 };

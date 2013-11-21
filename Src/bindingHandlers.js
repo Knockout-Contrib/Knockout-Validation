@@ -79,7 +79,12 @@ ko.bindingHandlers['validationMessage'] = { // individual error message, if modi
 			return (!config.messagesOnModified || isModified) ? !isValid : false;
 		};
 
-		ko.bindingHandlers.text.update(element, errorMsgAccessor);
+		if (config.allowHtmlMessages) {
+			ko.bindingHandlers.html.update(element, errorMsgAccessor);
+		} else {
+			ko.bindingHandlers.text.update(element, errorMsgAccessor);
+		}
+
 		ko.bindingHandlers.visible.update(element, visiblityAccessor);
 	}
 };

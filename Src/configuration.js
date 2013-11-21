@@ -14,6 +14,7 @@ var defaults = {
 	errorClass: null,               // single class for error message and element
 	errorElementClass: 'validationElement',  // class to decorate error element
 	errorMessageClass: 'validationMessage',  // class to decorate error message
+	allowHtmlMessages: false,		// allows HTML in validation messages
 	grouping: {
 		deep: false,        //by default grouping is shallow
 		observable: true    //and using observables
