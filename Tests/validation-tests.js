@@ -68,6 +68,13 @@ test('Issue #90 - "required: false" doesnt force validation', function () {
     equal(testObj.isValid(), true, 'testObj is valid without value after set/unset');
 });
 
+test("Undefined params should not cause errors", function () {
+	var undefinedParams = ko.observable().extend({ required: undefined }),
+		nullParams      = ko.observable().extend({ required: null });
+
+	ok(true, "No errors whilst adding rules?  Awesome");
+});
+
 //#endregion
 
 //#region Min Validation
@@ -1163,7 +1170,6 @@ test('Object is Valid and isValid returns True', function () {
     equal(testObj.error(), 'Must Equal 5', 'Error Message Matches');
 });
 
-
 test( 'Issue #81 - Dynamic messages', function () {
 
     var CustomRule = function () {
@@ -1225,10 +1231,6 @@ test('Object is Valid and params is observable isValid returns True', function (
     equal(testObj.isValid(), false, 'testObj is valid');
     equal(testObj.error(), 'Must Equal 5', 'Error Message Matches');
 });
-
-//#endregion
-
-//#region Anonymous Rule Validation
 
 module('Complex Rule Validation');
 test('Object is Valid and isValid returns True', function () {
@@ -1884,7 +1886,7 @@ asyncTest('Async Rule Is NOT Valid Test', function () {
 });
 //#endregion
 
-//# validation process tests
+//#region validation process tests
 module("Validation process", {
     setup: function () {
         var isStarted = false;
