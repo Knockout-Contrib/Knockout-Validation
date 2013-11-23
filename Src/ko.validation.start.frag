@@ -25,3 +25,4 @@
     var unwrap = koUtils.unwrapObservable;
     var forEach = koUtils.arrayForEach;
     var extend = koUtils.extend;
+    var koBindingHandlers = ko.bindingHandlers;

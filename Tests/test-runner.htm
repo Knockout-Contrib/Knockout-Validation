@@ -16,7 +16,7 @@
     <style type="text/css">
         label { display: block; }
         .validationMessage { color: Red; }
-        .customMessage { color: Orange; }        
+        .customMessage { color: Orange; }
     </style>
 </head>
 <body>
@@ -27,7 +27,7 @@
     <ol id="qunit-tests"></ol>
     <div id="qunit-fixture">test markup, will be hidden</div>
     <div id="testContainer">
-    
+
     </div>
     <div id="workbench">
         <script type="text/javascript">
@@ -38,10 +38,10 @@
             };
 
             var mustEqual = function (val, other) {
-                return val == other;
+                return val && val === other;
             };
 
-            var viewModel = {
+            var viewModel = ko.validation.model({
                 firstName: ko.observable().extend({ minLength: 2, maxLength: 10 }),
                 lastName: ko.observable().extend({ required: { message: 'lastname is required' } }),
                 emailAddress: ko.observable().extend({  // custom message
@@ -52,6 +52,7 @@
                 subscriptionOptions: ['Technology', 'Music'],
                 subscription: ko.observable().extend({ required: { message: 'subscription is required' } }),
                 password: ko.observable(),
+                confirmPassword: ko.observable(),
                 captcha: ko.observable().extend({  // custom Anonymous validator
                     validation: { validator: captcha, message: 'Please check.' }
                 }),
@@ -60,21 +61,18 @@
                         alert('Thank you.');
                     } else {
                         alert('Please check your submission.');
-                        viewModel.errors.showAllMessages();
+                        viewModel.markAsModified();
                     }
+                },
+                requireLocation: function () {
+                    viewModel.location.extend({ required: true });
                 }
-            };
+            });
 
-            viewModel.confirmPassword = ko.observable().extend({
-				required: true,
+            viewModel.confirmPassword.extend({
+                required: true,
                 validation: { validator: mustEqual, message: 'Passwords do not match.', params: viewModel.password }
-            }),
-
-            viewModel.errors = ko.validation.group(viewModel);
-
-            viewModel.requireLocation = function () {
-                viewModel.location.extend({ required: { message: 'location is required' } });
-            };        
+            });
         </script>
         <script id="customMessageTemplate" type="text/html">
             <em class="customMessage" data-bind='validationMessage: field'></em>
@@ -82,14 +80,14 @@
         <fieldset>
             <legend>User: <span id="errorCount" data-bind='text: errors().length'></span> errors</legend>
             <label>First name: <input id="firstNameTxt" data-bind='value: firstName'/></label>
-            <label>Last name: <input id="lastNameTxt" data-bind='value: lastName'/></label>    
+            <label>Last name: <input id="lastNameTxt" data-bind='value: lastName'/></label>
             <div data-bind='validationOptions: { messageTemplate: "customMessageTemplate" }'>
                 <label>Email: <input id="emailAddressTxt" data-bind='value: emailAddress' required pattern="@"/></label>
                 <label>Location: <input id="locationTxt" data-bind='value: location'/></label>
                 <label>Age: <input id="testAgeInput" data-bind='value: age' required/></label>
             </div>
             <label>
-                Subscriptions: 
+                Subscriptions:
                 <select data-bind='value: subscription, options: subscriptionOptions, optionsCaption: "Choose one..."'></select>
             </label>
             <label>Password: <input data-bind='value: password' type="password"/></label>
@@ -101,8 +99,8 @@
         <br />
         <button type="button" data-bind='click: requireLocation'>Make 'Location' required</button>
         <script type="text/javascript">
-            $(function () {                
-                ko.applyBindings(viewModel, $('#workbench')[0]);
+            $(function () {
+                ko.applyBindingsWithValidation(viewModel, $('#workbench')[0]);
 
 
                 module("Workbench Tests");
