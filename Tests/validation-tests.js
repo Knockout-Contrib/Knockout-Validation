@@ -1500,7 +1500,7 @@ test('Issue #365 - Correct unique validation behaviour for external values that 
 
 //#endregion
 
-//#region Utils Tests
+//#region Grouping Tests
 module('Grouping Tests');
 
 test('Error Grouping works', function () {
@@ -1549,6 +1549,110 @@ test('Nested Grouping works - Not Observable', function () {
 
     equal(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
 });
+
+test('Nested grouping finds items in observableArrays - observable', function () {
+    var vm = { array: ko.observableArray( [ { one: ko.observable().extend( { required: true } ) } ]) };
+    
+    var errors = ko.validation.group(vm, { deep: true, observable: true });
+    
+    equal(errors().length, 1, 'Grouping finds property on object in observableArray');
+});
+
+test('Nested grouping does not add items newly inserted into observableArrays to result - observable, not live', function () {
+    var vm = { array: ko.observableArray() };
+    
+    var errors = ko.validation.group(vm, { deep: true, observable: true, live: false }); 
+
+    vm.array.push( { one:  ko.observable().extend( { required: true } ) });
+    
+    equal(errors().length, 0, 'grouping does not add newly items newly inserted into observableArrays to result');
+});
+
+test('Nested grouping adds items newly inserted into an observableArrays nested in an object in an observableArray to result - observable, live', function () {
+    var vm = { array: ko.observableArray() };
+
+    var errors = ko.validation.group(vm, { deep: true, observable: true, live: true });
+
+    vm.array.push({ array: ko.observableArray() });
+    vm.array()[0].array.push( { one:  ko.observable().extend( { required: true } ) });
+    
+    equal(errors().length, 1, 'grouping adds newly items newly inserted into observableArrays to result');
+});
+
+test('Nested grouping adds items newly inserted into observableArrays to result - observable, live', function () {
+    var vm = { array: ko.observableArray() };
+    
+    var errors = ko.validation.group(vm, { deep: true, observable: true, live: true });
+
+    vm.array.push( { one:  ko.observable().extend( { required: true } ) });
+    
+    equal(errors().length, 1, 'grouping adds newly items newly inserted into observableArrays to result');
+});
+
+test('Nested grouping ignores items nested in destroyed objects - not observable', function () {
+    var obj = { nested: ko.observable().extend({ required: true }) };
+
+    function getErrorCount() {
+        return ko.validation.group(obj, { deep: true, observable: false, live: false })().length;
+    }
+
+    equal(getErrorCount(), 1, 'obj is not destroyed and should return nested\'s error');
+
+    obj._destroy = true;
+
+    equal(getErrorCount(), 0, 'obj is destroyed and nested therefore ignored');
+});
+
+test('Nested grouping ignores items nested in destroyed objects - observable, live', function () {
+    var obj = { nested: ko.observable().extend({ required: true }) };
+    var array = ko.observableArray([obj]);
+    var vm = { array: array};
+
+    var errors = ko.validation.group(vm, { deep: true, observable: true, live: true });
+
+    equal(errors().length, 1, 'obj is not yet destroyed and nested therefore invalid');
+    array.destroy(obj);
+    equal(errors().length, 0, 'obj is destroyed and nested therefore ignored');
+});
+
+test('Nested grouping does not cause the reevaluation of computeds depending on the result for every observable', function () {
+    var vm = { array: ko.observableArray() };
+    
+    var errors = ko.validation.group(vm, { deep: true, observable: true, live: true });
+    
+    var computedHitCount = 0;
+    var computed = ko.computed(function () {
+        computedHitCount++;
+        errors();
+    });
+
+    vm.array.push({ one: ko.observable().extend({ required: true }) });
+    equal(computedHitCount, 2, 'first one while creating the computed, second one for adding the item');
+
+    vm.array.push({ one: ko.observable().extend({ required: true }) });
+    equal(computedHitCount, 3, 'Only one additional re-evaluation should have been triggered');
+
+    vm.array.push({ one: ko.observable().extend({ required: true }) });
+    equal(computedHitCount, 4, 'Only one additional re-evaluation should have been triggered');
+
+});
+
+test('Nested grouping adds items newly inserted into observableArrays to result - cleares validatables before traversing again - observable, live', function () {
+    var vm = { array: ko.observableArray() };
+
+    var errors = ko.validation.group(vm, { deep: true, observable: true, live: true });
+
+    vm.array.push({ one: ko.observable().extend({ required: true }) });
+    vm.array.push({ one: ko.observable().extend({ required: true }) });
+
+    equal(errors().length, 2, 'validatables are added only once');
+});
+
+//#endregion
+
+//#region Utils Tests
+
+module("Utils tests");
 
 test('Issue #31 - Recursively Show All Messages', function () {
     var vm = {
@@ -1690,6 +1794,20 @@ test("isValidatable returns false for undefined", function () {
 	equal(ko.validation.utils.isValidatable(), false);
 	equal(ko.validation.utils.isValidatable(null), false);
 	equal(ko.validation.utils.isValidatable(undefined), false);
+});
+
+test("isObservableArray returns true for observable arrays", function () {
+	var obsArray = ko.observableArray(),
+		observable = ko.observable(),
+		plainObject = {},
+		plainArray = [];
+
+	ok(ko.validation.utils.isObservableArray(obsArray));
+	ok(!ko.validation.utils.isObservableArray(observable));
+	ok(!ko.validation.utils.isObservableArray(plainObject));
+	ok(!ko.validation.utils.isObservableArray(plainArray));
+	ok(!ko.validation.utils.isObservableArray(null));
+	ok(!ko.validation.utils.isObservableArray(undefined));
 });
 //#endregion
 

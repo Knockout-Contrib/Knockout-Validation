@@ -11,6 +11,15 @@
 		isObject: function (o) {
 			return o !== null && typeof o === 'object';
 		},
+		isObservableArray: function(instance) {
+			return !!instance &&
+					typeof instance["remove"] === "function" &&
+					typeof instance["removeAll"] === "function" &&
+					typeof instance["destroy"] === "function" &&
+					typeof instance["destroyAll"] === "function" &&
+					typeof instance["indexOf"] === "function" &&
+					typeof instance["replace"] === "function";
+		},
 		values: function (o) {
 			var r = [];
 			for (var i in o) {
