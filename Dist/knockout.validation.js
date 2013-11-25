@@ -83,6 +83,15 @@ kv.configuration = configuration;
 		isObject: function (o) {
 			return o !== null && typeof o === 'object';
 		},
+		isObservableArray: function(instance) {
+			return !!instance &&
+					typeof instance["remove"] === "function" &&
+					typeof instance["removeAll"] === "function" &&
+					typeof instance["destroy"] === "function" &&
+					typeof instance["destroyAll"] === "function" &&
+					typeof instance["indexOf"] === "function" &&
+					typeof instance["replace"] === "function";
+		},
 		values: function (o) {
 			var r = [];
 			for (var i in o) {
@@ -187,40 +196,69 @@ kv.configuration = configuration;
 		configuration = kv.configuration,
 		utils = kv.utils;
 
+	function cleanUpSubscriptions(context) {
+		forEach(context.subscriptions, function (subscription) {
+			subscription.dispose();
+		});
+		context.subscriptions = [];
+	}
 
-	function traverseGraph(obj, options, level) {
+	function dispose(context) {
+		if (context.options.deep) {
+			forEach(context.flagged, function (obj) {
+				delete obj.__kv_traversed;
+			});
+			context.flagged.length = 0;
+		}
+
+		if (!context.options.live) {
+			cleanUpSubscriptions(context);
+		}
+	}
+
+	function runTraversal(obj, context) {
+		context.validatables = [];
+		cleanUpSubscriptions(context);
+		traverseGraph(obj, context);
+		dispose(context);
+	}
+
+	function traverseGraph(obj, context, level) {
 		var objValues = [],
-			val = unwrap(obj);
-
-		if (!options.flagged) {
-			options.flagged = [];
-		}
-
-		if (!options.toValidate) {
-			options.toValidate = [];
-		}
+			val = obj.peek ? obj.peek() : obj;
 
 		if (obj.__kv_traversed === true) { return; }
 
-		if (options.deep) {
-	    obj.__kv_traversed = true;
-	    options.flagged.push(obj);
+		if (context.options.deep) {
+			obj.__kv_traversed = true;
+			context.flagged.push(obj);
 		}
 
 		//default level value depends on deep option.
-		level = (level !== undefined ? level : options.deep ? 1 : -1);
+		level = (level !== undefined ? level : context.options.deep ? 1 : -1);
 
 		// if object is observable then add it to the list
 		if (ko.isObservable(obj)) {
 
 			//make sure it is validatable object
 			if (!obj.isValid) { obj.extend({ validatable: true }); }
-			options.toValidate.push(obj);
+			context.validatables.push(obj);
+
+			if(context.options.live && utils.isObservableArray(obj)) {
+				context.subscriptions.push(obj.subscribe(function () {
+					context.graphMonitor.valueHasMutated();
+				}));
+			}
 		}
 
 		//get list of values either from array or object but ignore non-objects
-		if (val && (utils.isArray(val) || utils.isObject(val))) {
-			objValues = val;
+		// and destroyed objects
+		if (val && !val._destroy) {
+			if (utils.isArray(val)) {
+				objValues = val;
+			} else if (utils.isObject(val)) {
+				objValues = utils.values(val);
+			}
 		}
 
 		//process recurisvely if it is deep grouping
@@ -229,7 +267,7 @@ kv.configuration = configuration;
 
 				//but not falsy things and not HTML Elements
 				if (observable && !observable.nodeType) {
-					traverseGraph(observable, options, level + 1);
+					traverseGraph(observable, context, level + 1);
 				}
 			});
 		}
@@ -244,8 +282,7 @@ kv.configuration = configuration;
 		});
 		return errors;
 	}
-
-
+	
 	return {
 		//Call this on startup
 		//any config can be overridden with the passed in options
@@ -281,41 +318,38 @@ kv.configuration = configuration;
 		// provides validation information for the entire viewModel
 		// obj -> the viewModel to walk
 		// options -> {
-		//      deep: false, // if true, will walk past the first level of viewModel properties
-		//      observable: false // if true, returns a computed observable indicating if the viewModel is valid
+		//	  deep: false, // if true, will walk past the first level of viewModel properties
+		//	  observable: false // if true, returns a computed observable indicating if the viewModel is valid
 		// }
 		group: function group(obj, options) { // array of observables or viewModel
 			options = extend(extend({}, configuration.grouping), options);
 
-			var validatables = ko.observableArray([]),
-				result = null,
-        dispose = function () {
-          if (options.deep) {
-            forEach(options.flagged, function (obj) {
-              delete obj.__kv_traversed;
-            });
-	          options.flagged.length = 0;
-          }
-          options.toValidate = [];
-        };
+			var context = {
+				options: options,
+				graphMonitor: ko.observable(),
+				flagged: [],
+				subscriptions: [],
+				validatables: []
+			};
+
+			var result = null;
 
 			//if using observables then traverse structure once and add observables
 			if (options.observable) {
-				traverseGraph(obj, options);
-				validatables(options.toValidate);
-				dispose();
+				runTraversal(obj, context);
 
 				result = ko.computed(function () {
-					return collectErrors(validatables());
+					context.graphMonitor(); //register dependency
+					runTraversal(obj, context);
+
+					return collectErrors(context.validatables);
 				});
 
 			} else { //if not using observables then every call to error() should traverse the structure
 				result = function () {
-					traverseGraph(obj, options); // and traverse tree again
-					validatables(options.toValidate);
-					dispose();
+					runTraversal(obj, context);
 
-					return collectErrors(validatables());
+					return collectErrors(context.validatables);
 				};
 			}
 
@@ -327,7 +361,7 @@ kv.configuration = configuration;
 				// ensure we have latest changes
 				result();
 
-				forEach(validatables(), function (observable) {
+				forEach(context.validatables, function (observable) {
 					observable.isModified(show);
 				});
 			};
@@ -342,7 +376,7 @@ kv.configuration = configuration;
 				// ensure we have latest changes
 				result();
 
-				invalidAndModifiedPresent = !!koUtils.arrayFirst(validatables(), function (observable) {
+				invalidAndModifiedPresent = !!koUtils.arrayFirst(context.validatables, function (observable) {
 					return !observable.isValid() && observable.isModified();
 				});
 				return invalidAndModifiedPresent;
@@ -361,9 +395,9 @@ kv.configuration = configuration;
 		// addRule:
 		// This takes in a ko.observable and a Rule Context - which is just a rule name and params to supply to the validator
 		// ie: kv.addRule(myObservable, {
-		//          rule: 'required',
-		//          params: true
-		//      });
+		//		  rule: 'required',
+		//		  params: true
+		//	  });
 		//
 		addRule: function (observable, rule) {
 			observable.extend({ validatable: true });
@@ -379,13 +413,13 @@ kv.configuration = configuration;
 		//
 		// Example:
 		// var test = ko.observable('something').extend{(
-		//      validation: {
-		//          validator: function(val, someOtherVal){
-		//              return true;
-		//          },
-		//          message: "Something must be really wrong!',
-		//          params: true
-		//      }
+		//	  validation: {
+		//		  validator: function(val, someOtherVal){
+		//			  return true;
+		//		  },
+		//		  message: "Something must be really wrong!',
+		//		  params: true
+		//	  }
 		//  )};
 		addAnonymousRule: function (observable, ruleObj) {
 			if (ruleObj['message'] === undefined) {
@@ -405,13 +439,13 @@ kv.configuration = configuration;
 				//
 				// Example:
 				// var test = ko.observable(3).extend({
-				//      max: {
-				//          message: 'This special field has a Max of {0}',
-				//          params: 2,
-				//          onlyIf: function() {
-				//                      return specialField.IsVisible();
-				//                  }
-				//      }
+				//	  max: {
+				//		  message: 'This special field has a Max of {0}',
+				//		  params: 2,
+				//		  onlyIf: function() {
+				//					  return specialField.IsVisible();
+				//				  }
+				//	  }
 				//  )};
 				//
 				if (params && (params.message || params.onlyIf)) { //if it has a message or condition object, then its an object literal to use
@@ -458,23 +492,23 @@ kv.configuration = configuration;
 			forEach(kv.configuration.html5Attributes, function (attr) {
 				if (utils.hasAttribute(element, attr)) {
 
-                    var params = element.getAttribute(attr) || true;
+					var params = element.getAttribute(attr) || true;
 
-                    if (attr === 'min' || attr === 'max')
-                    {
-                        // If we're validating based on the min and max attributes, we'll
-                        // need to know what the 'type' attribute is set to
-                        var typeAttr = element.getAttribute('type');
-                        if (typeof typeAttr === "undefined" || !typeAttr)
-                        {
-                            // From http://www.w3.org/TR/html-markup/input:
-                            //   An input element with no type attribute specified represents the 
-                            //   same thing as an input element with its type attribute set to "text".
-                            typeAttr = "text"; 
-                        }                            
-                        params = {typeAttr: typeAttr, value: params}; 
-                    }
-                
+					if (attr === 'min' || attr === 'max')
+					{
+						// If we're validating based on the min and max attributes, we'll
+						// need to know what the 'type' attribute is set to
+						var typeAttr = element.getAttribute('type');
+						if (typeof typeAttr === "undefined" || !typeAttr)
+						{
+							// From http://www.w3.org/TR/html-markup/input:
+							//   An input element with no type attribute specified represents the 
+							//   same thing as an input element with its type attribute set to "text".
+							typeAttr = "text"; 
+						}							
+						params = {typeAttr: typeAttr, value: params}; 
+					}
+				
 					kv.addRule(valueAccessor(), {
 						rule: attr,
 						params: params
