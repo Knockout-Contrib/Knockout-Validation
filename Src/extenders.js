@@ -61,6 +61,11 @@ ko.extenders['validatable'] = function (observable, options) {
 		// a semi-protected observable
 		observable.isValid = ko.computed(observable.__valid__);
 
+		//the class to apply to arbitrary elements to show error state
+		observable.validationStateClass = ko.computed(function () {
+			return (observable.isModified() && !observable.isValid()) ? ko.validation.configuration.errorElementClass : ""; 
+		});
+
 		//manually set error state
 		observable.setError = function (error) {
 			observable.error(error);
@@ -96,6 +101,7 @@ ko.extenders['validatable'] = function (observable, options) {
 
 		observable._disposeValidation = function () {
 			//first dispose of the subscriptions
+			observable.validationStateClass.dispose();
 			observable.isValid.dispose();
 			observable.rules.removeAll();
 			if (observable.isModified.getSubscriptionsCount() > 0) {
@@ -116,6 +122,7 @@ ko.extenders['validatable'] = function (observable, options) {
 			delete observable['isValidating'];
 			delete observable['__valid__'];
 			delete observable['isModified'];
+			delete observable['validationStateClass'];
 		};
 	} else if (options.enable === false && observable._disposeValidation) {
 		observable._disposeValidation();
