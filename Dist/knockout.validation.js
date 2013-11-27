@@ -19,6 +19,7 @@
             var factoryInstance = factory(ko, exports);
             var config = module.config();
             if (config) {
+                var kv = ko.validation;
                 kv.init(config);
             }
             return factoryInstance;
