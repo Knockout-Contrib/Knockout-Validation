@@ -15,7 +15,15 @@
         factory(require("knockout"), exports);
     } else if (typeof define === "function" && define["amd"]) {
         // AMD anonymous module with hard-coded dependency on "knockout"
-        define(["knockout", "exports"], factory);
+        define(["knockout", "exports", "module"], function (ko, exports, module) {
+            var factoryInstance = factory(ko, exports);
+            var config = module.config();
+            if (config) {
+                var kv = ko.validation;
+                kv.init(config);
+            }
+            return factoryInstance;
+        });
     } else {
         // <script> tag: use the global `ko` object, attaching a `mapping` property
         factory(ko, ko.validation = {});
@@ -951,7 +959,7 @@ ko.bindingHandlers['validationMessage'] = { // individual error message, if modi
 		if (config.allowHtmlMessages) {
 			koUtils.setHtml(element, error);
 		} else {
-			koUtils.setTextContent(element, error);
+			ko.bindingHandlers.text.update(element, function () { return error; });
 		}
 
 		if (isCurrentlyVisible && !isVisible) {
@@ -1094,6 +1102,11 @@ ko.extenders['validatable'] = function (observable, options) {
 		// a semi-protected observable
 		observable.isValid = ko.computed(observable.__valid__);
 
+		//the class to apply to arbitrary elements to show error state
+		observable.validationStateClass = ko.computed(function () {
+			return (observable.isModified() && !observable.isValid()) ? kv.configuration.errorElementClass : ""; 
+		});
+
 		//manually set error state
 		observable.setError = function (error) {
 			observable.error(error);
@@ -1129,11 +1142,18 @@ ko.extenders['validatable'] = function (observable, options) {
 
 		observable._disposeValidation = function () {
 			//first dispose of the subscriptions
+			observable.validationStateClass.dispose();
 			observable.isValid.dispose();
 			observable.rules.removeAll();
-			observable.isModified._subscriptions['change'] = [];
-			observable.isValidating._subscriptions['change'] = [];
-			observable.__valid__._subscriptions['change'] = [];
+			if (observable.isModified.getSubscriptionsCount() > 0) {
+				observable.isModified._subscriptions['change'] = [];
+			}
+			if (observable.isValidating.getSubscriptionsCount() > 0) {
+				observable.isValidating._subscriptions['change'] = [];
+			}
+			if (observable.__valid__.getSubscriptionsCount() > 0) {
+				observable.__valid__._subscriptions['change'] = [];
+			}
 			h_change.dispose();
 			h_obsValidationTrigger.dispose();
 
@@ -1143,6 +1163,7 @@ ko.extenders['validatable'] = function (observable, options) {
 			delete observable['isValidating'];
 			delete observable['__valid__'];
 			delete observable['isModified'];
+			delete observable['validationStateClass'];
 		};
 	} else if (options.enable === false && observable._disposeValidation) {
 		observable._disposeValidation();
