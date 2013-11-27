@@ -2041,3 +2041,41 @@ test("setRules applies rules to all properties", function () {
 });
 
 //#endregion
+
+//#region Bindable Observable Tests
+module('Bindable Observable Tests');
+
+test('validationStateClass is empty when unmodified', function () {
+    var testObj = ko.observable('a').extend({ minLength: 5 });
+
+    ok(testObj.validationStateClass() === "", 'validationStateClass is empty when initialised to invalid value (but not modified)');
+});
+
+test('validationStateClass is errorElementClass when modified and invalid', function () {
+	ko.validation.init({ errorElementClass: 'some-error' }, true);
+    var testObj = ko.observable('a').extend({ minLength: 5 });
+	ok(testObj.validationStateClass() === "", 'validationStateClass is empty when initialised to invalid value (but not modified)');
+	
+	testObj('abc');
+    ok(testObj.validationStateClass() === "some-error", 'validationStateClass is showing errorElementClass when modified to invalid value');
+	
+	testObj('abcdef');
+	ok(testObj.validationStateClass() === "", 'validationStateClass is empty when modified to valid value');
+	
+	testObj('ab');
+    ok(testObj.validationStateClass() === "some-error", 'validationStateClass is showing errorElementClass when modified to invalid value');
+});
+
+test('validationStateClass is empty when modified and valid', function () {
+	ko.validation.init({ errorElementClass: 'some-error' }, true);
+    var testObj = ko.observable('a').extend({ minLength: 5 });
+	ok(testObj.validationStateClass() === "", 'validationStateClass is empty when initialised to invalid value (but not modified)');
+	
+	testObj('ab');
+    ok(testObj.validationStateClass() === "some-error", 'validationStateClass is showing errorElementClass when modified to invalid value');
+	
+	testObj('abcdef');
+    ok(testObj.validationStateClass() === "", 'validationStateClass is empty when modified to valid value');
+});
+
+//#endregion
