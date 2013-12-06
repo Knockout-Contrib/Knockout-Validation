@@ -1346,6 +1346,22 @@ test('Issue #78 - Falsy Params', function () {
     equal(testObj.isValid(), false, 'testObj is not valid');
 
 });
+
+test("Issue 374 - onlyIf ignored", function () {
+	var observable = ko.observable(),
+		validationEnabled = ko.observable(true);
+	observable.extend({
+		validation: {
+			validator: function () { return false; }, //always fail validation
+			onlyIf: validationEnabled
+		}
+	});
+
+	ok(!observable.isValid(), "Should be validating as onlyIf returns true");
+	validationEnabled(false);
+	ok(observable.isValid(), "Validation should now be disabled");
+});
+
 //#endregion
 
 //#region Manual Validation

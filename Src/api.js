@@ -20,8 +20,8 @@
 		if (obj.__kv_traversed === true) { return; }
 
 		if (options.deep) {
-	    obj.__kv_traversed = true;
-	    options.flagged.push(obj);
+			obj.__kv_traversed = true;
+			options.flagged.push(obj);
 		}
 
 		//default level value depends on deep option.
@@ -207,6 +207,11 @@
 		addAnonymousRule: function (observable, ruleObj) {
 			if (ruleObj['message'] === undefined) {
 				ruleObj['message'] = 'Error';
+			}
+
+			//make sure onlyIf is honoured
+			if (ruleObj.onlyIf) {
+				ruleObj.condition = ruleObj.onlyIf;
 			}
 
 			//add the anonymous rule to the observable
