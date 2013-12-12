@@ -268,11 +268,11 @@ ko.validation.rules['unique'] = {
 
 		if (!val || !c) { return true; }
 
-		ko.utils.arrayFilter(ko.utils.unwrapObservable(c), function (item) {
+		ko.utils.arrayFilter(c, function (item) {
 			if (val === (options.valueAccessor ? options.valueAccessor(item) : item)) { counter++; }
 		});
 		// if value is external even 1 same value in collection means the value is not unique
-		return counter < (external !== undefined && val !== external ? 1 : 2);
+		return counter < (!!external ? 1 : 2);
 	},
 	message: 'Please make sure the value is unique.'
 };

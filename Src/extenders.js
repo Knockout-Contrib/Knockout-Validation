@@ -71,6 +71,7 @@ ko.extenders['validatable'] = function (observable, options) {
 		observable.clearError = function () {
 			observable.error(null);
 			observable.__valid__(true);
+			return observable;
 		};
 
 		//subscribe to changes in the observable
@@ -97,9 +98,15 @@ ko.extenders['validatable'] = function (observable, options) {
 			//first dispose of the subscriptions
 			observable.isValid.dispose();
 			observable.rules.removeAll();
-			observable.isModified._subscriptions['change'] = [];
-			observable.isValidating._subscriptions['change'] = [];
-			observable.__valid__._subscriptions['change'] = [];
+			if (observable.isModified.getSubscriptionsCount() > 0) {
+				observable.isModified._subscriptions['change'] = [];
+			}
+			if (observable.isValidating.getSubscriptionsCount() > 0) {
+				observable.isValidating._subscriptions['change'] = [];
+			}
+			if (observable.__valid__.getSubscriptionsCount() > 0) {
+				observable.__valid__._subscriptions['change'] = [];
+			}
 			h_change.dispose();
 			h_obsValidationTrigger.dispose();
 
@@ -118,10 +125,13 @@ ko.extenders['validatable'] = function (observable, options) {
 
 function validateSync(observable, rule, ctx) {
 	//Execute the validator and see if its valid
-	if (!rule.validator(observable(), ctx.params === undefined ? true : ctx.params)) { // default param is true, eg. required = true
+	if (!rule.validator(observable(), (ctx.params === undefined ? true : ko.utils.unwrapObservable(ctx.params)))) { // default param is true, eg. required = true
 
 		//not valid, so format the error message and stick it in the 'error' variable
-		observable.setError(ko.validation.formatMessage(ctx.message || rule.message, ctx.params));
+		observable.setError(ko.validation.formatMessage(
+					ctx.message || rule.message,
+					ko.utils.unwrapObservable(ctx.params),
+					observable));
 		return false;
 	} else {
 		return true;
@@ -153,7 +163,10 @@ function validateAsync(observable, rule, ctx) {
 
 		if (!isValid) {
 			//not valid, so format the error message and stick it in the 'error' variable
-			observable.error(ko.validation.formatMessage(msg || ctx.message || rule.message, ctx.params));
+			observable.error(ko.validation.formatMessage(
+				msg || ctx.message || rule.message,
+				ko.utils.unwrapObservable(ctx.params),
+				observable));
 			observable.__valid__(isValid);
 		}
 
@@ -162,7 +175,7 @@ function validateAsync(observable, rule, ctx) {
 	};
 
 	//fire the validator and hand it the callback
-	rule.validator(observable(), ctx.params || true, callBack);
+	rule.validator(observable(), ko.utils.unwrapObservable(ctx.params || true), callBack);
 }
 
 ko.validation.validateObservable = function (observable) {
@@ -183,7 +196,7 @@ ko.validation.validateObservable = function (observable) {
 		}
 
 		//get the core Rule to use for validation
-		rule = ko.validation.rules[ctx.rule];
+		rule = ctx.rule ? ko.validation.rules[ctx.rule] : ctx;
 
 		if (rule['async'] || ctx['async']) {
 			//run async validation

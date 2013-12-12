@@ -11,6 +11,15 @@
 		isObject: function (o) {
 			return o !== null && typeof o === 'object';
 		},
+		isObservableArray: function(instance) {
+			return !!instance &&
+					typeof instance["remove"] === "function" &&
+					typeof instance["removeAll"] === "function" &&
+					typeof instance["destroy"] === "function" &&
+					typeof instance["destroyAll"] === "function" &&
+					typeof instance["indexOf"] === "function" &&
+					typeof instance["replace"] === "function";
+		},
 		values: function (o) {
 			var r = [];
 			for (var i in o) {
@@ -33,7 +42,7 @@
 			return element.setAttribute(attr, value);
 		},
 		isValidatable: function (o) {
-			return o && o.rules && o.isValid && o.isModified;
+			return !!(o && o.rules && o.isValid && o.isModified);
 		},
 		insertAfter: function (node, newNode) {
 			node.parentNode.insertBefore(newNode, node.nextSibling);
@@ -97,6 +106,16 @@
 		async: function (expr) {
 			if (window.setImmediate) { window.setImmediate(expr); }
 			else { window.setTimeout(expr, 0); }
+		},
+		forEach: function (object, callback) {
+			if (ko.validation.utils.isArray(object)) {
+				return ko.utils.arrayForEach(object, callback);
+			}
+			for (var prop in object) {
+				if (object.hasOwnProperty(prop)) {
+					callback(object[prop], prop);
+				}
+			}
 		}
 	};
 }());
