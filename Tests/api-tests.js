@@ -69,13 +69,15 @@ module('Grouping Tests');
 
 test('Error Grouping works', function () {
 	var vm = {
-		firstName: ko.observable().extend({ required: true }),
-		lastName: ko.observable().extend({ required: 2 })
+		firstName: ko.observable().extend({ required: { message: "Message 1" } }),
+		lastName: ko.observable().extend({ required: { message: "Message 2" } })
 	};
 
 	var errors = ko.validation.group(vm);
 
 	equal(errors().length, 2, 'Grouping correctly finds 2 invalid properties');
+	equal(errors()[0], "Message 1", "The error itself should be returned, not the observable");
+	equal(errors()[1], "Message 2", "The error itself should be returned, not the observable");
 });
 
 test('Nested Grouping works - Observable', function () {
