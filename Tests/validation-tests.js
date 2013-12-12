@@ -444,3 +444,51 @@ asyncTest('Async Rule Is NOT Valid Test', function () {
     testObj.extend({ mustEqualAsync: 5 });
 });
 //#endregion
+
+//#region Message Formatting
+module("Message formatting");
+
+test("message parameter receives params and observable", function () {
+	var testObj = ko.observable(3);
+	testObj.extend({
+		validation: {
+			validator: function (val, someOtherVal) {
+				return val === someOtherVal;
+			},
+			message: function(params, observable) {
+				equal(testObj, observable, "The failing observable should be passed to the message function");
+
+				return "Must equal " + params;
+			},
+			params: 5
+		}
+	});
+
+	equal(testObj.error(), "Must equal 5", "The message function was not invoked");
+});
+
+asyncTest("message parameter receives params and observable when async", function () {
+	var testObj = ko.observable(4);
+
+	ko.validation.rules['mustEqualAsync'] = {
+		async: true,
+		validator: function (val, otherVal, callBack) {
+			var isValid = (val === otherVal);
+			setTimeout(function () {
+				callBack(isValid);
+			}, 10);
+		},
+		message: function (params, observable) {
+			equal(observable, testObj, "The failing observable should be passed to the message function");
+			equal(params, 5, "The params should be passed to the message function");
+
+			start();
+			return "message";
+		}
+	};
+	ko.validation.registerExtenders(); //make sure the new rule is registered
+
+	testObj.extend({ mustEqualAsync: 5 });
+});
+
+//#endregion

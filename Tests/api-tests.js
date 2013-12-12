@@ -467,3 +467,12 @@ asyncTest("can be throttled using using local configuration", function () {
 });
 
 //#endregion
+
+test("formatMessage passes observable to function", function () {
+	var inParams = { value: 123 },
+		inObservable = ko.observable();
+	ko.validation.formatMessage(function (params, observable) {
+		equal(params, inParams);
+		equal(observable, inObservable);
+	}, inParams, inObservable);
+});

@@ -86,7 +86,7 @@ ko.bindingHandlers['validationMessage'] = { // individual error message, if modi
 };
 
 ko.bindingHandlers['validationElement'] = {
-	update: function (element, valueAccessor) {
+	update: function (element, valueAccessor, allBindingsAccessor) {
 		var obsv = valueAccessor(),
 			config = ko.validation.utils.getConfigOptions(element),
 			val = ko.utils.unwrapObservable(obsv),
@@ -115,7 +115,7 @@ ko.bindingHandlers['validationElement'] = {
 		};
 
 		//add or remove class on the element;
-		ko.bindingHandlers.css.update(element, cssSettingsAccessor);
+		ko.bindingHandlers.css.update(element, cssSettingsAccessor, allBindingsAccessor);
 		if (!config.errorsAsTitle) { return; }
 
 		ko.bindingHandlers.attr.update(element, function () {

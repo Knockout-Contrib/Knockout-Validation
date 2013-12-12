@@ -385,9 +385,9 @@ kv.configuration = configuration;
 			return result;
 		},
 
-		formatMessage: function (message, params) {
+		formatMessage: function (message, params, observable) {
 			if (typeof (message) === 'function') {
-				return message(params);
+				return message(params, observable);
 			}
 			return message.replace(/\{0\}/gi, unwrap(params));
 		},
@@ -1003,7 +1003,7 @@ ko.bindingHandlers['validationMessage'] = { // individual error message, if modi
 };
 
 ko.bindingHandlers['validationElement'] = {
-	update: function (element, valueAccessor) {
+	update: function (element, valueAccessor, allBindingsAccessor) {
 		var obsv = valueAccessor(),
 			config = kv.utils.getConfigOptions(element),
 			val = unwrap(obsv),
@@ -1032,7 +1032,7 @@ ko.bindingHandlers['validationElement'] = {
 		};
 
 		//add or remove class on the element;
-		ko.bindingHandlers.css.update(element, cssSettingsAccessor);
+		ko.bindingHandlers.css.update(element, cssSettingsAccessor, allBindingsAccessor);
 		if (!config.errorsAsTitle) { return; }
 
 		ko.bindingHandlers.attr.update(element, function () {
@@ -1201,7 +1201,10 @@ function validateSync(observable, rule, ctx) {
 	if (!rule.validator(observable(), (ctx.params === undefined ? true : unwrap(ctx.params)))) { // default param is true, eg. required = true
 
 		//not valid, so format the error message and stick it in the 'error' variable
-		observable.setError(kv.formatMessage(ctx.message || rule.message, unwrap(ctx.params)));
+		observable.setError(kv.formatMessage(
+					ctx.message || rule.message,
+					unwrap(ctx.params),
+					observable));
 		return false;
 	} else {
 		return true;
@@ -1233,7 +1236,10 @@ function validateAsync(observable, rule, ctx) {
 
 		if (!isValid) {
 			//not valid, so format the error message and stick it in the 'error' variable
-			observable.error(kv.formatMessage(msg || ctx.message || rule.message, unwrap(ctx.params)));
+			observable.error(kv.formatMessage(
+				msg || ctx.message || rule.message,
+				unwrap(ctx.params),
+				observable));
 			observable.__valid__(isValid);
 		}
 

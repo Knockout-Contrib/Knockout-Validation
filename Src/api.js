@@ -193,9 +193,9 @@
 			return result;
 		},
 
-		formatMessage: function (message, params) {
+		formatMessage: function (message, params, observable) {
 			if (typeof (message) === 'function') {
-				return message(params);
+				return message(params, observable);
 			}
 			return message.replace(/\{0\}/gi, ko.utils.unwrapObservable(params));
 		},
