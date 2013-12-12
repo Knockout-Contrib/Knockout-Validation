@@ -29,7 +29,7 @@
 		cleanUpSubscriptions(context);
 		traverseGraph(obj, context);
 		dispose(context);
-	}
+		}
 
 	function traverseGraph(obj, context, level) {
 		var objValues = [],
@@ -38,7 +38,7 @@
 		if (obj.__kv_traversed === true) { return; }
 
 		if (context.options.deep) {
-			obj.__kv_traversed = true;
+	    obj.__kv_traversed = true;
 			context.flagged.push(obj);
 		}
 
@@ -56,17 +56,17 @@
 				context.subscriptions.push(obj.subscribe(function () {
 					context.graphMonitor.valueHasMutated();
 				}));
-			}
+		}
 		}
 
 		//get list of values either from array or object but ignore non-objects
 		// and destroyed objects
 		if (val && !val._destroy) {
 			if (utils.isArray(val)) {
-				objValues = val;
+			objValues = val;
 			} else if (utils.isObject(val)) {
 				objValues = utils.values(val);
-			}
+		}
 		}
 
 		//process recurisvely if it is deep grouping
@@ -90,7 +90,7 @@
 		});
 		return errors;
 	}
-	
+
 	return {
 		//Call this on startup
 		//any config can be overridden with the passed in options
@@ -138,7 +138,7 @@
 				flagged: [],
 				subscriptions: [],
 				validatables: []
-			};
+        };
 
 			var result = null;
 
@@ -234,6 +234,11 @@
 				ruleObj['message'] = 'Error';
 			}
 
+			//make sure onlyIf is honoured
+			if (ruleObj.onlyIf) {
+				ruleObj.condition = ruleObj.onlyIf;
+			}
+
 			//add the anonymous rule to the observable
 			ko.validation.addRule(observable, ruleObj);
 		},
@@ -300,23 +305,23 @@
 			ko.utils.arrayForEach(ko.validation.configuration.html5Attributes, function (attr) {
 				if (utils.hasAttribute(element, attr)) {
 
-					var params = element.getAttribute(attr) || true;
+                    var params = element.getAttribute(attr) || true;
 
-					if (attr === 'min' || attr === 'max')
-					{
-						// If we're validating based on the min and max attributes, we'll
-						// need to know what the 'type' attribute is set to
-						var typeAttr = element.getAttribute('type');
-						if (typeof typeAttr === "undefined" || !typeAttr)
-						{
-							// From http://www.w3.org/TR/html-markup/input:
-							//   An input element with no type attribute specified represents the 
-							//   same thing as an input element with its type attribute set to "text".
-							typeAttr = "text"; 
-						}							
-						params = {typeAttr: typeAttr, value: params}; 
-					}
-				
+                    if (attr === 'min' || attr === 'max')
+                    {
+                        // If we're validating based on the min and max attributes, we'll
+                        // need to know what the 'type' attribute is set to
+                        var typeAttr = element.getAttribute('type');
+                        if (typeof typeAttr === "undefined" || !typeAttr)
+                        {
+                            // From http://www.w3.org/TR/html-markup/input:
+                            //   An input element with no type attribute specified represents the 
+                            //   same thing as an input element with its type attribute set to "text".
+                            typeAttr = "text"; 
+                        }                            
+                        params = {typeAttr: typeAttr, value: params}; 
+                    }
+                
 					ko.validation.addRule(valueAccessor(), {
 						rule: attr,
 						params: params

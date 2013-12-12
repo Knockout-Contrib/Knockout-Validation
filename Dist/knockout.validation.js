@@ -221,7 +221,7 @@ kv.configuration = configuration;
 		cleanUpSubscriptions(context);
 		traverseGraph(obj, context);
 		dispose(context);
-	}
+		}
 
 	function traverseGraph(obj, context, level) {
 		var objValues = [],
@@ -230,7 +230,7 @@ kv.configuration = configuration;
 		if (obj.__kv_traversed === true) { return; }
 
 		if (context.options.deep) {
-			obj.__kv_traversed = true;
+	    obj.__kv_traversed = true;
 			context.flagged.push(obj);
 		}
 
@@ -248,17 +248,17 @@ kv.configuration = configuration;
 				context.subscriptions.push(obj.subscribe(function () {
 					context.graphMonitor.valueHasMutated();
 				}));
-			}
+		}
 		}
 
 		//get list of values either from array or object but ignore non-objects
 		// and destroyed objects
 		if (val && !val._destroy) {
 			if (utils.isArray(val)) {
-				objValues = val;
+			objValues = val;
 			} else if (utils.isObject(val)) {
 				objValues = utils.values(val);
-			}
+		}
 		}
 
 		//process recurisvely if it is deep grouping
@@ -282,7 +282,7 @@ kv.configuration = configuration;
 		});
 		return errors;
 	}
-	
+
 	return {
 		//Call this on startup
 		//any config can be overridden with the passed in options
@@ -330,7 +330,7 @@ kv.configuration = configuration;
 				flagged: [],
 				subscriptions: [],
 				validatables: []
-			};
+        };
 
 			var result = null;
 
@@ -426,6 +426,11 @@ kv.configuration = configuration;
 				ruleObj['message'] = 'Error';
 			}
 
+			//make sure onlyIf is honoured
+			if (ruleObj.onlyIf) {
+				ruleObj.condition = ruleObj.onlyIf;
+			}
+
 			//add the anonymous rule to the observable
 			kv.addRule(observable, ruleObj);
 		},
@@ -492,23 +497,23 @@ kv.configuration = configuration;
 			forEach(kv.configuration.html5Attributes, function (attr) {
 				if (utils.hasAttribute(element, attr)) {
 
-					var params = element.getAttribute(attr) || true;
+                    var params = element.getAttribute(attr) || true;
 
-					if (attr === 'min' || attr === 'max')
-					{
-						// If we're validating based on the min and max attributes, we'll
-						// need to know what the 'type' attribute is set to
-						var typeAttr = element.getAttribute('type');
-						if (typeof typeAttr === "undefined" || !typeAttr)
-						{
-							// From http://www.w3.org/TR/html-markup/input:
-							//   An input element with no type attribute specified represents the 
-							//   same thing as an input element with its type attribute set to "text".
-							typeAttr = "text"; 
-						}							
-						params = {typeAttr: typeAttr, value: params}; 
-					}
-				
+                    if (attr === 'min' || attr === 'max')
+                    {
+                        // If we're validating based on the min and max attributes, we'll
+                        // need to know what the 'type' attribute is set to
+                        var typeAttr = element.getAttribute('type');
+                        if (typeof typeAttr === "undefined" || !typeAttr)
+                        {
+                            // From http://www.w3.org/TR/html-markup/input:
+                            //   An input element with no type attribute specified represents the 
+                            //   same thing as an input element with its type attribute set to "text".
+                            typeAttr = "text"; 
+                        }                            
+                        params = {typeAttr: typeAttr, value: params}; 
+                    }
+                
 					kv.addRule(valueAccessor(), {
 						rule: attr,
 						params: params
@@ -986,7 +991,7 @@ ko.bindingHandlers['validationMessage'] = { // individual error message, if modi
 		if (config.allowHtmlMessages) {
 			koUtils.setHtml(element, error);
 		} else {
-			koUtils.setTextContent(element, error);
+			ko.bindingHandlers.text.update(element, function () { return error; });
 		}
 
 		if (isCurrentlyVisible && !isVisible) {
@@ -1166,9 +1171,15 @@ ko.extenders['validatable'] = function (observable, options) {
 			//first dispose of the subscriptions
 			observable.isValid.dispose();
 			observable.rules.removeAll();
-			observable.isModified._subscriptions['change'] = [];
-			observable.isValidating._subscriptions['change'] = [];
-			observable.__valid__._subscriptions['change'] = [];
+			if (observable.isModified.getSubscriptionsCount() > 0) {
+				observable.isModified._subscriptions['change'] = [];
+			}
+			if (observable.isValidating.getSubscriptionsCount() > 0) {
+				observable.isValidating._subscriptions['change'] = [];
+			}
+			if (observable.__valid__.getSubscriptionsCount() > 0) {
+				observable.__valid__._subscriptions['change'] = [];
+			}
 			h_change.dispose();
 			h_obsValidationTrigger.dispose();
 
