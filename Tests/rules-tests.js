@@ -1086,6 +1086,50 @@ test('Object is NOT Valid and isValid returns False', function () {
 
 //#endregion
 
+//#region Predicate tests
+module("Predicate Tests");
+
+test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
+	var testObj = ko.observable().extend({ predicate: function(value) { return value === true; } });
+	equal(testObj.isValid(), true, 'testObj is Valid');
+});
+
+test('Object is Valid and isValid returns True', function () {
+	var testObj = ko.observable(true).extend({ predicate: function(value) { return value === false; } });
+
+	testObj(false);
+
+	equal(testObj(), false, 'observable still works');
+	equal(testObj.isValid(), true, 'testObj is Valid');
+});
+
+test('Object is NOT Valid and isValid returns False', function () {
+	var testObj = ko.observable(false).extend({ predicate: function(value) { return value === false; } });
+
+	testObj(true);
+
+	equal(testObj(), true, 'observable still works');
+	equal(testObj.isValid(), false, 'testObj is not Valid');
+});
+
+test('Object is Valid and isValid returns True - Demonstrating a more interesting case', function () {
+	var testObj = ko.observable().extend({ predicate: function(value) { return value >= 10 && value <= 15; } });
+
+	testObj(9);
+	equal(testObj.isValid(), false, '9 < 10, testObj is not Valid');
+
+	testObj(10);
+	equal(testObj.isValid(), true, '10 >= 10 and 10 <= 15, testObj is Valid');
+
+	testObj(15);
+	equal(testObj.isValid(), true, '15 >= 10 and 15 <= 15, testObj is Valid');
+
+	testObj(16);
+	equal(testObj.isValid(), false, '16 > 15, testObj is not Valid');
+});
+
+//#endregion
+
 //#region Unique tests
 module("Unique Tests");
 

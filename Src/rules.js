@@ -253,6 +253,13 @@ ko.validation.rules['notEqual'] = {
 	message: 'Please choose another value.'
 };
 
+ko.validation.rules['predicate'] = {
+	validator: function (val, predicate) {
+		return ko.validation.utils.isEmptyVal(val) || predicate(val) === true;
+	},
+	message: 'The value isn\'t valid according to the given predicate.'
+};
+
 //unique in collection
 // options are:
 //    collection: array or function returning (observable) array
