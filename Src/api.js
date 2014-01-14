@@ -178,6 +178,16 @@
 			obj.isValid = function () {
 				return obj.errors().length === 0;
 			};
+			obj.isValidating = function () {
+				var isValidatingPresent = false;
+				ko.utils.arrayForEach(context.validatables, function (observable) {
+					if (observable.isValidating()) {
+						isValidatingPresent = true;
+					}
+				});
+				
+				return isValidatingPresent;
+			};
 			obj.isAnyMessageShown = function () {
 				var invalidAndModifiedPresent = false;
 

@@ -214,6 +214,24 @@ test('Nested grouping adds items newly inserted into observableArrays to result 
 	equal(errors().length, 2, 'validatables are added only once');
 });
 
+asyncTest('isValidating on group detects isValidating on observables', function () {
+	var vm = { testObj: ko.observable(4) };
+	var errors = ko.validation.group(vm);
+
+	ko.validation.rules['testAsync'] = {
+		async: true,
+		validator: function (val, otherVal, callBack) {
+			setTimeout(function () {
+				callBack(true);
+			}, 10);
+		}
+	};
+	ko.validation.registerExtenders(); //make sure the new rule is registered
+
+	vm.testObj.extend({ testAsync: null });
+	equal(vm.isValidating(), true, 'Group did not reflect internal isValidating status');
+	start();
+});
 //#endregion
 
 //#region validatedObservable
