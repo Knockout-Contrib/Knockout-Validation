@@ -306,6 +306,30 @@ test('validatedObservable show error message when at least one invalid and modif
 
 });
 
+test('validatedObservable is Valid when not modified', function () {
+
+    var obj = ko.validatedObservable({
+        testObj: ko.observable('12345').extend({ minLength: 5 }),
+        testObj2: ko.observable('a').extend({ required: true })
+    });
+    
+    ok(obj(), 'observable works');
+    ok(obj.isValid(), 'observable is valid');
+
+});
+
+test('validatedObservable is not Valid when not modified', function () {
+
+    var obj = ko.validatedObservable({
+        testObj: ko.observable('').extend({ minLength: 5 }),
+        testObj2: ko.observable('').extend({ required: true })
+    });
+
+    ok(obj(), 'observable works');
+    ok(!obj.isValid(), obj.errors()[0]);
+
+});
+
 //#endregion
 
 //#region setRules Tests
