@@ -21,19 +21,19 @@
 
 ko.validation.localize({
     required: 'Dit veld is verplicht.',
-    min: 'Geef een waarde in groter of gelijk aan {0}.',
-    max: 'Geef een waarde in kleiner of gelijk aan {0}.',
-    minLength: 'Geef minstens {0} karakters in.',
-    maxLength: 'Geef hoogstens {0} karakters in.',
-    pattern: 'Geef een correcte waarde.',
-    step: 'Geef een waarde dat deelbaar is door {0}.',
-    email: 'Geef een correct emailadres in.',
-    date: 'Geef een correcte datum.',
-    dateISO: 'Geef een correcte datum.',
-    number: 'Geef een getal in.',
-    digit: 'Geef een getal in.',
-    phoneUS: 'Geef een geldig telefoonnummer in.',
+    min: 'Vul een waarde in groter of gelijk aan {0}.',
+    max: 'Vul een waarde in kleiner of gelijk aan {0}.',
+    minLength: 'Vul ten minste {0} tekens in.',
+    maxLength: 'Vul ten hoogste {0} tekens in.',
+    pattern: 'Vul een correcte waarde in.',
+    step: 'Vul een waarde in die deelbaar is door {0}.',
+    email: 'Vul een correct e-mailadres in.',
+    date: 'Vul een correcte datum in.',
+    dateISO: 'Vul een correcte datum in.',
+    number: 'Vul een getal in.',
+    digit: 'Vul een cijfer in.',
+    phoneUS: 'Vul een geldig telefoonnummer in.',
     equal: 'Waarden moeten gelijk zijn.',
-    notEqual: 'Kies een andere waarde.',
-    unique: 'Geef een unieke waarde.'
+    notEqual: 'Vul een andere waarde in.',
+    unique: 'Vul een unieke waarde in.'
 });
