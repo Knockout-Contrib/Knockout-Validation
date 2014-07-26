@@ -332,6 +332,22 @@ test('validatedObservable is not Valid when not modified', function () {
 
 //#endregion
 
+//#region Adding rules
+
+test("addRule removes previous rule with same name if that exists", function () {
+	var observable = ko.observable();
+	var rulesMutated = false;
+	observable.extend({ validatable: true });
+	ko.validation.addRule(observable, { rule: 'required', params: true });
+	observable.rules.subscribe(function () { rulesMutated = true; });
+	ko.validation.addRule(observable, { rule: 'required', params: false });
+	equal(observable.rules().length, 1);
+	equal(observable.rules()[0].params, false);
+	ok(rulesMutated);
+});
+
+//#endregion
+
 //#region setRules Tests
 module("setRules Tests");
 
