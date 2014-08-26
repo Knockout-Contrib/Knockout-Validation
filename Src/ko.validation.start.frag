@@ -15,7 +15,7 @@
     }
 }(function ( ko, exports ) {
 
-    if (typeof (ko) === undefined) { throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in'; }
+    if (typeof (ko) === 'undefined') { throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in'; }
 
     // create our namespace object
     ko.validation = exports;
