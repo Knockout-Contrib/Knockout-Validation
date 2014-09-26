@@ -671,7 +671,7 @@ test('Object is NOT Valid and isValid returns False', function () {
 
 	equal(testObj(), 'text#example.com', 'observable still works');
 	equal(testObj.isValid(), false, testObj.error());
-	equal(testObj.error(), 'Please enter a proper email address', "Error Message Needs to be formatted correctly");
+	equal(testObj.error(), 'Please enter a proper email address.', "Error Message Needs to be formatted correctly");
 });
 
 test('Email with invalid domain', function () {
@@ -680,7 +680,7 @@ test('Email with invalid domain', function () {
 	testObj("john@abc.com123");
 
 	equal(testObj.isValid(), false, testObj.error());
-	equal(testObj.error(), 'Please enter a proper email address');
+	equal(testObj.error(), 'Please enter a proper email address.');
 });
 
 test('Object is Valid and email is observable and isValid returns True', function () {
@@ -701,7 +701,7 @@ test('Object is NOT Valid and email is observable and isValid returns False', fu
 
 	equal(testObj(), 'text#example.com', 'observable still works');
 	equal(testObj.isValid(), false, testObj.error());
-	equal(testObj.error(), 'Please enter a proper email address', "Error Message Needs to be formatted correctly");
+	equal(testObj.error(), 'Please enter a proper email address.', "Error Message Needs to be formatted correctly");
 });
 //#endregion
 
