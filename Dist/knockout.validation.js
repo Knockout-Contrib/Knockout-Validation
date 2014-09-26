@@ -276,7 +276,7 @@ kv.configuration = configuration;
 	function collectErrors(array) {
 		var errors = [];
 		forEach(array, function (observable) {
-			if (!observable.isValid()) {
+			if (!observable.isValid() && observable.error) {
 				errors.push(observable.error());
 			}
 		});

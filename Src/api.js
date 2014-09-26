@@ -84,7 +84,7 @@
 	function collectErrors(array) {
 		var errors = [];
 		ko.utils.arrayForEach(array, function (observable) {
-			if (!observable.isValid()) {
+			if (!observable.isValid() && observable.error) {
 				errors.push(observable.error());
 			}
 		});
