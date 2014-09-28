@@ -210,6 +210,12 @@
 		addRule: function (observable, rule) {
 			observable.extend({ validatable: true });
 
+			var existingRule = ko.utils.arrayFirst(observable.rules(), function (item) {
+			    return rule.rule === item.rule;
+			});
+			if (existingRule) {
+			    observable.rules.remove(existingRule);
+			}
 			//push a Rule Context to the observables local array of Rule Contexts
 			observable.rules.push(rule);
 			return observable;
