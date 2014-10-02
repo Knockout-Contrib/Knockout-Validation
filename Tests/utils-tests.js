@@ -16,6 +16,231 @@
 //#region Utils Tests
 
 module("Utils tests");
+test('Issue #431 - Recursively clearAllErrors', function () {
+	var vm = {
+		one: ko.observable().extend({ required: true }),
+		two: {
+			one: ko.observable().extend({ required: true })
+		},
+		three: {
+			two: {
+				one: ko.observable().extend({ required: true })
+			}
+		}
+	};
+
+	var validation = ko.validation.group(vm, { deep: true, observable: false });
+	
+	// edit all the properties, but set them so the required rule fails
+	vm.one("test");
+	vm.one("");
+	vm.two.one("test");
+	vm.two.one("");
+	vm.three.two.one("test");
+	vm.three.two.one("");
+
+	ok(vm.one.isModified(), "Level 1 is modified");
+	ok(vm.two.one.isModified(), "Level 2 is modified");
+	ok(vm.three.two.one.isModified(), "Level 3 is modified");
+	equal(validation().length, 3, 'Grouping correctly finds 3 invalid properties');
+	
+	// now clear all errors
+	validation.clearAllErrors();
+
+	ok(!vm.one.isModified(), "Level 1 is not modified");
+	ok(!vm.two.one.isModified(), "Level 2 is not modified");
+	ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
+
+	equal(validation().length, 0, 'Grouping should find zero invalid properties');
+});
+
+test('Issue #431 - Recursively clearAllErrors - using computed', function () {
+	var vm = {
+		one: ko.observable().extend({ required: true }),
+		two: {
+			one: ko.observable().extend({ required: true })
+		},
+		three: {
+			two: {
+				one: ko.observable().extend({ required: true })
+			}
+		}
+	};
+
+	var validation = ko.validation.group(vm, { deep: true, observable: true });
+	
+	// edit all the properties, but set them so the required rule fails
+	vm.one("test");
+	vm.one("");
+	vm.two.one("test");
+	vm.two.one("");
+	vm.three.two.one("test");
+	vm.three.two.one("");
+
+	ok(vm.one.isModified(), "Level 1 is modified");
+	ok(vm.two.one.isModified(), "Level 2 is modified");
+	ok(vm.three.two.one.isModified(), "Level 3 is modified");
+	equal(validation().length, 3, 'Grouping correctly finds 3 invalid properties');
+	
+	// now clear all errors
+	validation.clearAllErrors();
+
+	ok(!vm.one.isModified(), "Level 1 is not modified");
+	ok(!vm.two.one.isModified(), "Level 2 is not modified");
+	ok(!vm.three.two.one.isModified(), "Level 3 is not modified");
+
+	equal(validation().length, 0, 'Grouping should find zero invalid properties');
+});
+
+test('Issue #431 - Recursively validateAllObservables', function () {
+	var vm = {
+		one: ko.observable().extend({ required: true }),
+		two: {
+			one: ko.observable().extend({ required: true })
+		},
+		three: {
+			two: {
+				one: ko.observable().extend({ required: true })
+			}
+		}
+	};
+
+	var validation = ko.validation.group(vm, { deep: true, observable: false });
+		
+	// edit all the properties, but set them so the required rule fails
+	vm.one("test");
+	vm.one("");
+	vm.two.one("test");
+	vm.two.one("");
+	vm.three.two.one("test");
+	vm.three.two.one("");
+
+	equal(validation().length, 3, 'Grouping correctly finds 3 invalid properties');
+	
+	// now clear all errors
+	validation.clearAllErrors();
+	
+	equal(validation().length, 0, 'Grouping correctly finds 0 invalid properties');
+	
+	// invoke all errors
+	validation.validateAllObservables();
+
+	ok(vm.one.isModified(), "Level 1 is modified");
+	ok(vm.two.one.isModified(), "Level 2 is modified");
+	ok(vm.three.two.one.isModified(), "Level 3 is modified");
+
+	equal(validation().length, 3, 'Grouping should find 3 invalid properties');
+});
+
+test('Issue #431 - Recursively validateAllObservables - using computed', function () {
+	var vm = {
+		one: ko.observable().extend({ required: true }),
+		two: {
+			one: ko.observable().extend({ required: true })
+		},
+		three: {
+			two: {
+				one: ko.observable().extend({ required: true })
+			}
+		}
+	};
+
+	var validation = ko.validation.group(vm, { deep: true, observable: true });
+		
+	// edit all the properties, but set them so the required rule fails
+	vm.one("test");
+	vm.one("");
+	vm.two.one("test");
+	vm.two.one("");
+	vm.three.two.one("test");
+	vm.three.two.one("");
+
+	equal(validation().length, 3, 'Grouping correctly finds 3 invalid properties');
+	
+	// now clear all errors
+	validation.clearAllErrors();
+	
+	equal(validation().length, 0, 'Grouping correctly finds 0 invalid properties');
+	
+	// invoke all errors
+	validation.validateAllObservables();
+
+	ok(vm.one.isModified(), "Level 1 is modified");
+	ok(vm.two.one.isModified(), "Level 2 is modified");
+	ok(vm.three.two.one.isModified(), "Level 3 is modified");
+
+	equal(validation().length, 3, 'Grouping should find 3 invalid properties');
+});
+
+test('Issue #431 - Recursively validateAllObservables, without calling clearAllErrors', function () {
+	var vm = {
+		one: ko.observable().extend({ required: true }),
+		two: {
+			one: ko.observable().extend({ required: true })
+		},
+		three: {
+			two: {
+				one: ko.observable().extend({ required: true })
+			}
+		}
+	};
+
+	var validation = ko.validation.group(vm, { deep: true, observable: false });
+		
+	// edit all the properties, but set them so the required rule fails
+	vm.one("test");
+	vm.one("");
+	vm.two.one("test");
+	vm.two.one("");
+	vm.three.two.one("test");
+	vm.three.two.one("");
+
+	equal(validation().length, 3, 'Grouping correctly finds 3 invalid properties');
+		
+	// invoke all errors
+	validation.validateAllObservables();
+
+	ok(vm.one.isModified(), "Level 1 is modified");
+	ok(vm.two.one.isModified(), "Level 2 is modified");
+	ok(vm.three.two.one.isModified(), "Level 3 is modified");
+
+	equal(validation().length, 3, 'Grouping should find 3 invalid properties');
+});
+
+test('Issue #431 - Recursively validateAllObservables, without calling clearAllErrors - using computed', function () {
+	var vm = {
+		one: ko.observable().extend({ required: true }),
+		two: {
+			one: ko.observable().extend({ required: true })
+		},
+		three: {
+			two: {
+				one: ko.observable().extend({ required: true })
+			}
+		}
+	};
+
+	var validation = ko.validation.group(vm, { deep: true, observable: true });
+		
+	// edit all the properties, but set them so the required rule fails
+	vm.one("test");
+	vm.one("");
+	vm.two.one("test");
+	vm.two.one("");
+	vm.three.two.one("test");
+	vm.three.two.one("");
+
+	equal(validation().length, 3, 'Grouping correctly finds 3 invalid properties');
+		
+	// invoke all errors
+	validation.validateAllObservables();
+
+	ok(vm.one.isModified(), "Level 1 is modified");
+	ok(vm.two.one.isModified(), "Level 2 is modified");
+	ok(vm.three.two.one.isModified(), "Level 3 is modified");
+
+	equal(validation().length, 3, 'Grouping should find 3 invalid properties');
+});
 
 test('Issue #31 - Recursively Show All Messages', function () {
 	var vm = {

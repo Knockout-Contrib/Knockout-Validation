@@ -161,19 +161,39 @@
 				};
 			}
 
-			result.showAllMessages = function (show) { // thanks @heliosPortal
-				if (show === undefined) {//default to true
-					show = true;
-				}
-
+			function iterateObservables(callback) {
 				// ensure we have latest changes
 				result();
 
 				ko.utils.arrayForEach(context.validatables, function (observable) {
+					callback(observable);
+				});
+			}
+				
+			result.showAllMessages = function (show) { // thanks @heliosPortal
+				if (show === undefined) {//default to true
+					show = true;
+				}
+				
+				iterateObservables(function (observable) {
 					observable.isModified(show);
 				});
 			};
 
+			result.clearAllErrors = function () {
+				iterateObservables(function (observable) {
+					observable.clearError();
+					observable.isModified(false);
+				});
+			};
+			
+			result.validateAllObservables = function () {
+				iterateObservables(function (observable) {
+					ko.validation.validateObservable(observable);
+					observable.isModified(true);
+				});
+			};
+			
 			obj.errors = result;
 			obj.isValid = function () {
 				return obj.errors().length === 0;
