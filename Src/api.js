@@ -194,10 +194,10 @@
 		},
 
 		formatMessage: function (message, params, observable) {
-			if (typeof (message) === 'function') {
-				return message(params, observable);
-			}
-			return message.replace(/\{0\}/gi, ko.utils.unwrapObservable(params));
+	            if (typeof (message) === 'function' && !ko.isObservable(message)) {
+	                return message(params, observable);
+	            }
+	            return unwrap(message).replace(/\{0\}/gi, unwrap(params));
 		},
 
 		// addRule:
