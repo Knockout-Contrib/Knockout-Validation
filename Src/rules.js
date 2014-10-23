@@ -149,14 +149,14 @@ ko.validation.rules['max'] = {
     
 ko.validation.rules['minLength'] = {
 	validator: function (val, minLength) {
-		return ko.validation.utils.isEmptyVal(val) || val.length >= minLength;
+		return ko.validation.utils.isEmptyVal(val) || val.toString().length >= minLength;
 	},
 	message: 'Please enter at least {0} characters.'
 };
 
 ko.validation.rules['maxLength'] = {
 	validator: function (val, maxLength) {
-		return ko.validation.utils.isEmptyVal(val) || val.length <= maxLength;
+		return ko.validation.utils.isEmptyVal(val) || val.toString().length <= maxLength;
 	},
 	message: 'Please enter no more than {0} characters.'
 };
