@@ -64,7 +64,7 @@ function minMaxValidatorFactory(validatorName) {
 
         // From http://www.w3.org/TR/2012/WD-html5-20121025/common-input-element-attributes.html#attr-input-min,
         // if the value is parseable to a number, then the minimum should be numeric
-        if (!isNaN(comparisonValue)) {
+        if (!isNaN(comparisonValue) && !(comparisonValue instanceof Date)) {
             type = "number";
         }
 
