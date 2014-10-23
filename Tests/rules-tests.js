@@ -159,6 +159,29 @@ test('Object is Valid and isValid returns True and min is observable', function 
 	equal(testObj(), 4, 'observable still works');
 	equal(testObj.isValid(), true, 'testObj is valid');
 });
+
+test('Object is Valid and isValid returns True and min is date', function () {
+       var obj = new Date(2012, 05, 04);
+       var testObj = ko.observable('')
+                    .extend({ min: new Date(2012, 03, 04) });
+
+       testObj(obj);
+
+       equal(testObj(), obj, 'observable still works');
+       equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Object is NOT Valid and isValid returns False and min is date', function () {
+       var obj = new Date(2011, 05, 04);
+       var testObj = ko.observable('')
+                    .extend({ min: new Date(2012, 03, 04) });
+
+       testObj(obj);
+
+       equal(testObj(), obj, 'observable still works');
+       equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
 //#endregion
 
 //#region Max Validation
@@ -227,6 +250,29 @@ test('Object is Valid and isValid returns True and max is observable', function 
 	equal(testObj(), 1, 'observable still works');
 	equal(testObj.isValid(), true, 'testObj is valid');
 });
+
+test('Object is Valid and isValid returns True and max is date', function () {
+       var obj = new Date(2011, 05, 04);
+       var testObj = ko.observable('')
+                    .extend({ max: new Date(2012, 03, 04) });
+
+       testObj(obj);
+
+       equal(testObj(), obj, 'observable still works');
+       equal(testObj.isValid(), true, 'testObj is valid');
+});
+
+test('Object is NOT Valid and isValid returns False and max is date', function () {
+       var obj = new Date(2013, 05, 04);
+       var testObj = ko.observable('')
+                    .extend({ max: new Date(2012, 03, 04) });
+
+       testObj(obj);
+
+       equal(testObj(), obj, 'observable still works');
+       equal(testObj.isValid(), false, 'testObj is not valid');
+});
+
 //#endregion
 
 //#region Min Length Validation
