@@ -149,14 +149,18 @@ ko.validation.rules['max'] = {
     
 ko.validation.rules['minLength'] = {
 	validator: function (val, minLength) {
-		return ko.validation.utils.isEmptyVal(val) || val.length >= minLength;
+		if(ko.validation.utils.isEmptyVal(val)) { return true; }
+		var normalizedVal = ko.validation.utils.isNumber(val) ? ('' + val) : val;
+		return normalizedVal.length >= minLength;
 	},
 	message: 'Please enter at least {0} characters.'
 };
 
 ko.validation.rules['maxLength'] = {
 	validator: function (val, maxLength) {
-		return ko.validation.utils.isEmptyVal(val) || val.length <= maxLength;
+		if(ko.validation.utils.isEmptyVal(val)) { return true; }
+		var normalizedVal = ko.validation.utils.isNumber(val) ? ('' + val) : val;
+		return normalizedVal.length <= maxLength;
 	},
 	message: 'Please enter no more than {0} characters.'
 };

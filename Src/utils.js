@@ -11,6 +11,9 @@
 		isObject: function (o) {
 			return o !== null && typeof o === 'object';
 		},
+		isNumber: function(o) {
+			return !isNaN(o);	
+		},
 		isObservableArray: function(instance) {
 			return !!instance &&
 					typeof instance["remove"] === "function" &&

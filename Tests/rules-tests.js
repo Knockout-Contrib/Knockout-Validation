@@ -319,6 +319,28 @@ test('Object is NOT Valid and minLength is observable and isValid returns False'
 	equal(testObj(), 'something', 'observable still works');
 	equal(testObj.isValid(), false, 'testObj is not valid');
 });
+
+test('Issue #457 - Number is valid when digits are within applicable length', function () {
+	var minLength = ko.observable(5);
+	var testObj = ko.observable('')
+                    .extend({ minLength: minLength });
+
+	testObj(12345);
+
+	equal(testObj(), 12345, 'observable still works');
+	ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Issue #457 - Number is invalid when digits are outside of applicable length', function () {
+	var minLength = ko.observable(5);
+	var testObj = ko.observable('')
+                    .extend({ minLength: minLength });
+
+	testObj(1234);
+
+	equal(testObj(), 1234, 'observable still works');
+	ok(!testObj.isValid(), 'testObj is Valid');
+});
 //#endregion
 
 //#region Max Length Validation
@@ -404,6 +426,27 @@ test('Object is NOT Valid and maxLength is observable and isValid returns False'
 	equal(testObj.isValid(), false, 'testObj is not valid');
 });
 
+test('Issue #457 - Number is valid when digits are within applicable length', function () {
+	var maxLength = ko.observable(5);
+	var testObj = ko.observable('')
+                    .extend({ maxLength: maxLength });
+
+	testObj(1);
+
+	equal(testObj(), 1, 'observable still works');
+	ok(testObj.isValid(), 'testObj is Valid');
+});
+
+test('Issue #457 - Number is invalid when digits are outside of applicable length', function () {
+	var maxLength = ko.observable(5);
+	var testObj = ko.observable('')
+                    .extend({ maxLength: maxLength });
+
+	testObj(123456);
+
+	equal(testObj(), 123456, 'observable still works');
+	ok(!testObj.isValid(), 'testObj is Valid');
+});
 //#endregion
 
 //#region Pattern Validation
