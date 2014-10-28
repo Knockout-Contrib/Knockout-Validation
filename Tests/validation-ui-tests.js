@@ -70,6 +70,31 @@ test("checked binding sets error class on radio buttons", function() {
     ok(!$input.hasClass("validationElement"), "Validation class should have been removed");
 });
 
+test('textInput Binding Works', function () {
+
+    addTestHtml('<input id="myTestInput" data-bind="textInput: firstName" type="text" />');
+
+    var vm = {
+        firstName: ko.observable('').extend({ required: true })
+    };
+
+    applyTestBindings(vm);
+
+    var $testInput = $('#myTestInput');
+
+    $testInput.val("a"); //set it
+    $testInput.change(); //trigger change event
+    ok(vm.firstName.isValid(), 'First Name is Valid');
+
+    $testInput.val(""); //set it
+    $testInput.change(); //trigger change event
+    ok(!vm.firstName.isValid(), 'First Name is NOT Valid');
+
+    var msg = $testInput.siblings().first().text();
+
+    equal(msg, 'This field is required.', msg);
+});
+
 //#region Inserting Messages
 
 test('Inserting Messages Works', function () {
@@ -132,7 +157,7 @@ test('Inserting Messages with HTML Works', function () {
 
 //#endregion
 
-//#region Inserting Messages
+//#region Decorating Elements
 
 test('Decorating Elements Works', function () {
 
