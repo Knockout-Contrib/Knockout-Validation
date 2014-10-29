@@ -83,6 +83,9 @@ kv.configuration = configuration;
 		isObject: function (o) {
 			return o !== null && typeof o === 'object';
 		},
+		isNumber: function(o) {
+			return !isNaN(o);	
+		},
 		isObservableArray: function(instance) {
 			return !!instance &&
 					typeof instance["remove"] === "function" &&
@@ -782,14 +785,18 @@ kv.rules['max'] = {
     
 kv.rules['minLength'] = {
 	validator: function (val, minLength) {
-		return kv.utils.isEmptyVal(val) || val.length >= minLength;
+		if(kv.utils.isEmptyVal(val)) { return true; }
+		var normalizedVal = kv.utils.isNumber(val) ? ('' + val) : val;
+		return normalizedVal.length >= minLength;
 	},
 	message: 'Please enter at least {0} characters.'
 };
 
 kv.rules['maxLength'] = {
 	validator: function (val, maxLength) {
-		return kv.utils.isEmptyVal(val) || val.length <= maxLength;
+		if(kv.utils.isEmptyVal(val)) { return true; }
+		var normalizedVal = kv.utils.isNumber(val) ? ('' + val) : val;
+		return normalizedVal.length <= maxLength;
 	},
 	message: 'Please enter no more than {0} characters.'
 };
@@ -810,7 +817,7 @@ kv.rules['step'] = {
 		var dif = (val * 100) % (step * 100);
 		return Math.abs(dif) < 0.00001 || Math.abs(1 - dif) < 0.00001;
 	},
-	message: 'The value must increment by {0}'
+	message: 'The value must increment by {0}.'
 };
 
 kv.rules['email'] = {
@@ -824,7 +831,7 @@ kv.rules['email'] = {
 			validate && /^((([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+(\.([a-z]|\d|[!#\$%&'\*\+\-\/=\?\^_`{\|}~]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])+)*)|((\x22)((((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(([\x01-\x08\x0b\x0c\x0e-\x1f\x7f]|\x21|[\x23-\x5b]|[\x5d-\x7e]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(\\([\x01-\x09\x0b\x0c\x0d-\x7f]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF]))))*(((\x20|\x09)*(\x0d\x0a))?(\x20|\x09)+)?(\x22)))@((([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|\d|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))\.)+(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])|(([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])([a-z]|\d|-|\.|_|~|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])*([a-z]|[\u00A0-\uD7FF\uF900-\uFDCF\uFDF0-\uFFEF])))$/i.test(val)
 		);
 	},
-	message: 'Please enter a proper email address'
+	message: 'Please enter a proper email address.'
 };
 
 kv.rules['date'] = {
@@ -832,7 +839,7 @@ kv.rules['date'] = {
 		if (!validate) { return true; }
 		return kv.utils.isEmptyVal(value) || (validate && !/Invalid|NaN/.test(new Date(value)));
 	},
-	message: 'Please enter a proper date'
+	message: 'Please enter a proper date.'
 };
 
 kv.rules['dateISO'] = {
@@ -840,7 +847,7 @@ kv.rules['dateISO'] = {
 		if (!validate) { return true; }
 		return kv.utils.isEmptyVal(value) || (validate && /^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/.test(value));
 	},
-	message: 'Please enter a proper date'
+	message: 'Please enter a proper date.'
 };
 
 kv.rules['number'] = {
@@ -848,7 +855,7 @@ kv.rules['number'] = {
 		if (!validate) { return true; }
 		return kv.utils.isEmptyVal(value) || (validate && /^-?(?:\d+|\d{1,3}(?:,\d{3})+)?(?:\.\d+)?$/.test(value));
 	},
-	message: 'Please enter a number'
+	message: 'Please enter a number.'
 };
 
 kv.rules['digit'] = {
@@ -856,7 +863,7 @@ kv.rules['digit'] = {
 		if (!validate) { return true; }
 		return kv.utils.isEmptyVal(value) || (validate && /^\d+$/.test(value));
 	},
-	message: 'Please enter a digit'
+	message: 'Please enter a digit.'
 };
 
 kv.rules['phoneUS'] = {
@@ -867,7 +874,7 @@ kv.rules['phoneUS'] = {
 		phoneNumber = phoneNumber.replace(/\s+/g, "");
 		return validate && phoneNumber.length > 9 && phoneNumber.match(/^(1-?)?(\([2-9]\d{2}\)|[2-9]\d{2})-?[2-9]\d{2}-?\d{4}$/);
 	},
-	message: 'Please specify a valid phone number'
+	message: 'Please specify a valid phone number.'
 };
 
 kv.rules['equal'] = {
@@ -875,7 +882,7 @@ kv.rules['equal'] = {
 		var otherValue = params;
 		return val === kv.utils.getValue(otherValue);
 	},
-	message: 'Values must equal'
+	message: 'Values must equal.'
 };
 
 kv.rules['notEqual'] = {
