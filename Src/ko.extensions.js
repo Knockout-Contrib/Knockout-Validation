@@ -32,14 +32,27 @@ ko.applyBindings = function (viewModel, rootNode) {
 };
 
 ko.validatedObservable = function (initialValue) {
-	if (!ko.validation.utils.isObject(initialValue)) { return ko.observable(initialValue).extend({ validatable: true }); }
+    if (initialValue && !ko.validation.utils.isObject(initialValue)) {
+            return ko.observable(initialValue).extend({ validatable: true });
+    }
 
-	var obsv = ko.observable(initialValue);
-	obsv.errors = ko.validation.group(initialValue);
-	obsv.isValid = ko.observable(initialValue.isValid());	
-	obsv.errors.subscribe(function (errors) {
-		obsv.isValid(errors.length === 0);
-	});
+    var obsv = ko.observable();
 
-	return obsv;
+    obsv.subscribe(function (val) {
+        if (!val) {
+            obsv.isValid = ko.observable(true);
+            obsv.errors = ko.observable([]);
+            obsv.showAllMessages = function () { return; }
+        } else {
+            obsv.errors = ko.validation.group(val);
+            obsv.isValid = ko.observable(val.isValid());
+            obsv.errors.subscribe(function (errors) {
+                obsv.isValid(errors.length === 0);
+            });
+        }
+    });
+
+    obsv(initialValue);
+
+    return obsv;
 };
