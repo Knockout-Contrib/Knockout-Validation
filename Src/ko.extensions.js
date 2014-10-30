@@ -37,9 +37,17 @@ ko.validatedObservable = function (initialValue) {
 	var obsv = ko.observable(initialValue);
 	obsv.errors = ko.validation.group(initialValue);
 	obsv.isValid = ko.observable(initialValue.isValid());	
-	obsv.errors.subscribe(function (errors) {
-		obsv.isValid(errors.length === 0);
-	});
+	
+	if (ko.isObservable(obsv.errors)) {
+		obsv.errors.subscribe(function (errors) {
+				obsv.isValid(errors.length === 0);
+			});
+		}
+		else {
+			ko.computed(obsv.errors).subscribe(function (errors) {
+				obsv.isValid(errors.length === 0);
+			});
+		}
 
 	return obsv;
 };
