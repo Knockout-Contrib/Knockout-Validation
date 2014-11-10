@@ -278,7 +278,6 @@ test('validatedObservable does not show error message when not modified', functi
 
 });
 
-
 test('validatedObservable does not show error message when modified but correct', function () {
 	var obj = ko.validatedObservable({
 		testObj: ko.observable('a').extend({ minLength: 5 }),
@@ -312,7 +311,7 @@ test('validatedObservable is Valid when not modified', function () {
         testObj: ko.observable('12345').extend({ minLength: 5 }),
         testObj2: ko.observable('a').extend({ required: true })
     });
-    
+
     ok(obj(), 'observable works');
     ok(obj.isValid(), 'observable is valid');
 
@@ -328,6 +327,19 @@ test('validatedObservable is not Valid when not modified', function () {
     ok(obj(), 'observable works');
     ok(!obj.isValid(), obj.errors()[0]);
 
+});
+
+test('Issue #454 - validatedObservable throws when config option grouping.observable is false', function () {
+	ko.validation.init({grouping: {observable: false}}, true);
+
+	var obj = ko.validatedObservable({
+		username: ko.observable().extend({required: true}),
+		email: ko.observable().extend({required: true, email: true}),
+		admin: ko.observable().extend({required: true})
+	});
+
+	ok(obj(), 'observable works');
+	ok(!obj.isValid(), obj.errors()[0]);
 });
 
 //#endregion
@@ -411,6 +423,44 @@ test("setRules applies rules to all properties", function () {
 	ok(!target.nestedArray()[0].ignoredProperty.rules);
 	ok(!target.nestedArray()[1].ignoredProperty.rules);
 	ok(!target.nestedArray()[2].ignoredProperty.rules);
+});
+
+test('Issue #461 - validatedObservable works with nested view models if grouping.deep is true', function() {
+	ko.validation.init({grouping: {deep: true}}, true);
+
+	function Inner() {
+		this.admins = ko.observableArray();
+		this.admins.push(ko.observable('').extend({required: {params: true, message: 'admins is required'}}));
+	}
+
+	var obj = ko.validatedObservable({
+		username: ko.observable('x').extend({required: true}),
+		inner: new Inner()
+	});
+
+	ok(obj(), 'observable works');
+	equal(obj.errors().length, 1, 'Must have one error reported');
+	equal(obj.errors()[0], 'admins is required');
+	ok(!obj.isValid(), obj.errors()[0]);
+});
+
+test('Issue #461 - validatedObservable works with nested view models if grouping.deep is true using options', function() {
+	ko.validation.init({grouping: {deep: false}}, true);
+
+	function Inner() {
+		this.admins = ko.observableArray();
+		this.admins.push(ko.observable('').extend({required: {params: true, message: 'admins is required'}}));
+	}
+
+	var obj = ko.validatedObservable({
+		username: ko.observable('x').extend({required: true}),
+		inner: new Inner()
+	}, {deep: true});
+
+	ok(obj(), 'observable works');
+	equal(obj.errors().length, 1, 'Must have one error reported');
+	equal(obj.errors()[0], 'admins is required');
+	ok(!obj.isValid(), obj.errors()[0]);
 });
 
 //#endregion

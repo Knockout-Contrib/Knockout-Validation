@@ -31,15 +31,24 @@ ko.applyBindings = function (viewModel, rootNode) {
 	origApplyBindings(viewModel, rootNode);
 };
 
-ko.validatedObservable = function (initialValue) {
+ko.validatedObservable = function (initialValue, options) {
 	if (!ko.validation.utils.isObject(initialValue)) { return ko.observable(initialValue).extend({ validatable: true }); }
 
 	var obsv = ko.observable(initialValue);
-	obsv.errors = ko.validation.group(initialValue);
-	obsv.isValid = ko.observable(initialValue.isValid());	
-	obsv.errors.subscribe(function (errors) {
-		obsv.isValid(errors.length === 0);
-	});
+	obsv.errors = ko.validation.group(initialValue, options);
+	obsv.isValid = ko.observable(initialValue.isValid());
+
+
+	if (ko.isObservable(obsv.errors)) {
+		obsv.errors.subscribe(function (errors) {
+				obsv.isValid(errors.length === 0);
+			});
+		}
+		else {
+			ko.computed(obsv.errors).subscribe(function (errors) {
+				obsv.isValid(errors.length === 0);
+			});
+		}
 
 	return obsv;
 };
