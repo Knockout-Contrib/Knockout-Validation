@@ -11,6 +11,7 @@ module.exports = function (grunt) {
 					"	License:		MIT (http://opensource.org/licenses/mit-license.php)		\n" +
 					"																				\n" +
 					"	Description:	Validation Library for KnockoutJS							\n" +
+					"	Version:		<%= pkg.version %>											\n" +
 					"===============================================================================\n*/\n"
 		},
 		concat: {
