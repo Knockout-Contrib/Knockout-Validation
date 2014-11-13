@@ -22,7 +22,7 @@
     }
 }(function ( ko, exports ) {
 
-    if (typeof (ko) === undefined) { throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in'; }
+    if (typeof (ko) === 'undefined') { throw 'Knockout is required, please ensure it is loaded before loading this validation plug-in'; }
 
     // create our namespace object
     ko.validation = exports;
@@ -700,7 +700,7 @@ function minMaxValidatorFactory(validatorName) {
 
         // From http://www.w3.org/TR/2012/WD-html5-20121025/common-input-element-attributes.html#attr-input-min,
         // if the value is parseable to a number, then the minimum should be numeric
-        if (!isNaN(comparisonValue)) {
+        if (!isNaN(comparisonValue) && !(comparisonValue instanceof Date)) {
             type = "number";
         }
 
@@ -1338,15 +1338,24 @@ ko.applyBindings = function (viewModel, rootNode) {
 	origApplyBindings(viewModel, rootNode);
 };
 
-ko.validatedObservable = function (initialValue) {
+ko.validatedObservable = function (initialValue, options) {
 	if (!kv.utils.isObject(initialValue)) { return ko.observable(initialValue).extend({ validatable: true }); }
 
 	var obsv = ko.observable(initialValue);
-	obsv.errors = kv.group(initialValue);
-	obsv.isValid = ko.observable(initialValue.isValid());	
-	obsv.errors.subscribe(function (errors) {
-		obsv.isValid(errors.length === 0);
-	});
+	obsv.errors = kv.group(initialValue, options);
+	obsv.isValid = ko.observable(initialValue.isValid());
+
+
+	if (ko.isObservable(obsv.errors)) {
+		obsv.errors.subscribe(function (errors) {
+				obsv.isValid(errors.length === 0);
+			});
+		}
+		else {
+			ko.computed(obsv.errors).subscribe(function (errors) {
+				obsv.isValid(errors.length === 0);
+			});
+		}
 
 	return obsv;
 };

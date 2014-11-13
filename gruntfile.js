@@ -1,4 +1,5 @@
 /*global module:false*/
+/*jshint node:true*/
 module.exports = function (grunt) {
 
 	// Project configuration.
@@ -37,7 +38,7 @@ module.exports = function (grunt) {
 					"Src/extenders.js",
 					"Src/localization.js",
 					"Src/ko.extensions.js",
-					"Src/ko.validation.end.frag",
+					"Src/ko.validation.end.frag"
 				],
 				dest: "Dist/<%= pkg.name %>.js"
 			}
@@ -45,7 +46,8 @@ module.exports = function (grunt) {
 		uglify: {
 			options: {
 				banner: "<%= meta.banner %>",
-				report: "min"
+				report: "min",
+				sourceMap: true
 			},
 			dist: {
 				files: {
@@ -57,8 +59,11 @@ module.exports = function (grunt) {
 			files: ["Tests/test-runner.htm"]
 		},
 		jshint: {
-			files: ["Src/**/*.js", "Tests/*.js"],
-			options: grunt.file.readJSON(".jshintrc"),
+			files: ["gruntfile.js", "Src/**/*.js", "Tests/*.js", "Localization/*.js"],
+			options: {
+				jshintrc: ".jshintrc",
+				reporter: require('jshint-stylish')
+			}
 		},
 		watch: {
 			clear: {
