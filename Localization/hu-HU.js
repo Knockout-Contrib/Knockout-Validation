@@ -1,39 +1,39 @@
 /// <reference path="../Src/knockout.validation.js" />
 
 /************************************************
-* This is an example localization page. All of these
-* messages are the default messages for ko.validation
-* 
-* Currently ko.validation only does a single parameter replacement
-* on your message (indicated by the {0}).
-*
-* The parameter that you provide in your validation extender
-* is what is passed to your message to do the {0} replacement.
-*
-* eg: myProperty.extend({ minLength: 5 });
-* ... will provide a message of "Please enter at least 5 characters"
-* when validated
-*
-* This message replacement obviously only works with primitives
-* such as numbers and strings. We do not stringify complex objects 
-* or anything like that currently.
-*/
+ * This is an example localization page. All of these
+ * messages are the default messages for ko.validation
+ *
+ * Currently ko.validation only does a single parameter replacement
+ * on your message (indicated by the {0}).
+ *
+ * The parameter that you provide in your validation extender
+ * is what is passed to your message to do the {0} replacement.
+ *
+ * eg: myProperty.extend({ minLength: 5 });
+ * ... will provide a message of "Please enter at least 5 characters"
+ * when validated
+ *
+ * This message replacement obviously only works with primitives
+ * such as numbers and strings. We do not stringify complex objects
+ * or anything like that currently.
+ */
 
 ko.validation.localize({
-    required: 'Kötelezõ megadni.',
+    required: 'KÃ¶telezÃµ megadni.',
     min: 'Nem lehet kisebb, mint {0}.',
     max: 'Nem lehet nagyobb, mint {0}.',
-    minLength: 'Legalább {0} karaktert adjon meg.',
+    minLength: 'LegalÃ¡bb {0} karaktert adjon meg.',
     maxLength: 'Legfeljebb {0} karaktert adjon meg.',
-    pattern: 'Kérem ellenõrizze ezt az értéket.',
-    step: 'Az értéknek {0} értékkel kell növekednie.',
-    email: 'A megadott email cím nem érvényes.',
-    date: 'A megadott dátum nem érvényes.',
-    dateISO: 'A megadott dátum nem érvényes.',
-    number: 'Kérem számot adjon meg.',
-    digit: 'Kérem számjegyet adjon meg.',
-    phoneUS: 'Kérem, hogy érvényes telefonszámot adjon meg.',
-    equal: 'Az értékeknek meg kel egyezniük.',
-    notEqual: 'Az értékeknek különbözniük kell.',
-    unique: 'Az értéknek egyedieknek kell lennie.'
+    pattern: 'KÃ©rem ellenÃµrizze ezt az Ã©rtÃ©ket.',
+    step: 'Az Ã©rtÃ©knek {0} Ã©rtÃ©kkel kell nÃ¶vekednie.',
+    email: 'A megadott email cÃ­m nem Ã©rvÃ©nyes.',
+    date: 'A megadott dÃ¡tum nem Ã©rvÃ©nyes.',
+    dateISO: 'A megadott dÃ¡tum nem Ã©rvÃ©nyes.',
+    number: 'KÃ©rem szÃ¡mot adjon meg.',
+    digit: 'KÃ©rem szÃ¡mjegyet adjon meg.',
+    phoneUS: 'KÃ©rem, hogy Ã©rvÃ©nyes telefonszÃ¡mot adjon meg.',
+    equal: 'Az Ã©rtÃ©keknek meg kel egyezniÃ¼k.',
+    notEqual: 'Az Ã©rtÃ©keknek kÃ¼lÃ¶nbÃ¶zniÃ¼k kell.',
+    unique: 'Az Ã©rtÃ©knek egyedieknek kell lennie.'
 });
