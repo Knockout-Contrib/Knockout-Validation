@@ -71,7 +71,11 @@ test("checked binding sets error class on radio buttons", function() {
 });
 
 test('textInput Binding Works', function () {
-
+    if (!ko.bindingHandlers.textInput) {
+        // 'textInput binding not supported (ko.version < 3.2).
+        ok(true, 'ignore test');
+        return;
+    }
     addTestHtml('<input id="myTestInput" data-bind="textInput: firstName" type="text" />');
 
     var vm = {
