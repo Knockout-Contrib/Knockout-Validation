@@ -42,12 +42,13 @@ ko.bindingHandlers['validationCore'] = (function () {
 
 }());
 
-// override for KO's default 'value', 'checked' and 'textInput' bindings
+// override for KO's default 'value', 'checked', 'textInput' and selectedOptions bindings
 ko.validation.makeBindingHandlerValidatable("value");
 ko.validation.makeBindingHandlerValidatable("checked");
 if (ko.bindingHandlers.textInput) {
 	ko.validation.makeBindingHandlerValidatable("textInput");
 }
+ko.validation.makeBindingHandlerValidatable("selectedOptions");
 
 
 ko.bindingHandlers['validationMessage'] = { // individual error message, if modified or post binding

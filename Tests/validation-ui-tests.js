@@ -99,6 +99,43 @@ test('textInput Binding Works', function () {
     equal(msg, 'This field is required.', msg);
 });
 
+test('selectedOptions Binding Works', function () {
+
+    addTestHtml('<select id="myTestInput" data-bind="options: availableNames, selectedOptions: selectedNames, optionsValue: \'name\', optionsText: \'name\'" multiple="true"></select>');
+
+    var vm = {
+        availableNames: ko.observableArray([
+            {name: 'First'},
+            {name: 'Second'},
+            {name: 'Third'}
+        ]),
+        selectedNames: ko.observableArray()
+            .extend({
+                validation: {
+                    validator: function(value) {
+                        return value.length > 0;
+                    },
+                    message: 'Please select at least one item.'
+                }
+            })
+    };
+
+    applyTestBindings(vm);
+
+    var $testInput = $('#myTestInput');
+
+    $testInput.val('First');
+    $testInput.change();
+    ok(vm.selectedNames.isValid(), 'selectedNames is Valid');
+
+    $testInput.val('');
+    $testInput.change();
+    ok(!vm.selectedNames.isValid(), 'selectedNames is NOT Valid');
+
+    var msg = $testInput.siblings().first().text();
+    equal(msg, 'Please select at least one item.', msg);
+});
+
 //#region Inserting Messages
 
 test('Inserting Messages Works', function () {
