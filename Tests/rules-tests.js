@@ -78,7 +78,7 @@ test("Undefined params should not cause errors", function () {
 test("Issue #376 - empty string should pass validation when required = false", function () {
 	var observable = ko.observable("").extend({ required: false });
 
-	ok(observable.isValid(), "Empty string should be vvalid");
+	ok(observable.isValid(), "Empty string should be valid");
 });
 
 //#endregion
@@ -136,6 +136,7 @@ test('Object is NOT Valid and isValid returns False', function () {
 
 	equal(testObj(), 1, 'observable still works');
 	equal(testObj.isValid(), false, 'testObj is not valid');
+	equal(testObj.error(), 'Please enter a value greater than or equal to 2.', 'Message needs to be formatted correctly');
 });
 
 test('Object is NOT Valid and isValid returns False and min is observable', function () {
@@ -147,6 +148,7 @@ test('Object is NOT Valid and isValid returns False and min is observable', func
 
 	equal(testObj(), 1, 'observable still works');
 	equal(testObj.isValid(), false, 'testObj is not valid');
+	equal(testObj.error(), 'Please enter a value greater than or equal to 3.', 'Message needs to be formatted correctly');
 });
 
 test('Object is Valid and isValid returns True and min is observable', function () {
@@ -227,6 +229,7 @@ test('Object is NOT Valid and isValid returns False', function () {
 
 	equal(testObj(), 6, 'observable still works');
 	equal(testObj.isValid(), false, 'testObj is not valid');
+	equal(testObj.error(), 'Please enter a value less than or equal to 5.', 'Message needs to be formatted correctly');
 });
 
 test('Object is NOT Valid and isValid returns False and max is observable', function () {
@@ -238,6 +241,7 @@ test('Object is NOT Valid and isValid returns False and max is observable', func
 
 	equal(testObj(), 4, 'observable still works');
 	equal(testObj.isValid(), false, 'testObj is not valid');
+	equal(testObj.error(), 'Please enter a value less than or equal to 3.', 'Message needs to be formatted correctly');
 });
 
 test('Object is Valid and isValid returns True and max is observable', function () {

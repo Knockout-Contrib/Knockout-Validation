@@ -194,6 +194,9 @@
 		},
 
 		formatMessage: function (message, params, observable) {
+			if (utils.isObject(params) && params.typeAttr) {
+				params = params.value;
+			}
 			if (typeof (message) === 'function') {
 				return message(params, observable);
 			}
@@ -315,13 +318,13 @@
                         if (typeof typeAttr === "undefined" || !typeAttr)
                         {
                             // From http://www.w3.org/TR/html-markup/input:
-                            //   An input element with no type attribute specified represents the 
+                            //   An input element with no type attribute specified represents the
                             //   same thing as an input element with its type attribute set to "text".
-                            typeAttr = "text"; 
-                        }                            
-                        params = {typeAttr: typeAttr, value: params}; 
+                            typeAttr = "text";
+                        }
+                        params = {typeAttr: typeAttr, value: params};
                     }
-                
+
 					ko.validation.addRule(valueAccessor(), {
 						rule: attr,
 						params: params

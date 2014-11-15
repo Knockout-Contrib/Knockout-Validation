@@ -804,6 +804,8 @@ test('min Attribute of 20 should fail for value of 8', function () {
 
         ok(el, 'found element');
         ok(!vm.someNumber.isValid(), "Object is not valid");
+        equal(vm.someNumber.error(), "Please enter a value greater than or equal to 20.",
+            'Message needs to be formatted correctly');
 
         start();
     }, 1);
@@ -829,6 +831,8 @@ test('min Attribute of 20 should fail for value of "8"', function () {
 
         ok(el, 'found element');
         ok(!vm.someNumber.isValid(), "Object is not valid");
+        equal(vm.someNumber.error(), "Please enter a value greater than or equal to 20.",
+            'Message needs to be formatted correctly');
 
         start();
     }, 1);
@@ -855,6 +859,8 @@ test('min Attribute of 20 should fail for value of "8" with text type', function
 
         ok(el, 'found element');
         ok(!vm.someNumber.isValid(), "Object is not valid");
+        equal(vm.someNumber.error(), "Please enter a value greater than or equal to 20.",
+            'Message needs to be formatted correctly');
 
         start();
     }, 1);
@@ -869,7 +875,7 @@ test('min Attribute of 20 should pass for value of 110', function () {
     addTestHtml('<input id="myTestInput" type="number" min="20" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
-        parseInputAttributes: true,
+        parseInputAttributes: true
     }, true);
     applyTestBindings(vm);
     stop();
@@ -896,7 +902,7 @@ test('MIN Attribute of 20 should pass for value of "110"', function () {
     addTestHtml('<input id="myTestInput" type="number" min="20" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
-        parseInputAttributes: true,
+        parseInputAttributes: true
     }, true);
     applyTestBindings(vm);
     stop();
@@ -935,6 +941,8 @@ test('max Attribute of 30 should fail for value of 100', function () {
 
         ok(el, 'found element');
         ok(!vm.someNumber.isValid(), "Object is not valid");
+        equal(vm.someNumber.error(), "Please enter a value less than or equal to 30.",
+            'Message needs to be formatted correctly');
 
         start();
     }, 1);
@@ -960,6 +968,8 @@ test('max Attribute of 30 should fail for value of "100"', function () {
 
         ok(el, 'found element');
         ok(!vm.someNumber.isValid(), "Object is not valid");
+        equal(vm.someNumber.error(), "Please enter a value less than or equal to 30.",
+            'Message needs to be formatted correctly');
 
         start();
     }, 1);
@@ -986,6 +996,8 @@ test('max Attribute of 30 should fail for value of "100" with text type', functi
 
         ok(el, 'found element');
         ok(!vm.someNumber.isValid(), "Object is not valid");
+        equal(vm.someNumber.error(), "Please enter a value less than or equal to 30.",
+            'Message needs to be formatted correctly');
 
         start();
     }, 1);
@@ -1000,7 +1012,7 @@ test('max Attribute of 30 should pass for value of 5', function () {
     addTestHtml('<input id="myTestInput" type="number" max="30" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
-        parseInputAttributes: true,
+        parseInputAttributes: true
     }, true);
     applyTestBindings(vm);
     stop();
@@ -1027,7 +1039,7 @@ test('max Attribute of 30 should pass for value of "5"', function () {
     addTestHtml('<input id="myTestInput" type="number" max="30" data-bind="value:someNumber", validationElement: someNumber" />');
 
     ko.validation.init({
-        parseInputAttributes: true,
+        parseInputAttributes: true
     }, true);
     applyTestBindings(vm);
     stop();
@@ -1118,6 +1130,8 @@ test('min Attribute of 2010-09 should fail for value of 2010-08', function () {
 
         ok(el, 'found element');
         ok(!vm.someNumber.isValid(), "Object is valid");
+        equal(vm.someNumber.error(), "Please enter a value greater than or equal to 2010-09.",
+            'Message needs to be formatted correctly');
 
         start();
     }, 1);
@@ -1144,6 +1158,8 @@ test('min Attribute of 2012-05 should fail for value of 2011-01', function () {
 
         ok(el, 'found element');
         ok(!vm.someNumber.isValid(), "Object is valid");
+        equal(vm.someNumber.error(), "Please enter a value greater than or equal to 2012-05.",
+            'Message needs to be formatted correctly');
 
         start();
     }, 1);
@@ -1196,6 +1212,8 @@ test('max Attribute of 2010-W09 should fail for value of 2011-W03', function () 
 
         ok(el, 'found element');
         ok(!vm.someNumber.isValid(), "Object is not valid");
+        equal(vm.someNumber.error(), "Please enter a value less than or equal to 2010-W09.",
+            'Message needs to be formatted correctly');
 
         start();
     }, 1);
@@ -1248,6 +1266,8 @@ test('min Attribute of 2010-W09 should fail for value of 2010-W08', function () 
 
         ok(el, 'found element');
         ok(!vm.someNumber.isValid(), "Object is valid");
+        equal(vm.someNumber.error(), "Please enter a value greater than or equal to 2010-W09.",
+            'Message needs to be formatted correctly');
 
         start();
     }, 1);
@@ -1274,6 +1294,8 @@ test('min Attribute of 2012-W05 should fail for value of 2011-W01', function () 
 
         ok(el, 'found element');
         ok(!vm.someNumber.isValid(), "Object is valid");
+        equal(vm.someNumber.error(), "Please enter a value greater than or equal to 2012-W05.",
+            'Message needs to be formatted correctly');
 
         start();
     }, 1);

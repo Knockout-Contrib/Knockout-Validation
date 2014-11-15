@@ -390,6 +390,9 @@ kv.configuration = configuration;
 		},
 
 		formatMessage: function (message, params, observable) {
+			if (utils.isObject(params) && params.typeAttr) {
+				params = params.value;
+			}
 			if (typeof (message) === 'function') {
 				return message(params, observable);
 			}
@@ -511,13 +514,13 @@ kv.configuration = configuration;
                         if (typeof typeAttr === "undefined" || !typeAttr)
                         {
                             // From http://www.w3.org/TR/html-markup/input:
-                            //   An input element with no type attribute specified represents the 
+                            //   An input element with no type attribute specified represents the
                             //   same thing as an input element with its type attribute set to "text".
-                            typeAttr = "text"; 
-                        }                            
-                        params = {typeAttr: typeAttr, value: params}; 
+                            typeAttr = "text";
+                        }
+                        params = {typeAttr: typeAttr, value: params};
                     }
-                
+
 					kv.addRule(valueAccessor(), {
 						rule: attr,
 						params: params
@@ -635,7 +638,8 @@ kv.configuration = configuration;
 }());
 
 // expose api publicly
-extend(ko.validation, api);;//Validation Rules:
+extend(ko.validation, api);
+;//Validation Rules:
 // You can view and override messages or rules via:
 // kv.rules[ruleName]
 //
@@ -967,7 +971,7 @@ ko.bindingHandlers['validationCore'] = (function () {
 
 }());
 
-// override for KO's default 'value', 'checked' and 'textInput' bindings
+// override for KO's default 'value', 'checked', 'textInput' and selectedOptions bindings
 kv.makeBindingHandlerValidatable("value");
 kv.makeBindingHandlerValidatable("checked");
 if (ko.bindingHandlers.textInput) {
