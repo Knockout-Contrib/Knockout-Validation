@@ -174,11 +174,7 @@
 				});
 			};
 
-			obj.errors = result;
-			obj.isValid = function () {
-				return obj.errors().length === 0;
-			};
-			obj.isAnyMessageShown = function () {
+			result.isAnyMessageShown = function () {
 				var invalidAndModifiedPresent = false;
 
 				// ensure we have latest changes

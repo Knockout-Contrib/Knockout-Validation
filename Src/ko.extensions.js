@@ -36,7 +36,7 @@ ko.validatedObservable = function (initialValue, options) {
 
 	var obsv = ko.observable(initialValue);
 	obsv.errors = ko.validation.group(initialValue, options);
-	obsv.isValid = ko.observable(initialValue.isValid());
+	obsv.isValid = ko.observable(obsv.errors().length === 0);
 
 
 	if (ko.isObservable(obsv.errors)) {
