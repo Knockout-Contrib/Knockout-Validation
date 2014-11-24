@@ -370,11 +370,7 @@ kv.configuration = configuration;
 				});
 			};
 
-			obj.errors = result;
-			obj.isValid = function () {
-				return obj.errors().length === 0;
-			};
-			obj.isAnyMessageShown = function () {
+			result.isAnyMessageShown = function () {
 				var invalidAndModifiedPresent = false;
 
 				// ensure we have latest changes
@@ -1352,7 +1348,7 @@ ko.validatedObservable = function (initialValue, options) {
 
 	var obsv = ko.observable(initialValue);
 	obsv.errors = kv.group(initialValue, options);
-	obsv.isValid = ko.observable(initialValue.isValid());
+	obsv.isValid = ko.observable(obsv.errors().length === 0);
 
 
 	if (ko.isObservable(obsv.errors)) {
