@@ -357,7 +357,7 @@
 			ko.utils.arrayForEach(ko.validation.configuration.html5Attributes, function (attr) {
 				var params;
 				var ctx = ko.utils.arrayFirst(contexts, function (ctx) {
-					return ctx.rule.toLowerCase() === attr.toLowerCase();
+					return ctx.rule && ctx.rule.toLowerCase() === attr.toLowerCase();
 				});
 
 				if (!ctx) {

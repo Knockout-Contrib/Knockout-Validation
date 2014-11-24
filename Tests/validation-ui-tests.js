@@ -676,6 +676,45 @@ test("Issue #80 - Write HTML5 Validation Attributes programmatically", function 
 
 });
 
+test("Issue #400 - Write HTML5 Validation Attributes fails when anonymous rules are used", function () {
+
+    var vm = {
+        testObj: ko.observable(15).extend({required: true}).extend({
+            validation: [{
+                validator: function(value, params) {
+                    return parseInt(value, 10) === params;
+                },
+                message: function(params) {
+                    return 'Value must be equal to ' + params;
+                },
+                params: 1
+            }]
+        })
+    };
+
+    // setup the html
+    addTestHtml('<input type="text" id="testElement" data-bind="value: testObj"/>');
+
+    // make sure we allow element decorations
+    ko.validation.init({
+        decorateInputElement: true,
+        writeInputAttributes: true
+    }, true);
+
+    applyTestBindings(vm);
+
+    var $el = $('#testElement');
+    var tests = {};
+
+    ko.utils.arrayForEach(['required', 'min', 'max', 'step', 'pattern'], function (attr) {
+        tests[attr] = $el.attr(attr);
+    });
+
+    ok(tests.required, "Required Found");
+    ok(!vm.testObj.isValid(), 'observable is NOT valid');
+    strictEqual(vm.testObj.error(), "Value must be equal to 1", 'Message is correct');
+});
+
 test("Issue #80 - HTML5 attributes - pattern", function () {
 
     var pattern = /something/i;
