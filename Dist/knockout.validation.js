@@ -553,7 +553,7 @@ kv.configuration = configuration;
 			forEach(kv.configuration.html5Attributes, function (attr) {
 				var params;
 				var ctx = koUtils.arrayFirst(contexts, function (ctx) {
-					return ctx.rule.toLowerCase() === attr.toLowerCase();
+					return ctx.rule && ctx.rule.toLowerCase() === attr.toLowerCase();
 				});
 
 				if (!ctx) {
