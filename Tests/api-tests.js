@@ -274,7 +274,7 @@ test('validatedObservable does not show error message when not modified', functi
 	});
 
 	ok(obj(), 'observable works');
-	ok(!obj().isAnyMessageShown(), 'validation error message is hidden');
+	ok(!obj.errors.isAnyMessageShown(), 'validation error message is hidden');
 
 });
 
@@ -288,7 +288,7 @@ test('validatedObservable does not show error message when modified but correct'
 	obj().testObj2('a');
 
 	ok(obj(), 'observable works');
-	ok(!obj().isAnyMessageShown(), 'validation error message is hidden');
+	ok(!obj.errors.isAnyMessageShown(), 'validation error message is hidden');
 
 });
 
@@ -301,7 +301,7 @@ test('validatedObservable show error message when at least one invalid and modif
 	obj().testObj.isModified(true);
 
 	ok(obj(), 'observable works');
-	ok(obj().isAnyMessageShown(), 'validation error message is shown');
+	ok(obj.errors.isAnyMessageShown(), 'validation error message is shown');
 
 });
 
