@@ -60,6 +60,11 @@ ko.bindingHandlers['validationMessage'] = { // individual error message, if modi
 			isModified = false,
 			isValid = false;
 
+		if (obsv === null || typeof obsv === 'undefined') {
+			throw new Error('Cannot bind validationMessage to undefined value. data-bind expression: ' +
+				element.getAttribute('data-bind'));
+		}
+
 		if (!obsv.isValid || !obsv.isModified) {
 			throw new Error("Observable is not validatable");
 		}
@@ -97,6 +102,11 @@ ko.bindingHandlers['validationElement'] = {
 			msg = null,
 			isModified = false,
 			isValid = false;
+
+		if (obsv === null || typeof obsv === 'undefined') {
+			throw new Error('Cannot bind validationElement to undefined value. data-bind expression: ' +
+				element.getAttribute('data-bind'));
+		}
 
 		if (!obsv.isValid || !obsv.isModified) {
 			throw new Error("Observable is not validatable");

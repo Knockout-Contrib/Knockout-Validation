@@ -383,7 +383,7 @@ test("setRules applies rules to all properties", function () {
 			ignoredProperty: ko.observable(),
 			grandchild: {
 				property3: ko.observable(),
-				ignoredProperty: ko.observable(),
+				ignoredProperty: ko.observable()
 			}
 		},
 		nestedArray: ko.observableArray([
@@ -410,8 +410,8 @@ test("setRules applies rules to all properties", function () {
         { rule: "number", params: true }
 	]);
 
-	for (var i = 0; i < target.nestedArray.length; i) {
-		deepEqual(target.nestedArray[i].property3.rules(), [
+	for (var i = 0; i < target.nestedArray().length; i++) {
+		deepEqual(target.nestedArray()[i].property4.rules(), [
 			{ rule: "email", params: true }
 		]);
 	}
