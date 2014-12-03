@@ -19,7 +19,10 @@ ko.applyBindingsWithValidation = function (viewModel, rootNode, options) {
 
 	ko.validation.init();
 
-	if (config) { ko.validation.utils.setDomData(node, config); }
+	if (config) {
+		config = ko.utils.extend(ko.utils.extend({}, ko.validation.configuration), config);
+		ko.validation.utils.setDomData(node, config);
+	}
 
 	ko.applyBindings(viewModel, rootNode);
 };

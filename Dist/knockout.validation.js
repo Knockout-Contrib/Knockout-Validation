@@ -1341,7 +1341,10 @@ ko.applyBindingsWithValidation = function (viewModel, rootNode, options) {
 
 	kv.init();
 
-	if (config) { kv.utils.setDomData(node, config); }
+	if (config) {
+		config = extend(extend({}, kv.configuration), config);
+		kv.utils.setDomData(node, config);
+	}
 
 	ko.applyBindings(viewModel, rootNode);
 };
