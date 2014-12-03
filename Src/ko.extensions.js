@@ -1,18 +1,20 @@
-﻿ko.applyBindingsWithValidation = function (viewModel, rootNode, options) {
-	var len = arguments.length,
-		node, config;
+﻿/**
+ * Possible invocations:
+ * 		applyBindingsWithValidation(viewModel)
+ * 		applyBindingsWithValidation(viewModel, options)
+ * 		applyBindingsWithValidation(viewModel, rootNode)
+ *		applyBindingsWithValidation(viewModel, rootNode, options)
+ */
+ko.applyBindingsWithValidation = function (viewModel, rootNode, options) {
+	var node = document.body,
+		config;
 
-	if (len > 2) { // all parameters were passed
+	if (rootNode && rootNode.nodeType) {
 		node = rootNode;
 		config = options;
-	} else if (len < 2) {
-		node = document.body;
-	} else { //have to figure out if they passed in a root node or options
-		if (arguments[1].nodeType) { //its a node
-			node = rootNode;
-		} else {
-			config = arguments[1];
-		}
+	}
+	else {
+		config = rootNode;
 	}
 
 	ko.validation.init();
