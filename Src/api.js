@@ -196,7 +196,16 @@
 			if (typeof (message) === 'function') {
 				return message(params, observable);
 			}
-			return message.replace(/\{0\}/gi, ko.utils.unwrapObservable(params));
+			var replacements = ko.utils.unwrapObservable(params) || [];
+			if (!utils.isArray(replacements)) {
+				replacements = [replacements];
+			}
+			return message.replace(/{(\d+)}/gi, function(match, index) {
+				if (typeof replacements[index] !== 'undefined') {
+					return replacements[index];
+				}
+				return match;
+			});
 		},
 
 		// addRule:

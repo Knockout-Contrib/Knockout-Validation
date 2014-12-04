@@ -392,7 +392,16 @@ kv.configuration = configuration;
 			if (typeof (message) === 'function') {
 				return message(params, observable);
 			}
-			return message.replace(/\{0\}/gi, unwrap(params));
+			var replacements = unwrap(params) || [];
+			if (!utils.isArray(replacements)) {
+				replacements = [replacements];
+			}
+			return message.replace(/{(\d+)}/gi, function(match, index) {
+				if (typeof replacements[index] !== 'undefined') {
+					return replacements[index];
+				}
+				return match;
+			});
 		},
 
 		// addRule:
