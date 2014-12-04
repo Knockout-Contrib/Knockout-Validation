@@ -146,7 +146,7 @@ ko.validation.rules['max'] = {
 	validator: minMaxValidatorFactory("max"),
 	message: 'Please enter a value less than or equal to {0}.'
 };
-    
+
 ko.validation.rules['minLength'] = {
 	validator: function (val, minLength) {
 		if(ko.validation.utils.isEmptyVal(val)) { return true; }
@@ -209,7 +209,7 @@ ko.validation.rules['date'] = {
 ko.validation.rules['dateISO'] = {
 	validator: function (value, validate) {
 		if (!validate) { return true; }
-		return ko.validation.utils.isEmptyVal(value) || (validate && /^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/.test(value));
+		return ko.validation.utils.isEmptyVal(value) || (validate && /^\d{4}[-/](?:0?[1-9]|1[012])[-/](?:0?[1-9]|[12][0-9]|3[01])$/.test(value));
 	},
 	message: 'Please enter a proper date.'
 };

@@ -926,6 +926,24 @@ test('Object is NOT Valid and dateISO is observable and isValid returns False', 
 	equal(testObj.isValid(), false, testObj.error());
 });
 
+test('Object is NOT Valid if month is not in acceptable range', function() {
+	var testObj = ko.observable('').extend({ dateISO: true });
+
+	testObj('2011-13-18');
+
+	equal(testObj(), '2011-13-18', 'observable still works');
+	equal(testObj.isValid(), false, testObj.error());
+});
+
+test('Object is NOT Valid if day is not in acceptable range', function() {
+	var testObj = ko.observable('').extend({ dateISO: true });
+
+	testObj('2011-12-40');
+
+	equal(testObj(), '2011-12-40', 'observable still works');
+	equal(testObj.isValid(), false, testObj.error());
+});
+
 //#endregion
 
 //#region Number Validation
