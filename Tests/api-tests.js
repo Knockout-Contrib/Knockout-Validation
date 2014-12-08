@@ -544,6 +544,9 @@ asyncTest("can be throttled using using local configuration", function () {
 
 //#endregion
 
+
+module("Formatting Tests");
+
 test("formatMessage passes observable to function", function () {
 	var inParams = { value: 123 },
 		inObservable = ko.observable();
@@ -551,4 +554,14 @@ test("formatMessage passes observable to function", function () {
 		equal(params, inParams);
 		equal(observable, inObservable);
 	}, inParams, inObservable);
+});
+
+test("formatMessage may use multiple replacements", function() {
+	var params = [1, 5],
+		message = 'Value must be between {0} and {1}.',
+		obsv = ko.observable(10);
+
+	var result = ko.validation.formatMessage(message, params, obsv);
+	equal(result, 'Value must be between 1 and 5.');
+
 });
