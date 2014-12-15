@@ -571,6 +571,20 @@ QUnit.test('Issue #44 - Validation Element - Is Invalid Test', function(assert) 
 
 });
 
+QUnit.test('Issue #481 - writeInputAttributes doesn\'t unwrap params to sync attribute', function(assert) {
+    var minValue = ko.observable(4);
+    var testObj = ko.observable(10).extend({min: minValue});
+
+    var $element = jQuery('<input type="text" data-bind="value: value">');
+    addTestHtml($element);
+    ko.validation.init({writeInputAttributes: true}, true);
+    applyTestBindings({value: testObj});
+
+    assert.strictEqual($element.attr('min'), '4', 'min attribute is written');
+    minValue(15);
+    assert.strictEqual($element.attr('min'), '15', 'min attribute is written');
+});
+
 QUnit.test('Issue #80 - Write HTML5 Validation Attributes programmatically', function(assert) {
 
     var vm = {
