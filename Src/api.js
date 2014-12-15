@@ -380,7 +380,10 @@
 
 				// we have a rule matching a validation attribute at this point
 				// so lets add it to the element along with the params
-				element.setAttribute(attr, params);
+				ko.computed({
+					read: function() { element.setAttribute(attr, ko.unwrap(params)); },
+					disposeWhenNodeIsRemoved: element,
+				});
 			});
 
 			contexts = null;
