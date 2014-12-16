@@ -648,7 +648,8 @@ test('Issue #481 - writeInputAttributes doesn\'t unwrap params to sync attribute
     var minValue = ko.observable(4);
     var testObj = ko.observable(10).extend({min: minValue});
 
-    addTestHtml('<input type="text" data-bind="value: value">');
+    var $element = jQuery('<input type="text" data-bind="value: value">');
+    addTestHtml($element);
     ko.validation.init({writeInputAttributes: true}, true);
     applyTestBindings({value: testObj});
 
