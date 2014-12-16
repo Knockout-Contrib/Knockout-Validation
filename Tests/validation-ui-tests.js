@@ -644,6 +644,20 @@ test("Issue #44 - Validation Element - Is Invalid Test", function () {
 
 });
 
+test('Issue #481 - writeInputAttributes doesn\'t unwrap params to sync attribute', function() {
+    var minValue = ko.observable(4);
+    var testObj = ko.observable(10).extend({min: minValue});
+
+    addTestHtml('<input type="text" data-bind="value: value">');
+    ko.validation.init({writeInputAttributes: true}, true);
+    applyTestBindings({value: testObj});
+
+    strictEqual($element.attr('min'), '4', 'min attribute is written');
+    minValue(15);
+    strictEqual($element.attr('min'), '15', 'min attribute is written');
+});
+
+
 test("Issue #80 - Write HTML5 Validation Attributes programmatically", function () {
 
     var vm = {
