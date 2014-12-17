@@ -1,57 +1,44 @@
-﻿/*global
-	module:false,
-	equal:false,
-	notEqual:false,
-	strictEqual:false,
-	test:false,
-	ok:false,
-	asyncTest:false,
-	start: false,
-	stop: false,
-	$: false,
-	expect: false
-*/
+﻿/*global QUnit:false, $:false*/
 
-module('UI Tests', {
-    setup: function () {
 
-    },
-    teardown: function () {
-        ko.cleanNode($('#testContainer')[0]);
-        $('#testContainer').empty();
+QUnit.module('UI Tests', {
+    afterEach: function() {
+        var $element = $('#testContainer');
+        ko.cleanNode($element[0]);
+        $element.empty();
         ko.validation.reset();
     }
 });
 
 //utility functions
-var applyTestBindings = function (vm) {
+var applyTestBindings = function(vm) {
     ko.applyBindingsWithValidation(vm, $('#testContainer')[0]);
 };
 
-var addTestHtml = function(html){
+var addTestHtml = function(html) {
     $('#testContainer').html(html);
 };
 
-test('hasAttribute works in old IE', function () {
+
+QUnit.test('hasAttribute works in old IE', function(assert) {
 
     addTestHtml('<input id="myTestInput" type="text" required />');
 
-    var el = document.getElementById('myTestInput');
+    var el = $('#myTestInput')[0];
 
-    ok(el, 'found element');
-
-    ok(ko.validation.utils.hasAttribute(el, 'required'), 'element correctly has html5 input attribute');
-    ok(!ko.validation.utils.hasAttribute(el, 'pattern'), 'element correctly does not have html5 input attribute');
+    assert.ok(el, 'found element');
+    assert.ok(ko.validation.utils.hasAttribute(el, 'required'), 'element correctly has html5 input attribute');
+    assert.ok(!ko.validation.utils.hasAttribute(el, 'pattern'), 'element correctly does not have html5 input attribute');
 });
 
-test("checked binding sets error class on radio buttons", function() {
+QUnit.test('checked binding sets error class on radio buttons', function(assert) {
     addTestHtml("<input id='testInput1' type='radio' name='group' value='one' data-bind='checked: result' />" +
         "<input id='testInput2' type='radio' name='group' value='two' data-bind='checked: result' />" +
         "<input id='testInput3' type='radio' name='group' value='three' data-bind='checked: result' />");
 
-    var $input = $("#testInput2"),
+    var $input = $('#testInput2'),
         vm = {
-            result: ko.observable("").extend({ required: true })
+            result: ko.observable('').extend({ required: true })
         };
     ko.validation.init({ decorateInputElement: true }, true);
 
@@ -59,21 +46,21 @@ test("checked binding sets error class on radio buttons", function() {
 
     applyTestBindings(vm);
 
-    ok(!vm.result.isValid(), "Should initially be invalid");
-    ok($input.hasClass("validationElement"), "Validation class should have been added");
+    assert.ok(!vm.result.isValid(), 'Should initially be invalid');
+    assert.ok($input.hasClass('validationElement'), 'Validation class should have been added');
 
-    $input.prop("checked", true);
+    $input.prop('checked', true);
     $input.click(); //trigger the validation
 
-    equal(vm.result(), "two", "Value should have changed");
-    ok(vm.result.isValid(), "Should now be valid");
-    ok(!$input.hasClass("validationElement"), "Validation class should have been removed");
+    assert.equal(vm.result(), 'two', 'Value should have changed');
+    assert.ok(vm.result.isValid(), 'Should now be valid');
+    assert.ok(!$input.hasClass('validationElement'), 'Validation class should have been removed');
 });
 
-test('textInput Binding Works', function () {
+QUnit.test('textInput Binding Works', function(assert) {
     if (!ko.bindingHandlers.textInput) {
         // 'textInput binding not supported (ko.version < 3.2).
-        ok(true, 'ignore test');
+        assert.ok(true, 'textInput binding is available in ko >= 3.2. The test will be skipped.');
         return;
     }
     addTestHtml('<input id="myTestInput" data-bind="textInput: firstName" type="text" />');
@@ -86,20 +73,20 @@ test('textInput Binding Works', function () {
 
     var $testInput = $('#myTestInput');
 
-    $testInput.val("a"); //set it
+    $testInput.val('a'); //set it
     $testInput.change(); //trigger change event
-    ok(vm.firstName.isValid(), 'First Name is Valid');
+    assert.ok(vm.firstName.isValid(), 'First Name is Valid');
 
-    $testInput.val(""); //set it
+    $testInput.val(''); //set it
     $testInput.change(); //trigger change event
-    ok(!vm.firstName.isValid(), 'First Name is NOT Valid');
+    assert.ok(!vm.firstName.isValid(), 'First Name is NOT Valid');
 
     var msg = $testInput.siblings().first().text();
 
-    equal(msg, 'This field is required.', msg);
+    assert.equal(msg, 'This field is required.', msg);
 });
 
-test('selectedOptions Binding Works', function () {
+QUnit.test('selectedOptions Binding Works', function(assert) {
 
     addTestHtml('<select id="myTestInput" data-bind="options: availableNames, selectedOptions: selectedNames, optionsValue: \'name\', optionsText: \'name\'" multiple="true"></select>');
 
@@ -126,19 +113,19 @@ test('selectedOptions Binding Works', function () {
 
     $testInput.val('First');
     $testInput.change();
-    ok(vm.selectedNames.isValid(), 'selectedNames is Valid');
+    assert.ok(vm.selectedNames.isValid(), 'selectedNames is Valid');
 
     $testInput.val('');
     $testInput.change();
-    ok(!vm.selectedNames.isValid(), 'selectedNames is NOT Valid');
+    assert.ok(!vm.selectedNames.isValid(), 'selectedNames is NOT Valid');
 
     var msg = $testInput.siblings().first().text();
-    equal(msg, 'Please select at least one item.', msg);
+    assert.equal(msg, 'Please select at least one item.', msg);
 });
 
 //#region Inserting Messages
 
-test('Inserting Messages Works', function () {
+QUnit.test('Inserting Messages Works', function(assert) {
 
     addTestHtml('<input id="myTestInput" data-bind="value: firstName" type="text" />');
 
@@ -148,24 +135,14 @@ test('Inserting Messages Works', function () {
 
     applyTestBindings(vm);
 
-    var $testInput = $('#myTestInput');
-
-    $testInput.val("a"); //set it
-    $testInput.change(); //trigger change event
-
-    $testInput.val(""); //set it
-    $testInput.change(); //trigger change event
-
-    var isValid = vm.firstName.isValid();
-
-    ok(!isValid, 'First Name is NOT Valid');
+    var $testInput = $('#myTestInput').val('a').change().val('').change();
+    assert.ok(!vm.firstName.isValid(), 'First Name is NOT Valid');
 
     var msg = $testInput.siblings().first().text();
-
-    equal(msg, 'This field is required.', msg);
+    assert.equal(msg, 'This field is required.', msg);
 });
 
-test('Inserting Messages with HTML Works', function () {
+QUnit.test('Inserting Messages with HTML Works', function(assert) {
 
     ko.validation.init({
         allowHtmlMessages: true
@@ -179,28 +156,18 @@ test('Inserting Messages with HTML Works', function () {
 
     applyTestBindings(vm);
 
-    var $testInput = $('#myTestInput');
-
-    $testInput.val("a"); //set it
-    $testInput.change(); //trigger change event
-
-    $testInput.val(""); //set it
-    $testInput.change(); //trigger change event
-
-    var isValid = vm.firstName.isValid();
-
-    ok(!isValid, 'First Name is NOT Valid');
+    var $testInput = $('#myTestInput').val('a').change().val('').change();
+    assert.ok(!vm.firstName.isValid(), 'First Name is NOT Valid');
 
     var msg = $testInput.siblings().first().html();
-
-    equal(msg, 'This field is <b>required</b>.', msg);
+    assert.equal(msg, 'This field is <b>required</b>.', msg);
 });
 
 //#endregion
 
 //#region Decorating Elements
 
-test('Decorating Elements Works', function () {
+QUnit.test('Decorating Elements Works', function(assert) {
 
     addTestHtml('<input id="myTestInput" data-bind="value: firstName" type="text" />');
 
@@ -216,19 +183,13 @@ test('Decorating Elements Works', function () {
     applyTestBindings(vm);
 
     var $testInput = $('#myTestInput');
+    assert.ok(!$testInput.hasClass('validationElement'), "CSS class shouldn't present");
 
-    ok(!$testInput.hasClass('validationElement'), "CSS class shouldn't present");
-
-    $testInput.val("a"); //set it
-    $testInput.change(); //trigger change event
-
-    $testInput.val(""); //set it
-    $testInput.change(); //trigger change event
-
-    ok($testInput.hasClass('validationElement'), "CSS class should present");
+    $testInput.val('a').change().val('').change();
+    assert.ok($testInput.hasClass('validationElement'), 'CSS class should present');
 });
 
-test('Decorating Elements On Modified Works', function () {
+QUnit.test('Decorating Elements On Modified Works', function(assert) {
 
     addTestHtml('<input id="myTestInput" data-bind="value: firstName" type="text" />');
 
@@ -246,19 +207,19 @@ test('Decorating Elements On Modified Works', function () {
 
     var $testInput = $('#myTestInput');
 
-    ok($testInput.hasClass('validationElement'), "CSS class should present");
+    assert.ok($testInput.hasClass('validationElement'), 'CSS class should present');
 
-    $testInput.val("a"); //set it
+    $testInput.val('a'); //set it
     $testInput.change(); //trigger change event
 
-    ok(!$testInput.hasClass('validationElement'), "CSS class shouldn't present");
+    assert.ok(!$testInput.hasClass('validationElement'), "CSS class shouldn't present");
 });
 
 //#endregion
 
 //#region Showing errors as titles
 
-test('Showing Errors As Titles Works', function () {
+QUnit.test('Showing Errors As Titles Works', function(assert) {
 
     addTestHtml('<input id="myTestInput" data-bind="value: firstName" type="text" />');
 
@@ -276,22 +237,22 @@ test('Showing Errors As Titles Works', function () {
 
     var $testInput = $('#myTestInput');
 
-    $testInput.val("a"); //set it
+    $testInput.val('a'); //set it
     $testInput.change(); //trigger change event
 
-    $testInput.val(""); //set it
+    $testInput.val(''); //set it
     $testInput.change(); //trigger change event
 
     var isValid = vm.firstName.isValid();
 
-    ok(!isValid, 'First Name is NOT Valid');
+    assert.ok(!isValid, 'First Name is NOT Valid');
 
     var msg = $testInput.attr('title');
 
-    equal(msg, 'This field is required.', msg);
+    assert.equal(msg, 'This field is required.', msg);
 });
 
-test('Original titles are restored', function () {
+QUnit.test('Original titles are restored', function(assert) {
 
     addTestHtml('<input id="myTestInput" title="my-orig-title" data-bind="value: firstName" type="text" />');
 
@@ -309,24 +270,24 @@ test('Original titles are restored', function () {
 
     var $testInput = $('#myTestInput');
 
-    $testInput.val("a"); //set it
+    $testInput.val('a'); //set it
     $testInput.change(); //trigger change event
 
-    $testInput.val(""); //set it
+    $testInput.val(''); //set it
     $testInput.change(); //trigger change event
 
     var msg = $testInput.attr('title');
-    equal(msg, 'This field is required.', msg);
+    assert.equal(msg, 'This field is required.', msg);
 
-    $testInput.val("a"); //set it
+    $testInput.val('a'); //set it
     $testInput.change(); //trigger change event
 
     msg = $testInput.attr('title');
-    equal(msg, 'my-orig-title', msg);
+    assert.equal(msg, 'my-orig-title', msg);
 
 });
 
-test("Original titles are restored to blank", function () {
+QUnit.test('Original titles are restored to blank', function(assert) {
 	addTestHtml('<input id="myTestInput" data-bind="value: firstName" type="text" />');
 
 	var vm = {
@@ -343,24 +304,24 @@ test("Original titles are restored to blank", function () {
 
 	var $testInput = $('#myTestInput');
 
-	$testInput.val("a"); //set it
+	$testInput.val('a'); //set it
 	$testInput.change(); //trigger change event
 
-	$testInput.val(""); //set it
+	$testInput.val(''); //set it
 	$testInput.change(); //trigger change event
 
-	ok(!vm.firstName.isValid(), 'First Name is NOT Valid');
+	assert.ok(!vm.firstName.isValid(), 'First Name is NOT Valid');
 
 	//now make the name valid
-	vm.firstName("valid name");
-	ok(vm.firstName.isValid(), "Should now be valid");
+	vm.firstName('valid name');
+	assert.ok(vm.firstName.isValid(), 'Should now be valid');
 
 	//and check that the title was reset to blank
-	var updatedTitle = $testInput.attr("title");
-	ok(!updatedTitle, "Title should have been reset to blank");
+	var updatedTitle = $testInput.attr('title');
+	assert.ok(!updatedTitle, 'Title should have been reset to blank');
 });
 
-test('Original titles are restored with multiple validators, too', function () {
+QUnit.test('Original titles are restored with multiple validators, too', function(assert) {
 
     addTestHtml('<input id="myTestInput" title="my-orig-title" data-bind="value: firstName" type="text" />');
 
@@ -378,30 +339,30 @@ test('Original titles are restored with multiple validators, too', function () {
 
     var $testInput = $('#myTestInput');
 
-    $testInput.val("aa"); //set it
+    $testInput.val('aa'); //set it
     $testInput.change(); //trigger change event
 
-    $testInput.val(""); //set it
+    $testInput.val(''); //set it
     $testInput.change(); //trigger change event
 
     var msg = $testInput.attr('title');
-    equal(msg, 'This field is required.', msg);
+    assert.equal(msg, 'This field is required.', msg);
 
-    $testInput.val("a"); //set it
+    $testInput.val('a'); //set it
     $testInput.change(); //trigger change event
 
     msg = $testInput.attr('title');
-    equal(msg, 'Please enter at least 2 characters.', msg);
+    assert.equal(msg, 'Please enter at least 2 characters.', msg);
 
-    $testInput.val("aa"); //set it
+    $testInput.val('aa'); //set it
     $testInput.change(); //trigger change event
 
     msg = $testInput.attr('title');
-    equal(msg, 'my-orig-title', msg);
+    assert.equal(msg, 'my-orig-title', msg);
 
 });
 
-test('Showing Errors As Titles is disabled sucessfully', function () {
+QUnit.test('Showing Errors As Titles is disabled successfully', function(assert) {
 
     addTestHtml('<input id="myTestInput" data-bind="value: firstName" type="text" />');
 
@@ -420,23 +381,22 @@ test('Showing Errors As Titles is disabled sucessfully', function () {
 
     var $testInput = $('#myTestInput');
 
-    $testInput.val("a"); //set it
+    $testInput.val('a'); //set it
     $testInput.change(); //trigger change event
 
-    $testInput.val(""); //set it
+    $testInput.val(''); //set it
     $testInput.change(); //trigger change event
 
     var isValid = vm.firstName.isValid();
 
-    ok(!isValid, 'First Name is NOT Valid');
+    assert.ok(!isValid, 'First Name is NOT Valid');
 
     var msg = $testInput.attr('title');
 
-    notEqual(msg, 'This field is required.', msg);
+    assert.notEqual(msg, 'This field is required.', msg);
 });
 
-test("Removing error message from title when isModified is reset", function () {
-
+QUnit.test('Removing error message from title when isModified is reset', function(assert) {
     addTestHtml('<input id="myTestInput" data-bind="value: prop" type="text" />');
 
     var vm = {
@@ -452,20 +412,18 @@ test("Removing error message from title when isModified is reset", function () {
 
     applyTestBindings(vm);
 
-    vm.prop("valid").prop("");
+    vm.prop('valid').prop('');
     vm.prop.isModified(false);
 
-    ok(!$("#myTestInput").attr("title"));
+    assert.ok(!$('#myTestInput').attr('title'));
 });
 
 //#endregion
 
 //#region Validation Option Tests
 
-test('Validation Options - Basic Tests', function () {
-
+QUnit.test('Validation Options - Basic Tests', function(assert) {
     var testHtml = '<div data-bind="validationOptions: { insertMessages: false }"><input type="text" id="myTestInput" data-bind="value: firstName" /></div>';
-
     addTestHtml(testHtml);
 
     var vm = {
@@ -474,25 +432,17 @@ test('Validation Options - Basic Tests', function () {
 
     applyTestBindings(vm);
 
-    var $testInput = $('#myTestInput');
+    var $testInput = $('#myTestInput')
+        .val('a').change()
+        .val('').change();
 
-    $testInput.val("a"); //set it
-    $testInput.change(); //trigger change event
-
-    $testInput.val(""); //set it
-    $testInput.change(); //trigger change event
-
-    var isValid = vm.firstName.isValid();
-
-    ok(!isValid, 'First Name is NOT Valid');
+    assert.violatesRequiredRule(vm.firstName, '');
 
     var noMsgs = $testInput.siblings().length;
-
-    equal(noMsgs, 0, 'No Messages were inserted');
-
+    assert.equal(noMsgs, 0, 'No Messages were inserted');
 });
 
-test('Validation Options - Nested Test', function () {
+QUnit.test('Validation Options - Nested Test', function(assert) {
 
     var testHtml = '<div data-bind="validationOptions: { insertMessages: false }">' +
                         '<input type="text" id="myTestInput" data-bind="value: firstName" />' +
@@ -512,24 +462,15 @@ test('Validation Options - Nested Test', function () {
 
     applyTestBindings(vm);
 
-    var $testInput = $('#myLastName');
-
-    $testInput.val("a"); //set it
-    $testInput.change(); //trigger change event
-
-    var isValid = vm.someObj.lastName.isValid();
-
-    ok(!isValid, 'Last Name is NOT Valid');
+    var $testInput = $('#myLastName').val('a').change();
+    assert.violatesMinLengthRule(vm.someObj.lastName, 'a', 2);
 
     var noMsgs = $testInput.siblings().length;
-
-    equal(noMsgs, 0, 'No Messages were inserted');
-
+    assert.equal(noMsgs, 0, 'No Messages were inserted');
 });
 
-test('Validation Options - Options only apply to their HTML Contexts', function () {
-
-    var testHtml = '<div >' +
+QUnit.test('Validation Options - Options only apply to their HTML Contexts', function(assert) {
+    var testHtml = '<div>' +
                         '<div data-bind="validationOptions: { insertMessages: false }">' +
                             '<div data-bind="with: someObj">' +
                                 '<input id="myLastName" type="text" data-bind="value: lastName" />' +
@@ -537,7 +478,6 @@ test('Validation Options - Options only apply to their HTML Contexts', function 
                         '</div>' +
                         '<input type="text" id="myFirstName" data-bind="value: firstName" />' +
                     '</div>';
-
     addTestHtml(testHtml);
 
     var vm = {
@@ -549,31 +489,20 @@ test('Validation Options - Options only apply to their HTML Contexts', function 
 
     applyTestBindings(vm);
 
-    var $testInput = $('#myLastName');
-
-    $testInput.val("a"); //set it
-    $testInput.change(); //trigger change event
-
-    var isValid = vm.someObj.lastName.isValid();
-
-    ok(!isValid, 'Last Name is NOT Valid');
+    var $testInput = $('#myLastName').val('a').change();
+    assert.violatesMinLengthRule(vm.someObj.lastName, 'a', 2);
 
     var noMsgs = $testInput.siblings().length;
+    assert.equal(noMsgs, 0, 'No Messages were inserted');
 
-    equal(noMsgs, 0, 'No Messages were inserted');
-
-    var $firstName = $('#myFirstName');
-    $firstName.val(""); //set it
-    $firstName.change(); //trigger change event
-
-    ok(!vm.firstName.isValid(), 'Validation Still works correctly');
+    var $firstName = $('#myFirstName').val('').change();
+    assert.violatesRequiredRule(vm.firstName, '');
 
     var insertMsgCt = $firstName.siblings('span').length;
-    equal(insertMsgCt, 1, 'Should have inserted 1 message beside the first name!');
-
+    assert.equal(insertMsgCt, 1, 'Should have inserted 1 message beside the first name!');
 });
 
-test("Issue #43 & #47 - Error messages are not switched correctly", function () {
+QUnit.test('Issue #43 & #47 - Error messages are not switched correctly', function(assert) {
     var vm = {
         testObj: ko.observable().extend({ min: 1, max: 100 }),
         dummyProp: ko.observable().extend({ required: true })
@@ -588,17 +517,15 @@ test("Issue #43 & #47 - Error messages are not switched correctly", function () 
     var $msg = $('#testMessage');
 
     vm.testObj(-1); // should invalidate the min rule
-
-    ok(!vm.testObj.isValid(), vm.testObj.error());
-    equal(vm.testObj.error(), $msg.text(), "Min rule was correctly triggered");
+    assert.violatesMinRule(vm.testObj, -1, 1);
+    assert.equal(vm.testObj.error(), $msg.text(), 'Min rule was correctly triggered');
 
     vm.testObj(101); // should invalidate the max rule
-
-    ok(!vm.testObj.isValid(), vm.testObj.error());
-    equal(vm.testObj.error(), $msg.text(), "Max rule was correctly triggered");
+    assert.violatesMaxRule(vm.testObj, 101, 100);
+    assert.equal(vm.testObj.error(), $msg.text(), 'Max rule was correctly triggered');
 });
 
-test("Issue #44 - Validation Element - Is Valid Test", function () {
+QUnit.test('Issue #44 - Validation Element - Is Valid Test', function(assert) {
     var vm = {
         testObj: ko.observable().extend({ min: 1, max: 100 })
     };
@@ -612,16 +539,16 @@ test("Issue #44 - Validation Element - Is Valid Test", function () {
     applyTestBindings(vm);
 
     var $el = $('#testElement');
-    ok(!$el.hasClass('validationElement'), 'Does not have the validation class');
+    assert.ok(!$el.hasClass('validationElement'), 'Does not have the validation class');
 
     vm.testObj(2); // should validate the min rule
 
-    ok(vm.testObj.isValid(), "Object is valid");
-    ok(!$el.hasClass('validationElement'), 'Correctly does not have the validation class');
+    assert.ok(vm.testObj.isValid(), 'Object is valid');
+    assert.ok(!$el.hasClass('validationElement'), 'Correctly does not have the validation class');
 
 });
 
-test("Issue #44 - Validation Element - Is Invalid Test", function () {
+QUnit.test('Issue #44 - Validation Element - Is Invalid Test', function(assert) {
     var vm = {
         testObj: ko.observable().extend({ min: 1, max: 100 })
     };
@@ -635,16 +562,16 @@ test("Issue #44 - Validation Element - Is Invalid Test", function () {
     applyTestBindings(vm);
 
     var $el = $('#testElement');
-    ok(!$el.hasClass('validationElement'), 'Does not have the validation class');
+    assert.ok(!$el.hasClass('validationElement'), 'Does not have the validation class');
 
     vm.testObj(-1); // should invalidate the min rule
 
-    ok(!vm.testObj.isValid(), "Object is not valid");
-    ok($el.hasClass('validationElement'), 'Correctly does have the validation class');
+    assert.ok(!vm.testObj.isValid(), 'Object is not valid');
+    assert.ok($el.hasClass('validationElement'), 'Correctly does have the validation class');
 
 });
 
-test("Issue #80 - Write HTML5 Validation Attributes programmatically", function () {
+QUnit.test('Issue #80 - Write HTML5 Validation Attributes programmatically', function(assert) {
 
     var vm = {
         testObj: ko.observable(15).extend({ min: 1, max: 100, required: true, step: 2, pattern: /blah/i })
@@ -664,19 +591,19 @@ test("Issue #80 - Write HTML5 Validation Attributes programmatically", function 
     var $el = $('#testElement');
     var tests = {};
 
-    ko.utils.arrayForEach(['required', 'min', 'max', 'step', 'pattern'], function (attr) {
+    ko.utils.arrayForEach(['required', 'min', 'max', 'step', 'pattern'], function(attr) {
         tests[attr] = $el.attr(attr);
     });
 
-    ok(tests.required, "Required Found");
-    strictEqual(tests.min, "1", "Min Found");
-    strictEqual(tests.max, "100", "Max Found");
-    strictEqual(tests.step, "2", "Step Found");
-    strictEqual(tests.pattern, "blah", "Pattern Found");
+    assert.ok(tests.required, 'Required Found');
+    assert.strictEqual(tests.min, '1', 'Min Found');
+    assert.strictEqual(tests.max, '100', 'Max Found');
+    assert.strictEqual(tests.step, '2', 'Step Found');
+    assert.strictEqual(tests.pattern, 'blah', 'Pattern Found');
 
 });
 
-test("Issue #400 - Write HTML5 Validation Attributes fails when anonymous rules are used", function () {
+QUnit.test('Issue #400 - Write HTML5 Validation Attributes fails when anonymous rules are used', function(assert) {
 
     var vm = {
         testObj: ko.observable(15).extend({required: true}).extend({
@@ -706,19 +633,18 @@ test("Issue #400 - Write HTML5 Validation Attributes fails when anonymous rules 
     var $el = $('#testElement');
     var tests = {};
 
-    ko.utils.arrayForEach(['required', 'min', 'max', 'step', 'pattern'], function (attr) {
+    ko.utils.arrayForEach(['required', 'min', 'max', 'step', 'pattern'], function(attr) {
         tests[attr] = $el.attr(attr);
     });
 
-    ok(tests.required, "Required Found");
-    ok(!vm.testObj.isValid(), 'observable is NOT valid');
-    strictEqual(vm.testObj.error(), "Value must be equal to 1", 'Message is correct');
+    assert.ok(tests.required, 'Required Found');
+    assert.observableIsNotValid(vm.testObj, 15, 'Value must be equal to 1');
 });
 
-test("Issue #80 - HTML5 attributes - pattern", function () {
+QUnit.test('Issue #80 - HTML5 attributes - pattern', function(assert) {
 
     var pattern = /something/i;
-    var patternString = "something";
+    var patternString = 'something';
 
     var vm = {
         testObj: ko.observable('something').extend({
@@ -745,24 +671,25 @@ test("Issue #80 - HTML5 attributes - pattern", function () {
     // fire the validity check event
     el.checkValidity();
 
-    strictEqual(param, patternString, "Patterns Match");
-    ok(vm.testObj.isValid(), 'Observable is valid');
-    ok(el.validity.valid, "Element is showing it is valid");
-    strictEqual(vm.testObj(), 'something', 'Observable still works');
+    assert.strictEqual(param, patternString, 'Patterns Match');
+    assert.ok(vm.testObj.isValid(), 'Observable is valid');
+    assert.ok(el.validity.valid, 'Element is showing it is valid');
+    assert.strictEqual(vm.testObj(), 'something', 'Observable still works');
 });
 
-module('HTML5 UI Tests', {
-    setup: function () {
 
-    },
-    teardown: function () {
-        ko.cleanNode($('#testContainer')[0]);
-        $('#testContainer').empty();
+QUnit.module('HTML5 UI Tests', {
+    afterEach: function() {
+        var $element = $('#testContainer');
+        ko.cleanNode($element[0]);
+        $element.empty();
         ko.validation.reset();
     }
 });
 
-test("HTML5 Input types", function () {
+QUnit.test('HTML5 Input types', function(assert) {
+    var done = assert.async();
+    assert.expect(3);
 
     var vm = {
         invalidEmail: ko.validatedObservable('invalidEmail'),
@@ -776,12 +703,9 @@ test("HTML5 Input types", function () {
         '<input type="number" id="numberInput" data-bind="value: invalidNumber"/>');
 
     // make sure we parse element attributes
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
 
     applyTestBindings(vm);
-    stop();
 
     // The validators for the HTML5 Input types are applied asynchronously,
     // so we need to wait until the validators have been applied.  This is
@@ -791,579 +715,545 @@ test("HTML5 Input types", function () {
     var intervalId = setInterval(function() {
         if (intervalsWaited++ > 1000) {
             clearInterval(intervalId);
-            ok(false, 'Async HTML5 Input validators did not apply within a reasonable amount of time');
-            start();
+            assert.ok(false, 'Async HTML5 Input validators did not apply within a reasonable amount of time');
         }
         var validatorsReady =
             vm.invalidEmail.rules().length > 0 &&
             vm.invalidDate.rules().length > 0 &&
             vm.invalidNumber.rules().length > 0;
+
         if (validatorsReady) {
-			runAssertions();
+            clearInterval(intervalId);
+            assert.ok(!vm.invalidEmail.isValid(), 'Expected email to be considered as invalid.');
+            assert.ok(!vm.invalidDate.isValid(), 'Expected date to be considered as invalid.');
+            assert.ok(!vm.invalidNumber.isValid(), 'Expected date to be considered as invalid.');
+
+            done();
         }
     }, 1);
-
-    function runAssertions()
-    {
-        clearInterval(intervalId);
-
-        var $emailInput = $('#emailInput');
-        var emailInput = $emailInput.get(0);
-        var $dateInput = $('#dateInput');
-        var dateInput = $dateInput.get(0);
-        var $numberInput = $('#numberInput');
-        var numberInput = $numberInput.get(0);
-
-        ok(!vm.invalidEmail.isValid(), 'Expected email to be considered as invalid.');
-        ok(!vm.invalidDate.isValid(), 'Expected date to be considered as invalid.');
-        ok(!vm.invalidNumber.isValid(), 'Expected date to be considered as invalid.');
-
-        start();
-    }
 });
 
-test('min Attribute of 20 should fail for value of 8', function () {
+QUnit.test('min Attribute of 20 should fail for value of 8', function(assert) {
+    var done = assert.async();
+    assert.expect(3);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="number" min="20" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="number" min="20" data-bind="value: someNumber, validationElement: someNumber" />');
 
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
         vm.someNumber(8); // should fail the max rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(!vm.someNumber.isValid(), "Object is not valid");
-        equal(vm.someNumber.error(), "Please enter a value greater than or equal to 20.",
+        assert.ok(el, 'found element');
+        assert.ok(!vm.someNumber.isValid(), 'Object is not valid');
+        assert.equal(vm.someNumber.error(), 'Please enter a value greater than or equal to 20.',
             'Message needs to be formatted correctly');
 
-        start();
+        done();
     }, 1);
 });
 
-test('min Attribute of 20 should fail for value of "8"', function () {
+QUnit.test('min Attribute of 20 should fail for value of "8"', function(assert) {
+    var done = assert.async();
+    assert.expect(3);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="text" min="20" data-bind="value:someNumber", validationElement: someNumber" />');
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    addTestHtml('<input id="myTestInput" type="text" min="20" data-bind="value: someNumber, validationElement: someNumber" />');
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
-        vm.someNumber("8"); // should fail the min rule
+        vm.someNumber('8'); // should fail the min rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(!vm.someNumber.isValid(), "Object is not valid");
-        equal(vm.someNumber.error(), "Please enter a value greater than or equal to 20.",
+        assert.ok(el, 'found element');
+        assert.ok(!vm.someNumber.isValid(), "Object is not valid");
+        assert.equal(vm.someNumber.error(), "Please enter a value greater than or equal to 20.",
             'Message needs to be formatted correctly');
 
-        start();
+        done();
     }, 1);
 });
 
-test('min Attribute of 20 should fail for value of "8" with text type', function () {
+QUnit.test('min Attribute of 20 should fail for value of "8" with text type', function(assert) {
+    var done = assert.async();
+    assert.expect(3);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="text" min="20" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="text" min="20" data-bind="value: someNumber, validationElement: someNumber" />');
 
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
-        vm.someNumber("8"); // should fail the min rule
+        vm.someNumber('8'); // should fail the min rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(!vm.someNumber.isValid(), "Object is not valid");
-        equal(vm.someNumber.error(), "Please enter a value greater than or equal to 20.",
+        assert.ok(el, 'found element');
+        assert.ok(!vm.someNumber.isValid(), 'Object is not valid');
+        assert.equal(vm.someNumber.error(), 'Please enter a value greater than or equal to 20.',
             'Message needs to be formatted correctly');
 
-        start();
+        done();
     }, 1);
 });
 
-test('min Attribute of 20 should pass for value of 110', function () {
+QUnit.test('min Attribute of 20 should pass for value of 110', function(assert) {
+    var done = assert.async();
+    assert.expect(2);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="number" min="20" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="number" min="20" data-bind="value: someNumber, validationElement: someNumber" />');
 
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
         vm.someNumber(110); // should validate the min rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(vm.someNumber.isValid(), "Object is valid");
+        assert.ok(el, 'found element');
+        assert.ok(vm.someNumber.isValid(), 'Object is valid');
 
-        start();
+        done();
     }, 1);
-
 });
 
-test('MIN Attribute of 20 should pass for value of "110"', function () {
+QUnit.test('min Attribute of 20 should pass for value of "110"', function(assert) {
+    var done = assert.async();
+    assert.expect(2);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="number" min="20" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="number" min="20" data-bind="value: someNumber, validationElement: someNumber" />');
 
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
-        vm.someNumber("110"); // should validate the min rule
+        vm.someNumber('110'); // should validate the min rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(vm.someNumber.isValid(), "Object is valid");
+        assert.ok(el, 'found element');
+        assert.ok(vm.someNumber.isValid(), 'Object is valid');
 
-        start();
+        done();
     }, 1);
-
 });
 
-test('max Attribute of 30 should fail for value of 100', function () {
+QUnit.test('max Attribute of 30 should fail for value of 100', function(assert) {
+    var done = assert.async();
+    assert.expect(3);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="number" max="30" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="number" max="30" data-bind="value: someNumber, validationElement: someNumber" />');
 
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
         vm.someNumber(100); // should fail the max rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(!vm.someNumber.isValid(), "Object is not valid");
-        equal(vm.someNumber.error(), "Please enter a value less than or equal to 30.",
+        assert.ok(el, 'found element');
+        assert.ok(!vm.someNumber.isValid(), 'Object is not valid');
+        assert.equal(vm.someNumber.error(), 'Please enter a value less than or equal to 30.',
             'Message needs to be formatted correctly');
 
-        start();
+        done();
     }, 1);
 });
 
-test('max Attribute of 30 should fail for value of "100"', function () {
+QUnit.test('max Attribute of 30 should fail for value of "100"', function(assert) {
+    var done = assert.async();
+    assert.expect(3);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="text" max="30" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="text" max="30" data-bind="value: someNumber, validationElement: someNumber" />');
     ko.validation.init({
         parseInputAttributes: true
     }, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
-        vm.someNumber("100"); // should fail the min rule
+        vm.someNumber('100'); // should fail the min rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(!vm.someNumber.isValid(), "Object is not valid");
-        equal(vm.someNumber.error(), "Please enter a value less than or equal to 30.",
+        assert.ok(el, 'found element');
+        assert.ok(!vm.someNumber.isValid(), 'Object is not valid');
+        assert.equal(vm.someNumber.error(), 'Please enter a value less than or equal to 30.',
             'Message needs to be formatted correctly');
 
-        start();
+        done();
     }, 1);
 });
 
-test('max Attribute of 30 should fail for value of "100" with text type', function () {
+QUnit.test('max Attribute of 30 should fail for value of "100" with text type', function(assert) {
+    var done = assert.async();
+    assert.expect(3);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="text" max="30" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="text" max="30" data-bind="value: someNumber, validationElement: someNumber" />');
 
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
         vm.someNumber(100); // should fail the min rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(!vm.someNumber.isValid(), "Object is not valid");
-        equal(vm.someNumber.error(), "Please enter a value less than or equal to 30.",
+        assert.ok(el, 'found element');
+        assert.ok(!vm.someNumber.isValid(), 'Object is not valid');
+        assert.equal(vm.someNumber.error(), 'Please enter a value less than or equal to 30.',
             'Message needs to be formatted correctly');
 
-        start();
+        done();
     }, 1);
 });
 
-test('max Attribute of 30 should pass for value of 5', function () {
+QUnit.test('max Attribute of 30 should pass for value of 5', function(assert) {
+    var done = assert.async();
+    assert.expect(2);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="number" max="30" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="number" max="30" data-bind="value:someNumber, validationElement: someNumber" />');
 
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
         vm.someNumber(5); // should validate the min rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(vm.someNumber.isValid(), "Object is valid");
+        assert.ok(el, 'found element');
+        assert.ok(vm.someNumber.isValid(), 'Object is valid');
 
-        start();
+        done();
     }, 1);
-
 });
 
-test('max Attribute of 30 should pass for value of "5"', function () {
+QUnit.test('max Attribute of 30 should pass for value of "5"', function(assert) {
+    var done = assert.async();
+    assert.expect(2);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="number" max="30" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="number" max="30" data-bind="value:someNumber, validationElement: someNumber" />');
 
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
-        vm.someNumber("5"); // should validate the min rule
+        vm.someNumber('5'); // should validate the min rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(vm.someNumber.isValid(), "Object is valid");
+        assert.ok(el, 'found element');
+        assert.ok(vm.someNumber.isValid(), 'Object is valid');
 
-        start();
+        done();
     }, 1);
-
 });
 
-test('max Attribute of 2010-09 should fail for value of 2011-03', function () {
+QUnit.test('max Attribute of 2010-09 should fail for value of 2011-03', function(assert) {
+    var done = assert.async();
+    assert.expect(2);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="month" max="2010-09" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="month" max="2010-09" data-bind="value:someNumber, validationElement: someNumber" />');
 
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
-        vm.someNumber("2011-03"); // should fail the max rule
+        vm.someNumber('2011-03'); // should fail the max rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(!vm.someNumber.isValid(), "Object is not valid");
+        assert.ok(el, 'found element');
+        assert.ok(!vm.someNumber.isValid(), 'Object is not valid');
 
-        start();
+        done();
     }, 1);
 });
 
-test('max Attribute of 2010-09 should succeed for value of 2010-08', function () {
+QUnit.test('max Attribute of 2010-09 should succeed for value of 2010-08', function(assert) {
+    var done = assert.async();
+    assert.expect(2);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="month" max="2010-09" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="month" max="2010-09" data-bind="value: someNumber, validationElement: someNumber" />');
 
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
-        vm.someNumber("2010-08"); // should succeed the max rule
+        vm.someNumber('2010-08'); // should succeed the max rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(vm.someNumber.isValid(), "Object is valid");
+        assert.ok(el, 'found element');
+        assert.ok(vm.someNumber.isValid(), 'Object is valid');
 
-        start();
+        done();
     }, 1);
 });
 
-test('min Attribute of 2010-09 should fail for value of 2010-08', function () {
+QUnit.test('min Attribute of 2010-09 should fail for value of 2010-08', function(assert) {
+    var done = assert.async();
+    assert.expect(3);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="month" min="2010-09" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="month" min="2010-09" data-bind="value: someNumber, validationElement: someNumber" />');
 
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
-        vm.someNumber("2010-08"); // should fail the min rule
+        vm.someNumber('2010-08'); // should fail the min rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(!vm.someNumber.isValid(), "Object is valid");
-        equal(vm.someNumber.error(), "Please enter a value greater than or equal to 2010-09.",
+        assert.ok(el, 'found element');
+        assert.ok(!vm.someNumber.isValid(), 'Object is valid');
+        assert.equal(vm.someNumber.error(), 'Please enter a value greater than or equal to 2010-09.',
             'Message needs to be formatted correctly');
 
-        start();
+        done();
     }, 1);
 });
 
-test('min Attribute of 2012-05 should fail for value of 2011-01', function () {
+QUnit.test('min Attribute of 2012-05 should fail for value of 2011-01', function(assert) {
+    var done = assert.async();
+    assert.expect(3);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="month" min="2012-05" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="month" min="2012-05" data-bind="value: someNumber, validationElement: someNumber" />');
 
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
-        vm.someNumber("2011-01"); // should fail the min rule
+        vm.someNumber('2011-01'); // should fail the min rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(!vm.someNumber.isValid(), "Object is valid");
-        equal(vm.someNumber.error(), "Please enter a value greater than or equal to 2012-05.",
+        assert.ok(el, 'found element');
+        assert.ok(!vm.someNumber.isValid(), 'Object is valid');
+        assert.equal(vm.someNumber.error(), 'Please enter a value greater than or equal to 2012-05.',
             'Message needs to be formatted correctly');
 
-        start();
+        done();
     }, 1);
 });
 
-test('min Attribute of 2012-03 should succeed for value of 2013-01', function () {
+QUnit.test('min Attribute of 2012-03 should succeed for value of 2013-01', function(assert) {
+    var done = assert.async();
+    assert.expect(2);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="month" min="2012-03" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="month" min="2012-03" data-bind="value: someNumber, validationElement: someNumber" />');
 
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
-        vm.someNumber("2013-01"); // should succeed the min rule
+        vm.someNumber('2013-01'); // should succeed the min rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(vm.someNumber.isValid(), "Object is valid");
+        assert.ok(el, 'found element');
+        assert.ok(vm.someNumber.isValid(), 'Object is valid');
 
-        start();
+        done();
     }, 1);
 });
 
-test('max Attribute of 2010-W09 should fail for value of 2011-W03', function () {
+QUnit.test('max Attribute of 2010-W09 should fail for value of 2011-W03', function(assert) {
+    var done = assert.async();
+    assert.expect(3);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="week" max="2010-W09" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="week" max="2010-W09" data-bind="value: someNumber, validationElement: someNumber" />');
 
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
-        vm.someNumber("2011-W03"); // should fail the max rule
+        vm.someNumber('2011-W03'); // should fail the max rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(!vm.someNumber.isValid(), "Object is not valid");
-        equal(vm.someNumber.error(), "Please enter a value less than or equal to 2010-W09.",
+        assert.ok(el, 'found element');
+        assert.ok(!vm.someNumber.isValid(), 'Object is not valid');
+        assert.equal(vm.someNumber.error(), 'Please enter a value less than or equal to 2010-W09.',
             'Message needs to be formatted correctly');
 
-        start();
+        done();
     }, 1);
 });
 
-test('max Attribute of 2010-W09 should succeed for value of 2010-W08', function () {
+QUnit.test('max Attribute of 2010-W09 should succeed for value of 2010-W08', function(assert) {
+    var done = assert.async();
+    assert.expect(2);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="week" max="2010-W09" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="week" max="2010-W09" data-bind="value: someNumber, validationElement: someNumber" />');
 
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
-        vm.someNumber("2010-W08"); // should succeed the max rule
+        vm.someNumber('2010-W08'); // should succeed the max rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(vm.someNumber.isValid(), "Object is valid");
+        assert.ok(el, 'found element');
+        assert.ok(vm.someNumber.isValid(), 'Object is valid');
 
-        start();
+        done();
     }, 1);
 });
 
-test('min Attribute of 2010-W09 should fail for value of 2010-W08', function () {
+QUnit.test('min Attribute of 2010-W09 should fail for value of 2010-W08', function(assert) {
+    var done = assert.async();
+    assert.expect(3);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="Week" min="2010-W09" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="Week" min="2010-W09" data-bind="value: someNumber, validationElement: someNumber" />');
 
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
-        vm.someNumber("2010-W08"); // should fail the min rule
+        vm.someNumber('2010-W08'); // should fail the min rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(!vm.someNumber.isValid(), "Object is valid");
-        equal(vm.someNumber.error(), "Please enter a value greater than or equal to 2010-W09.",
+        assert.ok(el, 'found element');
+        assert.ok(!vm.someNumber.isValid(), 'Object is valid');
+        assert.equal(vm.someNumber.error(), 'Please enter a value greater than or equal to 2010-W09.',
             'Message needs to be formatted correctly');
 
-        start();
+        done();
     }, 1);
 });
 
-test('min Attribute of 2012-W05 should fail for value of 2011-W01', function () {
+QUnit.test('min Attribute of 2012-W05 should fail for value of 2011-W01', function(assert) {
+    var done = assert.async();
+    assert.expect(3);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="week" min="2012-W05" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="week" min="2012-W05" data-bind="value: someNumber, validationElement: someNumber" />');
 
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
-        vm.someNumber("2011-W01"); // should fail the min rule
+        vm.someNumber('2011-W01'); // should fail the min rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(!vm.someNumber.isValid(), "Object is valid");
-        equal(vm.someNumber.error(), "Please enter a value greater than or equal to 2012-W05.",
+        assert.ok(el, 'found element');
+        assert.ok(!vm.someNumber.isValid(), 'Object is valid');
+        assert.equal(vm.someNumber.error(), 'Please enter a value greater than or equal to 2012-W05.',
             'Message needs to be formatted correctly');
 
-        start();
+        done();
     }, 1);
 });
 
-test('min Attribute of 2012-W03 should succeed for value of 2013-W01', function () {
+QUnit.test('min Attribute of 2012-W03 should succeed for value of 2013-W01', function(assert) {
+    var done = assert.async();
+    assert.expect(2);
 
     var vm = {
         someNumber: ko.validatedObservable()
     };
 
-    addTestHtml('<input id="myTestInput" type="week" min="2012-W03" data-bind="value:someNumber", validationElement: someNumber" />');
+    addTestHtml('<input id="myTestInput" type="week" min="2012-W03" data-bind="value: someNumber, validationElement: someNumber" />');
 
-    ko.validation.init({
-        parseInputAttributes: true
-    }, true);
+    ko.validation.init({parseInputAttributes: true}, true);
     applyTestBindings(vm);
-    stop();
 
     setTimeout(function() {
-        vm.someNumber("2013-W01"); // should succeed the min rule
+        vm.someNumber('2013-W01'); // should succeed the min rule
 
         var el = $('#myTestInput');
 
-        ok(el, 'found element');
-        ok(vm.someNumber.isValid(), "Object is valid");
+        assert.ok(el, 'found element');
+        assert.ok(vm.someNumber.isValid(), 'Object is valid');
 
-        start();
+        done();
     }, 1);
 });
 
 //#endregion
+
