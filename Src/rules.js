@@ -22,16 +22,20 @@
 ko.validation.rules = {};
 ko.validation.rules['required'] = {
 	validator: function (val, required) {
-		var stringTrimRegEx = /^\s+|\s+$/g,
-			testVal;
+		var testVal;
 
 		if (val === undefined || val === null) {
 			return !required;
 		}
 
 		testVal = val;
-		if (typeof (val) === "string") {
-			testVal = val.replace(stringTrimRegEx, '');
+		if (typeof (val) === 'string') {
+			if (String.prototype.trim) {
+				testVal = val.trim();
+			}
+			else {
+				testVal = val.replace(/^\s+|\s+$/g, '');
+			}
 		}
 
 		if (!required) {// if they passed: { required: false }, then don't require this
