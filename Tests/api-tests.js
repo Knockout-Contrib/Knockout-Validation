@@ -553,3 +553,115 @@ QUnit.test('formatMessage may use multiple replacements', function(assert) {
 	var result = ko.validation.formatMessage(message, params, obsv);
 	assert.equal(result, 'Value must be between 1 and 5.');
 });
+
+
+QUnit.module('applyBindingsWithValidation Tests');
+
+QUnit.test('can be invoked with (viewModel)', function(assert) {
+	assert.expect(2);
+
+	ko.validation.init({}, true);
+
+	var _applyBindings = ko.applyBindings;
+	var _setDomData = ko.validation.utils.setDomData;
+
+	var viewModel = {};
+
+	ko.validation.utils.setDomData = function(/*node, data*/) {
+		// We don't expect a call to setDomData when no options are provided to applyBindingsWithValidation
+		assert.ok(false, 'Unexpected setDomData call');
+	};
+	ko.applyBindings = function(viewModelOrBindingContext, rootNode) {
+		assert.strictEqual(viewModelOrBindingContext, viewModel, 'viewModelOrBindingContext is correct');
+		assert.strictEqual(rootNode, document.body, 'rootNode is correct');
+	};
+
+	ko.applyBindingsWithValidation(viewModel);
+
+	// Restore methods
+	ko.applyBindings = _applyBindings;
+	ko.validation.utils.setDomData = _setDomData;
+});
+
+QUnit.test('can be invoked with (viewModel, options)', function(assert) {
+	assert.expect(4);
+
+	ko.validation.init({}, true);
+
+	var _applyBindings = ko.applyBindings;
+	var _setDomData = ko.validation.utils.setDomData;
+
+	var viewModel = {};
+	var options = ko.utils.extend(ko.utils.extend({}, ko.validation.configuration), {messageTemplate: '<span></span>'});
+
+	ko.validation.utils.setDomData = function(node, data) {
+		assert.strictEqual(node, document.body, 'rootNode is correct');
+		assert.propEqual(data, options, 'data is correct');
+	};
+	ko.applyBindings = function(viewModelOrBindingContext, rootNode) {
+		assert.strictEqual(viewModelOrBindingContext, viewModel, 'viewModelOrBindingContext is correct');
+		assert.strictEqual(rootNode, document.body, 'rootNode is correct');
+	};
+
+	ko.applyBindingsWithValidation(viewModel, {messageTemplate: '<span></span>'});
+
+	// Restore methods
+	ko.applyBindings = _applyBindings;
+	ko.validation.utils.setDomData = _setDomData;
+});
+
+QUnit.test('can be invoked with (viewModel, rootNode)', function(assert) {
+	assert.expect(2);
+
+	ko.validation.init({}, true);
+
+	var _applyBindings = ko.applyBindings;
+	var _setDomData = ko.validation.utils.setDomData;
+
+	var viewModel = {};
+	var element = document.createElement('div');
+
+	ko.validation.utils.setDomData = function(/*node, data*/) {
+		// We don't expect a call to setDomData when no options are provided to applyBindingsWithValidation
+		assert.ok(false, 'Unexpected setDomData call');
+	};
+
+	ko.applyBindings = function(viewModelOrBindingContext, rootNode) {
+		assert.strictEqual(viewModelOrBindingContext, viewModel, 'viewModelOrBindingContext is correct');
+		assert.strictEqual(rootNode, element, 'rootNode is correct');
+	};
+
+	ko.applyBindingsWithValidation(viewModel, element);
+
+	// Restore methods
+	ko.applyBindings = _applyBindings;
+	ko.validation.utils.setDomData = _setDomData;
+});
+
+QUnit.test('can be invoked with (viewModel, rootNode, options)', function(assert) {
+
+	ko.validation.init({}, true);
+
+	var _applyBindings = ko.applyBindings;
+	var _setDomData = ko.validation.utils.setDomData;
+
+	var viewModel = {};
+	var element = document.createElement('div');
+	var options = ko.utils.extend(ko.utils.extend({}, ko.validation.configuration), {messageTemplate: '<span></span>'});
+
+	ko.validation.utils.setDomData = function(node, data) {
+		assert.strictEqual(node, element, 'node is correct');
+		assert.propEqual(data, options, 'data is correct');
+	};
+	ko.applyBindings = function(viewModelOrBindingContext, rootNode) {
+		assert.strictEqual(viewModelOrBindingContext, viewModel, 'viewModelOrBindingContext is correct');
+		assert.strictEqual(rootNode, element, 'rootNode is correct');
+	};
+
+	ko.applyBindingsWithValidation(viewModel, element, {messageTemplate: '<span></span>'});
+
+	// Restore methods
+	ko.applyBindings = _applyBindings;
+	ko.validation.utils.setDomData = _setDomData;
+});
+
