@@ -1362,7 +1362,7 @@ ko.applyBindingsWithValidation = function (viewModel, rootNode, options) {
 		kv.utils.setDomData(node, config);
 	}
 
-	ko.applyBindings(viewModel, rootNode);
+	ko.applyBindings(viewModel, node);
 };
 
 //override the original applyBindings so that we can ensure all new rules and what not are correctly registered
