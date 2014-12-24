@@ -236,7 +236,7 @@ kv.configuration = configuration;
 		}
 
 		if (context.options.deep) {
-	    	obj.__kv_traversed = true;
+			obj.__kv_traversed = true;
 			context.flagged.push(obj);
 		}
 
@@ -303,7 +303,7 @@ kv.configuration = configuration;
 				return;
 			}
 
-			//becuase we will be accessing options properties it has to be an object at least
+			//because we will be accessing options properties it has to be an object at least
 			options = options || {};
 			//if specific error classes are not provided then apply generic errorClass
 			//it has to be done on option so that options.errorClass can override default
@@ -341,26 +341,21 @@ kv.configuration = configuration;
 				flagged: [],
 				subscriptions: [],
 				validatables: []
-        	};
+			};
 
 			var result = null;
 
 			//if using observables then traverse structure once and add observables
 			if (options.observable) {
-				runTraversal(obj, context);
-
 				result = ko.computed(function () {
 					context.graphMonitor(); //register dependency
 					runTraversal(obj, context);
-
 					return collectErrors(context.validatables);
 				});
-
 			}
 			else { //if not using observables then every call to error() should traverse the structure
 				result = function () {
 					runTraversal(obj, context);
-
 					return collectErrors(context.validatables);
 				};
 			}
@@ -379,7 +374,7 @@ kv.configuration = configuration;
 			};
 
 			result.isAnyMessageShown = function () {
-				var invalidAndModifiedPresent = false;
+				var invalidAndModifiedPresent;
 
 				// ensure we have latest changes
 				result();
@@ -517,22 +512,22 @@ kv.configuration = configuration;
 			forEach(kv.configuration.html5Attributes, function (attr) {
 				if (utils.hasAttribute(element, attr)) {
 
-                    var params = element.getAttribute(attr) || true;
+					var params = element.getAttribute(attr) || true;
 
-                    if (attr === 'min' || attr === 'max')
-                    {
-                        // If we're validating based on the min and max attributes, we'll
-                        // need to know what the 'type' attribute is set to
-                        var typeAttr = element.getAttribute('type');
-                        if (typeof typeAttr === "undefined" || !typeAttr)
-                        {
-                            // From http://www.w3.org/TR/html-markup/input:
-                            //   An input element with no type attribute specified represents the
-                            //   same thing as an input element with its type attribute set to "text".
-                            typeAttr = "text";
-                        }
-                        params = {typeAttr: typeAttr, value: params};
-                    }
+					if (attr === 'min' || attr === 'max')
+					{
+						// If we're validating based on the min and max attributes, we'll
+						// need to know what the 'type' attribute is set to
+						var typeAttr = element.getAttribute('type');
+						if (typeof typeAttr === "undefined" || !typeAttr)
+						{
+							// From http://www.w3.org/TR/html-markup/input:
+							//   An input element with no type attribute specified represents the
+							//   same thing as an input element with its type attribute set to "text".
+							typeAttr = "text";
+						}
+						params = {typeAttr: typeAttr, value: params};
+					}
 
 					kv.addRule(valueAccessor(), {
 						rule: attr,
