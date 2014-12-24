@@ -205,6 +205,26 @@ QUnit.test('Nested grouping adds items newly inserted into observableArrays to r
 	assert.equal(errors().length, 2, 'validatables are added only once');
 });
 
+QUnit.test('Issue #99 - Grouping using observable notifies with null entries', function(assert) {
+	var done = assert.async();
+	assert.expect(1);
+
+	var vm = {
+		items: [
+			ko.observable().extend({required: true}),
+			ko.observable().extend({required: true})
+		]
+	};
+
+	var errors = ko.validation.group(vm, {deep: true, observable: true });
+	errors.subscribe(function(errors) {
+		assert.deepEqual(errors, ['This field is required.'], '1 error is reported');
+		done();
+	});
+
+	vm.items[0]('1');
+});
+
 //#endregion
 
 //#region validatedObservable
