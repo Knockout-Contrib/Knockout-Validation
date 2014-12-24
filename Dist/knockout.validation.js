@@ -225,16 +225,18 @@ kv.configuration = configuration;
 		cleanUpSubscriptions(context);
 		traverseGraph(obj, context);
 		dispose(context);
-		}
+	}
 
 	function traverseGraph(obj, context, level) {
 		var objValues = [],
 			val = obj.peek ? obj.peek() : obj;
 
-		if (obj.__kv_traversed === true) { return; }
+		if (obj.__kv_traversed === true) {
+			return;
+		}
 
 		if (context.options.deep) {
-	    obj.__kv_traversed = true;
+	    	obj.__kv_traversed = true;
 			context.flagged.push(obj);
 		}
 
@@ -245,27 +247,30 @@ kv.configuration = configuration;
 		if (ko.isObservable(obj)) {
 
 			//make sure it is validatable object
-			if (!obj.isValid) { obj.extend({ validatable: true }); }
+			if (!obj.isValid) {
+				obj.extend({ validatable: true });
+			}
 			context.validatables.push(obj);
 
-			if(context.options.live && utils.isObservableArray(obj)) {
+			if (context.options.live && utils.isObservableArray(obj)) {
 				context.subscriptions.push(obj.subscribe(function () {
 					context.graphMonitor.valueHasMutated();
 				}));
-		}
+			}
 		}
 
 		//get list of values either from array or object but ignore non-objects
 		// and destroyed objects
 		if (val && !val._destroy) {
 			if (utils.isArray(val)) {
-			objValues = val;
-			} else if (utils.isObject(val)) {
+				objValues = val;
+			}
+			else if (utils.isObject(val)) {
 				objValues = utils.values(val);
-		}
+			}
 		}
 
-		//process recurisvely if it is deep grouping
+		//process recursively if it is deep grouping
 		if (level !== 0) {
 			utils.forEach(objValues, function (observable) {
 
@@ -281,7 +286,9 @@ kv.configuration = configuration;
 		var errors = [];
 		forEach(array, function (observable) {
 			if (!observable.isValid()) {
-				errors.push(observable.error());
+				// Use peek because we don't want a dependency for 'error' property because it
+				// changes before 'isValid' does. (Issue #99)
+				errors.push(observable.error.peek());
 			}
 		});
 		return errors;
@@ -312,13 +319,13 @@ kv.configuration = configuration;
 
 			isInitialized = 1;
 		},
-		// backwards compatability
+		// backwards compatibility
 		configure: function (options) { kv.init(options); },
 
 		// resets the config back to its original state
 		reset: kv.configuration.reset,
 
-		// recursivly walks a viewModel and creates an object that
+		// recursively walks a viewModel and creates an object that
 		// provides validation information for the entire viewModel
 		// obj -> the viewModel to walk
 		// options -> {
@@ -334,7 +341,7 @@ kv.configuration = configuration;
 				flagged: [],
 				subscriptions: [],
 				validatables: []
-        };
+        	};
 
 			var result = null;
 
@@ -349,7 +356,8 @@ kv.configuration = configuration;
 					return collectErrors(context.validatables);
 				});
 
-			} else { //if not using observables then every call to error() should traverse the structure
+			}
+			else { //if not using observables then every call to error() should traverse the structure
 				result = function () {
 					runTraversal(obj, context);
 
@@ -573,10 +581,10 @@ kv.configuration = configuration;
 						// we have to do some special things for the pattern validation
 						if (ctx.rule === "pattern" && params instanceof RegExp) {
 							// we need the pure string representation of the RegExpr without the //gi stuff
-							params = params.source; 
+							params = params.source;
 						}
 
-						element.setAttribute(attr, params); 
+						element.setAttribute(attr, params);
 					},
 					disposeWhenNodeIsRemoved: element
 				});
