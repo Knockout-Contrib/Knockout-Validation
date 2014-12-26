@@ -225,6 +225,145 @@ QUnit.test('Issue #99 - Grouping notifies with null entries - Observable', funct
 	vm.items[0]('1');
 });
 
+QUnit.test('Issue #494 - Grouping over validatedObservable works - Observable', function(assert) {
+
+	assert.expect(11);
+
+	var testObj = {
+		first: ko.validatedObservable({
+			abc: ko.observable('').extend({required: true})
+		}),
+		second: ko.validatedObservable({
+			xyz: ko.observable('').extend({required: true})
+		})
+	};
+
+	var errors = ko.validation.group(testObj, {deep: true, observable: true});
+
+	// 'errors' should not be observable
+	assert.strictEqual(ko.isObservable(errors), true, 'errors is observable');
+
+	// 'validatedObservable' should not be extended with 'validatable' extender because it
+	// would overwrite isValid property
+	assert.strictEqual(ko.validation.utils.isValidatable(testObj.first), false,
+		'first validatedObservable is not extended with validatable extender');
+	assert.strictEqual(ko.validation.utils.isValidatable(testObj.second), false,
+		'second validatedObservable is not extended with validatable extender');
+
+	// 'errors' returns all messages
+	assert.deepEqual(errors(), ['This field is required.', 'This field is required.']);
+
+	// validatedObservable has isValid and errors properties
+	assert.strictEqual(testObj.first.isValid(), false, 'first is not valid');
+	assert.deepEqual(testObj.first.errors(), ['This field is required.'], 'message is correct');
+
+	// Check second validatedObservable as well
+	assert.strictEqual(testObj.second.isValid(), false, 'second is not valid');
+	assert.deepEqual(testObj.second.errors(), ['This field is required.'], 'message is correct');
+
+	// isAnyMessage shown returns false
+	assert.strictEqual(errors.isAnyMessageShown(), false, 'no message is shown (isModified == false)');
+
+	// showAllMessages changes isModified to true
+	errors.showAllMessages(true);
+	assert.strictEqual(testObj.first().abc.isModified(), true, 'abc isModified == true');
+	assert.strictEqual(testObj.second().xyz.isModified(), true, 'xyz isModified == true');
+});
+
+QUnit.test('Issue #494 - Grouping over validatedObservable works - Not Observable', function(assert) {
+
+	assert.expect(11);
+
+	var testObj = {
+		first: ko.validatedObservable({
+			abc: ko.observable('').extend({required: true})
+		}),
+		second: ko.validatedObservable({
+			xyz: ko.observable('').extend({required: true})
+		})
+	};
+
+	var errors = ko.validation.group(testObj, {deep: true, observable: false});
+
+	// 'errors' should not be observable
+	assert.strictEqual(ko.isObservable(errors), false, 'errors is not observable');
+
+	// 'validatedObservable' should not be extended with 'validatable' extender because it
+	// would overwrite isValid property
+	assert.strictEqual(ko.validation.utils.isValidatable(testObj.first), false,
+		'first validatedObservable is not extended with validatable extender');
+	assert.strictEqual(ko.validation.utils.isValidatable(testObj.second), false,
+		'second validatedObservable is not extended with validatable extender');
+
+	// 'errors' returns all messages
+	assert.deepEqual(errors(), ['This field is required.', 'This field is required.']);
+
+	// validatedObservable has isValid and errors properties
+	assert.strictEqual(testObj.first.isValid(), false, 'first is not valid');
+	assert.deepEqual(testObj.first.errors(), ['This field is required.'], 'message is correct');
+
+	// Check second validatedObservable as well
+	assert.strictEqual(testObj.second.isValid(), false, 'second is not valid');
+	assert.deepEqual(testObj.second.errors(), ['This field is required.'], 'message is correct');
+
+	// isAnyMessage shown returns false
+	assert.strictEqual(errors.isAnyMessageShown(), false, 'no message is shown (isModified == false)');
+
+	// showAllMessages changes isModified to true
+	errors.showAllMessages(true);
+	assert.strictEqual(testObj.first().abc.isModified(), true, 'abc isModified == true');
+	assert.strictEqual(testObj.second().xyz.isModified(), true, 'xyz isModified == true');
+});
+
+QUnit.test('Issue #494 - Grouping over validatedObservable works after changing field - Observable', function(assert) {
+
+	assert.expect(12);
+
+	var testObj = {
+		first: ko.validatedObservable({
+			abc: ko.observable('').extend({required: true})
+		}),
+		second: ko.validatedObservable({
+			xyz: ko.observable('').extend({required: true})
+		})
+	};
+
+	var errors = ko.validation.group(testObj, {deep: true, observable: true});
+
+	testObj.first().abc('test');
+	assert.equal(testObj.first().abc(), 'test', 'abc observable works');
+
+	// 'errors' should not be observable
+	assert.strictEqual(ko.isObservable(errors), true, 'errors is observable');
+
+	// 'validatedObservable' should not be extended with 'validatable' extender because it
+	// would overwrite isValid property
+	assert.strictEqual(ko.validation.utils.isValidatable(testObj.first), false,
+		'first validatedObservable is not extended with validatable extender');
+	assert.strictEqual(ko.validation.utils.isValidatable(testObj.second), false,
+		'second validatedObservable is not extended with validatable extender');
+
+	// 'errors' returns all messages
+	assert.deepEqual(errors(), ['This field is required.']);
+
+	// validatedObservable has isValid and errors properties
+	assert.strictEqual(testObj.first.isValid(), true, 'first is valid');
+	assert.deepEqual(testObj.first.errors(), [], 'first message is empty');
+
+	// Check second validatedObservable as well
+	assert.strictEqual(testObj.second.isValid(), false, 'second is not valid');
+	assert.deepEqual(testObj.second.errors(), ['This field is required.'], 'second message is correct');
+
+	// isAnyMessage shown returns false
+	assert.strictEqual(errors.isAnyMessageShown(), false, 'no message is shown (isModified == false)');
+
+	// showAllMessages changes isModified to true
+	errors.showAllMessages(true);
+	assert.strictEqual(testObj.first().abc.isModified(), true, 'abc isModified == true');
+	assert.strictEqual(testObj.second().xyz.isModified(), true, 'xyz isModified == true');
+});
+
+
 //#endregion
 
 //#region validatedObservable

@@ -49,9 +49,9 @@
 
 		// if object is observable then add it to the list
 		if (ko.isObservable(obj)) {
-
-			//make sure it is validatable object
-			if (!obj.isValid) {
+			// ensure it's validatable but don't extend validatedObservable because it
+			// would overwrite isValid property.
+			if (!obj.errors && !utils.isValidatable(obj)) {
 				obj.extend({ validatable: true });
 			}
 			context.validatables.push(obj);
@@ -77,7 +77,6 @@
 		//process recursively if it is deep grouping
 		if (level !== 0) {
 			utils.forEach(objValues, function (observable) {
-
 				//but not falsy things and not HTML Elements
 				if (observable && !observable.nodeType) {
 					traverseGraph(observable, context, level + 1);
@@ -89,7 +88,8 @@
 	function collectErrors(array) {
 		var errors = [];
 		ko.utils.arrayForEach(array, function (observable) {
-			if (!observable.isValid()) {
+			// Do not collect validatedObservable errors
+			if (utils.isValidatable(observable) && !observable.isValid()) {
 				// Use peek because we don't want a dependency for 'error' property because it
 				// changes before 'isValid' does. (Issue #99)
 				errors.push(observable.error.peek());
@@ -173,7 +173,9 @@
 				result();
 
 				ko.utils.arrayForEach(context.validatables, function (observable) {
-					observable.isModified(show);
+					if (utils.isValidatable(observable)) {
+						observable.isModified(show);
+					}
 				});
 			};
 
@@ -184,7 +186,7 @@
 				result();
 
 				invalidAndModifiedPresent = !!ko.utils.arrayFirst(context.validatables, function (observable) {
-					return !observable.isValid() && observable.isModified();
+					return utils.isValidatable(observable) && !observable.isValid() && observable.isModified();
 				});
 				return invalidAndModifiedPresent;
 			};
