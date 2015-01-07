@@ -50,7 +50,7 @@ ko.extenders['validatable'] = function (observable, options) {
 		// Rule Context = { rule: '<rule name>', params: '<passed in params>', message: '<Override of default Message>' }
 		observable.rules = ko.observableArray(); //holds the rule Contexts to use as part of validation
 
-		//in case async validation is occuring
+		//in case async validation is occurring
 		observable.isValidating = ko.observable(false);
 
 		//the true holder of whether the observable is valid or not
@@ -63,8 +63,17 @@ ko.extenders['validatable'] = function (observable, options) {
 
 		//manually set error state
 		observable.setError = function (error) {
+			var previousError = observable.error.peek();
+			var previousIsValid = observable.__valid__.peek();
+
 			observable.error(error);
 			observable.__valid__(false);
+
+			if (previousError !== error && !previousIsValid) {
+				// if the observable was not valid before then isValid will not mutate,
+				// hence causing any grouping to not display the latest error.
+				observable.isValid.notifySubscribers();
+			}
 		};
 
 		//manually clear error state

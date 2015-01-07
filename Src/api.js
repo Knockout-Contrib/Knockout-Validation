@@ -191,6 +191,26 @@
 				return invalidAndModifiedPresent;
 			};
 
+
+			/**
+			 * @private You should not rely on this method being here.
+			 * It's a private method and it may change in the future.
+			 *
+			 * @description Updates the validated object and collects errors from it.
+			 */
+			result._updateState = function(newValue) {
+				if (!utils.isObject(newValue)) {
+					throw new Error('An object is required.');
+				}
+				obj = newValue;
+				if (options.observable) {
+					context.graphMonitor.valueHasMutated();
+				}
+				else {
+					runTraversal(newValue, context);
+					return collectErrors(context.validatables);
+				}
+			};
 			return result;
 		},
 

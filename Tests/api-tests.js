@@ -363,6 +363,64 @@ QUnit.test('Issue #494 - Grouping over validatedObservable works after changing 
 	assert.strictEqual(testObj.second().xyz.isModified(), true, 'xyz isModified == true');
 });
 
+QUnit.test('Nested Grouping works after changing view model - Observable (using private method _updateState)', function(assert) {
+	var vm = {
+		one: ko.observable().extend({ required: true }),
+		two: {
+			one: ko.observable().extend({ required: true })
+		},
+		three: {
+			two: {
+				one: ko.observable().extend({ required: true })
+			}
+		}
+	};
+
+	var errors = ko.validation.group(vm, { deep: true, observable: true });
+	assert.equal(errors().length, 3, 'Grouping correctly finds 3 invalid properties');
+
+	// Change view model
+	vm.four = ko.observable('').extend({required: true});
+	errors._updateState(vm);
+	assert.equal(errors().length, 4, 'Grouping correctly finds 4 invalid properties');
+});
+
+QUnit.test('Issue #209 - Grouping works when multiple rules are defined - Observable', function(assert) {
+
+	var vm = {
+		one: ko.observable().extend({ required: true, digit: true })
+	};
+
+	var errors = ko.validation.group(vm, { observable: true });
+
+	assert.strictEqual(vm.one.isValid(), false, 'observable is not valid');
+	assert.deepEqual(errors(), ['This field is required.'], 'Grouping correctly finds 1 invalid property');
+
+	vm.one('abc');
+
+	assert.equal(vm.one.error(), 'Please enter a digit.');
+	assert.strictEqual(vm.one.isValid(), false, 'observable is not valid');
+	assert.deepEqual(errors(), ['Please enter a digit.'], 'Grouping correctly finds 1 invalid property');
+});
+
+QUnit.test('Issue #209 - Grouping works when multiple rules are defined - Not Observable', function(assert) {
+
+	var vm = {
+		one: ko.observable().extend({ required: true, digit: true })
+	};
+
+	var errors = ko.validation.group(vm, { observable: false });
+
+	assert.strictEqual(vm.one.isValid(), false, 'observable is not valid');
+	assert.deepEqual(errors(), ['This field is required.'], 'Grouping correctly finds 1 invalid property');
+
+	vm.one('abc');
+
+	// Due to the fix for #99 this test was failing
+	assert.equal(vm.one.error(), 'Please enter a digit.');
+	assert.strictEqual(vm.one.isValid(), false, 'observable is not valid');
+	assert.deepEqual(errors(), ['Please enter a digit.'], 'Grouping correctly finds 1 invalid property');
+});
 
 //#endregion
 
@@ -483,6 +541,85 @@ QUnit.test('Issue #454 - validatedObservable throws when config option grouping.
 
 	assert.ok(obj(), 'observable works');
 	assert.ok(!obj.isValid(), obj.errors()[0]);
+});
+
+QUnit.test('validatedObservables updates validation state when its value changes', function(assert) {
+
+	function Identity(name, email) {
+		this.name = ko.observable(name).extend({required: true});
+		this.email = ko.observable(email).extend({required: true, email: true});
+	}
+	var identity = ko.validatedObservable(new Identity('', ''), {observable: true});
+
+	assert.equal(identity.errors().length, 2, '2 errors reported');
+	assert.strictEqual(identity.isValid(), false, 'observable is not valid');
+
+	identity(new Identity('a', 'b'));
+	assert.equal(identity.errors().length, 1, '1 error reported');
+	assert.equal(identity.errors()[0], 'Please enter a proper email address.', 'expecting error for email rule');
+	assert.strictEqual(identity.isValid(), false, 'observable is not valid');
+});
+
+QUnit.test('validatedObservables updates validation state when its value changes', function(assert) {
+
+	function Identity(name, email) {
+		this.name = ko.observable(name).extend({required: true});
+		this.email = ko.observable(email).extend({required: true, email: true});
+	}
+	var identity = ko.validatedObservable(new Identity('', ''), {observable: true});
+
+	assert.equal(identity.errors().length, 2, '2 errors reported');
+	assert.strictEqual(identity.isValid(), false, 'observable is not valid');
+
+	identity(undefined);
+	assert.equal(identity.errors().length, 0, 'no errors reported');
+	assert.strictEqual(identity.isValid(), true, 'observable is valid');
+
+	identity(new Identity('', 'abc@example.com'));
+	assert.equal(identity.errors().length, 1, '1 error reported');
+	assert.strictEqual(identity.isValid(), false, 'observable is not valid');
+
+	identity({x: ko.observable('-').extend({digit: true})});
+	assert.equal(identity.errors().length, 1, '1 error reported');
+	assert.equal(identity.errors()[0], 'Please enter a digit.', '1 error reported');
+	assert.strictEqual(identity.isValid(), false, 'observable is not valid');
+
+	identity(5);
+	assert.equal(identity(), 5, 'observable still works');
+	assert.equal(identity.errors().length, 0, 'no errors reported');
+	assert.strictEqual(identity.isValid(), true, 'observable is valid');
+});
+
+QUnit.test('validatedObservable works when changing from null to object', function(assert) {
+
+	var testObj = ko.validatedObservable(null, {/*Force grouping*/});
+
+	assert.strictEqual(testObj.isValid(), true, 'observable is valid');
+	assert.equal(testObj.errors().length, 0, 'observable is valid');
+
+	testObj({
+		name: ko.observable('').extend({required: true})
+	});
+
+	assert.strictEqual(testObj.isValid(), false, 'observable is not valid');
+	assert.equal(testObj.errors().length, 1, '1 error is reported');
+	assert.equal(testObj.errors()[0], 'This field is required.', 'message is correct');
+});
+
+QUnit.test('validatedObservable works when changing from undefined to object', function(assert) {
+
+	var testObj = ko.validatedObservable(undefined, {/*Force grouping*/});
+
+	assert.strictEqual(testObj.isValid(), true, 'observable is valid');
+	assert.equal(testObj.errors().length, 0, 'observable is valid');
+
+	testObj({
+		name: ko.observable('').extend({required: true})
+	});
+
+	assert.strictEqual(testObj.isValid(), false, 'observable is not valid');
+	assert.equal(testObj.errors().length, 1, '1 error is reported');
+	assert.equal(testObj.errors()[0], 'This field is required.', 'message is correct');
 });
 
 //#endregion

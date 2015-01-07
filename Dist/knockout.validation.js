@@ -387,6 +387,26 @@ kv.configuration = configuration;
 				return invalidAndModifiedPresent;
 			};
 
+
+			/**
+			 * @private You should not rely on this method being here.
+			 * It's a private method and it may change in the future.
+			 *
+			 * @description Updates the validated object and collects errors from it.
+			 */
+			result._updateState = function(newValue) {
+				if (!utils.isObject(newValue)) {
+					throw new Error('An object is required.');
+				}
+				obj = newValue;
+				if (options.observable) {
+					context.graphMonitor.valueHasMutated();
+				}
+				else {
+					runTraversal(newValue, context);
+					return collectErrors(context.validatables);
+				}
+			};
 			return result;
 		},
 
@@ -1166,7 +1186,7 @@ ko.extenders['validatable'] = function (observable, options) {
 		// Rule Context = { rule: '<rule name>', params: '<passed in params>', message: '<Override of default Message>' }
 		observable.rules = ko.observableArray(); //holds the rule Contexts to use as part of validation
 
-		//in case async validation is occuring
+		//in case async validation is occurring
 		observable.isValidating = ko.observable(false);
 
 		//the true holder of whether the observable is valid or not
@@ -1179,8 +1199,17 @@ ko.extenders['validatable'] = function (observable, options) {
 
 		//manually set error state
 		observable.setError = function (error) {
+			var previousError = observable.error.peek();
+			var previousIsValid = observable.__valid__.peek();
+
 			observable.error(error);
 			observable.__valid__(false);
+
+			if (previousError !== error && !previousIsValid) {
+				// if the observable was not valid before then isValid will not mutate,
+				// hence causing any grouping to not display the latest error.
+				observable.isValid.notifySubscribers();
+			}
 		};
 
 		//manually clear error state
@@ -1380,23 +1409,38 @@ ko.applyBindings = function (viewModel, rootNode) {
 };
 
 ko.validatedObservable = function (initialValue, options) {
-	if (!kv.utils.isObject(initialValue)) { return ko.observable(initialValue).extend({ validatable: true }); }
+	if (!options && !kv.utils.isObject(initialValue)) {
+		return ko.observable(initialValue).extend({ validatable: true });
+	}
 
 	var obsv = ko.observable(initialValue);
-	obsv.errors = kv.group(initialValue, options);
+	obsv.errors = kv.group(kv.utils.isObject(initialValue) ? initialValue : {}, options);
 	obsv.isValid = ko.observable(obsv.errors().length === 0);
 
-
 	if (ko.isObservable(obsv.errors)) {
-		obsv.errors.subscribe(function (errors) {
-				obsv.isValid(errors.length === 0);
-			});
+		obsv.errors.subscribe(function(errors) {
+			obsv.isValid(errors.length === 0);
+		});
+	}
+	else {
+		ko.computed(obsv.errors).subscribe(function (errors) {
+			obsv.isValid(errors.length === 0);
+		});
+	}
+
+	obsv.subscribe(function(newValue) {
+		if (!kv.utils.isObject(newValue)) {
+			/*
+			 * The validation group works on objects.
+			 * Since the new value is a primitive (scalar, null or undefined) we need
+			 * to create an empty object to pass along.
+			 */
+			newValue = {};
 		}
-		else {
-			ko.computed(obsv.errors).subscribe(function (errors) {
-				obsv.isValid(errors.length === 0);
-			});
-		}
+		// Force the group to refresh
+		obsv.errors._updateState(newValue);
+		obsv.isValid(obsv.errors().length === 0);
+	});
 
 	return obsv;
 };
