@@ -123,6 +123,46 @@ QUnit.test('selectedOptions Binding Works', function(assert) {
     assert.equal(msg, 'Please select at least one item.', msg);
 });
 
+QUnit.test('Issue #277 - parseInputAttributes does not duplicate rules when parseInputAttributes=true', function(assert) {
+    var done = assert.async();
+
+    ko.validation.init({parseInputAttributes: true, writeInputAttributes: false}, true);
+
+    var testObj = ko.observable('').extend({required: true, email: true});
+    addTestHtml('<input type="email" required="required" required data-bind="value: email" />');
+    applyTestBindings({ email: testObj });
+
+    setTimeout(function() {
+        assert.equal(testObj.rules().length, 2, 'rules are not duplicated');
+        assert.equal(testObj.error(), 'This field is required.');
+
+        testObj('abc');
+        assert.equal(testObj.error(), 'Please enter a proper email address.');
+
+        done();
+    }, 1);
+});
+
+QUnit.test('Issue #277 - parseInputAttributes does not duplicate rules when parseInputAttributes=true', function(assert) {
+    var done = assert.async();
+
+    ko.validation.init({parseInputAttributes: true, writeInputAttributes: true}, true);
+
+    var testObj = ko.observable('').extend({required: true, email: true});
+    addTestHtml('<input type="email" required="required" required data-bind="value: email" />');
+    applyTestBindings({ email: testObj });
+
+    setTimeout(function() {
+        assert.equal(testObj.rules().length, 2, 'rules are not duplicated');
+        assert.equal(testObj.error(), 'This field is required.');
+
+        testObj('abc');
+        assert.equal(testObj.error(), 'Please enter a proper email address.');
+
+        done();
+    }, 1);
+});
+
 //#region Inserting Messages
 
 QUnit.test('Inserting Messages Works', function(assert) {

@@ -55,6 +55,27 @@ QUnit.test('clearError clears automatic errors', function(assert) {
 
 //#endregion
 
+//region API Tests
+
+QUnit.module('API Tests');
+
+QUnit.test('Issue #277 - addRule should ignore rule if already defined', function(assert) {
+
+	var testObj = ko.observable(1).extend({validatable: true});
+
+	testObj.extend({min: 10});
+	assert.equal(testObj.rules().length, 1, 'rule is added');
+	assert.equal(testObj.error(), 'Please enter a value greater than or equal to 10.');
+
+	testObj.extend({min: 20});
+	ko.validation.validateObservable(testObj);
+
+	assert.equal(testObj.rules().length, 1, 'rule is not added');
+	assert.equal(testObj.error(), 'Please enter a value greater than or equal to 10.');
+});
+
+//endregion
+
 //#region Grouping Tests
 
 QUnit.module('Grouping Tests');
