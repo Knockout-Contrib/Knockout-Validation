@@ -169,10 +169,7 @@
 					show = true;
 				}
 
-				// ensure we have latest changes
-				result();
-
-				ko.utils.arrayForEach(context.validatables, function (observable) {
+				result.forEach(function (observable) {
 					if (utils.isValidatable(observable)) {
 						observable.isModified(show);
 					}
@@ -182,15 +179,43 @@
 			result.isAnyMessageShown = function () {
 				var invalidAndModifiedPresent;
 
-				// ensure we have latest changes
-				result();
-
-				invalidAndModifiedPresent = !!ko.utils.arrayFirst(context.validatables, function (observable) {
+				invalidAndModifiedPresent = !!result.find(function (observable) {
 					return utils.isValidatable(observable) && !observable.isValid() && observable.isModified();
 				});
 				return invalidAndModifiedPresent;
 			};
 
+			result.filter = function(predicate) {
+				predicate = predicate || function () { return true; };
+				// ensure we have latest changes
+				result();
+
+				return ko.utils.arrayFilter(context.validatables, predicate);
+			};
+
+			result.find = function(predicate) {
+				predicate = predicate || function () { return true; };
+				// ensure we have latest changes
+				result();
+
+				return ko.utils.arrayFirst(context.validatables, predicate);
+			};
+
+			result.forEach = function(callback) {
+				callback = callback || function () { };
+				// ensure we have latest changes
+				result();
+
+				ko.utils.arrayForEach(context.validatables, callback);
+			};
+
+			result.map = function(mapping) {
+				mapping = mapping || function (item) { return item; };
+				// ensure we have latest changes
+				result();
+
+				return ko.utils.arrayMap(context.validatables, mapping);
+			};
 
 			/**
 			 * @private You should not rely on this method being here.

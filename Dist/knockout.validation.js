@@ -365,10 +365,7 @@ kv.configuration = configuration;
 					show = true;
 				}
 
-				// ensure we have latest changes
-				result();
-
-				forEach(context.validatables, function (observable) {
+				result.forEach(function (observable) {
 					if (utils.isValidatable(observable)) {
 						observable.isModified(show);
 					}
@@ -378,15 +375,43 @@ kv.configuration = configuration;
 			result.isAnyMessageShown = function () {
 				var invalidAndModifiedPresent;
 
-				// ensure we have latest changes
-				result();
-
-				invalidAndModifiedPresent = !!koUtils.arrayFirst(context.validatables, function (observable) {
+				invalidAndModifiedPresent = !!result.find(function (observable) {
 					return utils.isValidatable(observable) && !observable.isValid() && observable.isModified();
 				});
 				return invalidAndModifiedPresent;
 			};
 
+			result.filter = function(predicate) {
+				predicate = predicate || function () { return true; };
+				// ensure we have latest changes
+				result();
+
+				return koUtils.arrayFilter(context.validatables, predicate);
+			};
+
+			result.find = function(predicate) {
+				predicate = predicate || function () { return true; };
+				// ensure we have latest changes
+				result();
+
+				return koUtils.arrayFirst(context.validatables, predicate);
+			};
+
+			result.forEach = function(callback) {
+				callback = callback || function () { };
+				// ensure we have latest changes
+				result();
+
+				forEach(context.validatables, callback);
+			};
+
+			result.map = function(mapping) {
+				mapping = mapping || function (item) { return item; };
+				// ensure we have latest changes
+				result();
+
+				return koUtils.arrayMap(context.validatables, mapping);
+			};
 
 			/**
 			 * @private You should not rely on this method being here.
