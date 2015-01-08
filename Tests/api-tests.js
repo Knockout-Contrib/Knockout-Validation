@@ -445,6 +445,106 @@ QUnit.test('Issue #209 - Grouping works when multiple rules are defined - Not Ob
 
 //#endregion
 
+//#region Error Collection Tests
+
+QUnit.module('Error Collection Tests');
+
+QUnit.test('find returns first element matching predicate', function (assert) {
+
+    var vm = {
+        one: ko.observable().extend({ digit: true }),
+        two: ko.observable().extend({ max: 10 })
+    };
+
+    var errors = ko.validation.group(vm, { observable: false });
+
+    vm.one('abc');
+    vm.two(11);
+
+    assert.equal(errors.find(function(val) {
+        return val() === 11;
+    })(), 11);
+});
+
+QUnit.test('filter returns all elements matching predicate', function (assert) {
+
+    var vm = {
+        one: ko.observable().extend({ digit: true }),
+        two: ko.observable().extend({ max: 10 }),
+        three: ko.observable().extend({ max: 15 })
+    };
+
+    var errors = ko.validation.group(vm, { observable: false });
+
+    vm.one('abc');
+    vm.two(11);
+    vm.three(16);
+
+    assert.equal(errors.filter(function (val) {
+        return val.rules()[0].rule === 'max';
+    }).length, 2);
+});
+
+QUnit.test('forEach calls back for each error', 2, function (assert) {
+
+    var vm = {
+        one: ko.observable().extend({ digit: true }),
+        two: ko.observable().extend({ max: 10 })
+    };
+
+    var errors = ko.validation.group(vm, { observable: false });
+
+    vm.one('abc');
+    vm.two(11);
+
+    errors.forEach(function() {
+        assert.ok(true);
+    });
+});
+
+QUnit.test('map returns projection for each error', function (assert) {
+
+    var vm = {
+        one: ko.observable().extend({ digit: true }),
+        two: ko.observable().extend({ max: 10 })
+    };
+
+    var errors = ko.validation.group(vm, { observable: false });
+
+    vm.one('abc');
+    vm.two(11);
+
+    var result = errors.map(function(item) {
+        return item.rules()[0].rule;
+    });
+
+    assert.equal(result[0], 'digit');
+    assert.equal(result[1], 'max');
+});
+
+QUnit.test('collection methods include error information', function(assert) {
+    var vm = {
+        one: ko.observable().extend({ digit: true })
+    };
+
+    var errors = ko.validation.group(vm, { observable: false });
+
+    vm.one('abc');
+    errors.forEach(function(item) {
+        assert.ok(
+            !!item.error &&
+            !!item.isValid &&
+            !!item.isModified &&
+            !!item.isValidating &&
+            !!item.rules &&
+            !!item.setError &&
+            !!item.clearError
+        );
+    });
+});
+
+//#endregion
+
 //#region validatedObservable
 
 QUnit.module('validatedObservable Tests');
