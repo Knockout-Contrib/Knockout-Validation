@@ -274,7 +274,7 @@ kv.configuration = configuration;
 		if (level !== 0) {
 			utils.forEach(objValues, function (observable) {
 				//but not falsy things and not HTML Elements
-				if (observable && !observable.nodeType) {
+				if (observable && !observable.nodeType && (!ko.isComputed(observable) || observable.rules)) {
 					traverseGraph(observable, context, level + 1);
 				}
 			});
