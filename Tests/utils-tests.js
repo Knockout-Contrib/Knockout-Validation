@@ -163,4 +163,44 @@ QUnit.test('isObservableArray returns true for observable arrays', function(asse
 	assert.ok(!ko.validation.utils.isObservableArray(undefined));
 });
 
+QUnit.test('Group does not resolve deferred computed values', function(assert) {
+	var vm = {
+		Value: ko.observable('no')
+	};
+	vm.Test = ko.computed({
+		read: function() {
+			vm.Value('yes');
+		},
+		deferEvaluation: true
+	});
+
+	assert.equal(vm.Value(), 'no', 'Not resolved');
+	var errors = ko.validation.group(vm);
+
+	assert.equal(vm.Value(), 'no', 'Still not resolved');
+	assert.equal(errors().length, 0, 'No errors');
+});
+
+QUnit.test('Group does resolve deferred computed values that have validation', function(assert) {
+	var vm = {
+		Value: ko.observable('no')
+	};
+	vm.Test = ko.computed({
+		read: function() {
+			vm.Value('yes');
+		},
+		deferEvaluation: true
+	});
+
+	assert.equal(vm.Value(), 'no', 'Not resolved');
+
+	vm.Test.extend({required: true});
+	var errors = ko.validation.group(vm);
+
+	assert.equal(vm.Value(), 'yes', 'Resolved');
+	assert.equal(errors().length, 1, 'Error notification');
+	assert.strictEqual(vm.Test.isValid(), false);
+	assert.equal(vm.Test.error(), 'This field is required.');
+});
+
 //#endregion
