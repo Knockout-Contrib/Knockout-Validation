@@ -78,7 +78,6 @@ ko.bindingHandlers['validationMessage'] = { // individual error message, if modi
 		}
 
 		var isVisible = !config.messagesOnModified || isModified ? !isValid : false;
-		var isCurrentlyVisible = element.style.display !== "none";
 
 		if (config.allowHtmlMessages) {
 			ko.utils.setHtml(element, error);
@@ -86,11 +85,27 @@ ko.bindingHandlers['validationMessage'] = { // individual error message, if modi
 			ko.bindingHandlers.text.update(element, function () { return error; });
 		}
 
-		if (isCurrentlyVisible && !isVisible) {
-			element.style.display = 'none';
-		} else if (!isCurrentlyVisible && isVisible) {
-			element.style.display = '';
-		}
+		//@akoculu edit: content can be wrapped by other div. try to find wrapped element by class name
+		//Sample Template Layout:
+		//<script id="koValidationTemplate" type="text/html">
+        	//	<div class="validationMessage arrow_box">
+            	//		<div data-bind='validationMessage: field'></div>
+        	//	</div>
+    		//</script>
+    		//Above template wraps actual error message with some fancy arrow box.
+    		//With this change validation hides wrapper and error message together.
+		
+            	var templateParent = $(element).parent('.' + config.errorMessageClass).get(0);
+            	if (templateParent == null)
+                	templateParent = element;            
+
+            	var isCurrentlyVisible = templateParent.style.display !== "none";
+
+            	if (isCurrentlyVisible && !isVisible) {
+	                templateParent.style.display = 'none';
+            	} else if (!isCurrentlyVisible && isVisible) {
+                	templateParent.style.display = '';
+            	}
 	}
 };
 
