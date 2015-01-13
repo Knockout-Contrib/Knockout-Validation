@@ -1,13 +1,12 @@
 ﻿
 //quick function to override rule messages
 ko.validation.localize = function (msgTranslations) {
-
-	var msg, rule;
+	var rules = ko.validation.rules;
 
 	//loop the properties in the object and assign the msg to the rule
-	for (rule in msgTranslations) {
-		if (ko.validation.rules.hasOwnProperty(rule)) {
-			ko.validation.rules[rule].message = msgTranslations[rule];
+	for (var ruleName in msgTranslations) {
+		if (rules.hasOwnProperty(ruleName)) {
+			rules[ruleName].message = msgTranslations[ruleName];
 		}
 	}
 };
