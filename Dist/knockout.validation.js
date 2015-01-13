@@ -1392,16 +1392,16 @@ kv.validateObservable = function (observable) {
 ;
 //quick function to override rule messages
 kv.localize = function (msgTranslations) {
-
-	var msg, rule;
+	var rules = kv.rules;
 
 	//loop the properties in the object and assign the msg to the rule
-	for (rule in msgTranslations) {
-		if (kv.rules.hasOwnProperty(rule)) {
-			kv.rules[rule].message = msgTranslations[rule];
+	for (var ruleName in msgTranslations) {
+		if (rules.hasOwnProperty(ruleName)) {
+			rules[ruleName].message = msgTranslations[ruleName];
 		}
 	}
-};;/**
+};
+;/**
  * Possible invocations:
  * 		applyBindingsWithValidation(viewModel)
  * 		applyBindingsWithValidation(viewModel, options)
