@@ -883,12 +883,17 @@ kv.rules['pattern'] = {
 
 kv.rules['step'] = {
 	validator: function (val, step) {
-
+		var min_diff = 0.000000001;
+	
+	
 		// in order to handle steps of .1 & .01 etc.. Modulus won't work
 		// if the value is a decimal, so we have to correct for that
 		if (kv.utils.isEmptyVal(val) || step === 'any') { return true; }
-		var dif = (val * 100) % (step * 100);
-		return Math.abs(dif) < 0.00001 || Math.abs(1 - dif) < 0.00001;
+		var valInt = val / step;
+		var stepInt = step * ( 1 / step);
+		var diff = valInt % stepInt;
+	
+		return Math.abs(diff) < min_diff || Math.abs(1 - diff) < min_diff;
 	},
 	message: 'The value must increment by {0}.'
 };

@@ -509,6 +509,31 @@ QUnit.test('Object is NOT Valid and step is observable and isValid returns False
 	assert.violatesStepRule(testObj, 5, 3);
 });
 
+test('Object is NOT Valid with a step of 0.00000003 and isValid returns False', function () {
+	var testObj = ko.observable('')
+                    .extend({ step: 0.00000003 });
+
+	testObj(0.00001115);
+
+	equal(testObj(), 0.00001115, 'observable still works');
+	equal(testObj.isValid(), false, 'testObj is not Valid');
+});
+
+
+
+
+test('Object is Valid with a step of 0.00000001 and isValid returns True', function () {
+	var testObj = ko.observable('')
+                    .extend({ step: 0.00000002 });
+
+	testObj(0.00001116);
+
+	equal(testObj(), 0.00001116, 'observable still works');
+	ok(testObj.isValid(), 'testObj is Valid');
+});
+
+
+
 //#endregion
 
 //#region Email Validation
