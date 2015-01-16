@@ -1,572 +1,400 @@
-﻿/*global
-	module:false,
-	equal:false,
-	notEqual:false,
-	strictEqual:false,
-	deepEqual:false,
-	test:false,
-	ok:false,
-	asyncTest:false,
-	start: false,
-	stop: false,
-	expect: false
-*/
+﻿/*global QUnit:false*/
+
 
 //#region Required Validation
 
-module('Required Validation');
+QUnit.module('Required Validation');
 
-test('Object is Valid and isValid returns True', function () {
-
-	var testObj = ko.observable('')
-                    .extend({ required: true });
-
+QUnit.test('Object is Valid and isValid returns True', function(assert) {
+	var testObj = ko.observable('').extend({ required: true });
 	testObj('something');
-
-	equal(testObj(), 'something', 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 'something');
 });
 
-test('Object is NOT Valid and isValid returns False', function () {
-
-	var testObj = ko.observable('')
-                    .extend({ required: true });
-
-	equal(testObj(), '', 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
+QUnit.test('Object is NOT Valid and isValid returns False', function(assert) {
+	var testObj = ko.observable('').extend({ required: true });
+	assert.violatesRequiredRule(testObj, '');
 });
 
-test('Zero is a valid value for required', function () {
-
-	var testObj = ko.observable(0)
-                    .extend({ required: true });
-
-	equal(testObj(), 0, 'observable still works');
-	equal(testObj.isValid(), true, 'testObj is valid');
+QUnit.test('Zero is a valid value for required', function(assert) {
+	var testObj = ko.observable(0).extend({ required: true });
+	assert.observableIsValid(testObj, 0);
 });
 
-test('Empty spaces is not a valid value for required', function () {
-
-	var testObj = ko.observable('  ')
-                    .extend({ required: true });
-
-	equal(testObj(), '  ', 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is valid');
+QUnit.test('Empty spaces is not a valid value for required', function(assert) {
+	var testObj = ko.observable('  ').extend({ required: true });
+	assert.violatesRequiredRule(testObj, '  ');
 });
 
-test('Issue #90 - "required: false" doesnt force validation', function () {
-
-	var testObj = ko.observable()
-                    .extend({ required: false });
-
-	equal(testObj.isValid(), true, 'testObj is valid without value');
+QUnit.test('Issue #90 - "required: false" doesnt force validation', function(assert) {
+	var testObj = ko.observable().extend({ required: false });
+	assert.observableIsValid(testObj, undefined);
 
 	testObj('blah');
-	equal(testObj.isValid(), true, 'testObj is valid with value');
+	assert.observableIsValid(testObj, 'blah');
 
 	testObj(null);
-	equal(testObj.isValid(), true, 'testObj is valid without value after set/unset');
+	assert.observableIsValid(testObj, null);
 });
 
-test("Undefined params should not cause errors", function () {
+QUnit.test('Undefined params should not cause errors', function(assert) {
 	var undefinedParams = ko.observable().extend({ required: undefined }),
 		nullParams = ko.observable().extend({ required: null });
 
-	ok(true, "No errors whilst adding rules?  Awesome");
+	//TODO: Should required rule pass when params is null (it's not quite expected to fail with undefined but pass with null)
+
+	assert.violatesRequiredRule(undefinedParams, undefined);
+	assert.observableIsValid(nullParams, undefined);
 });
 
-test("Issue #376 - empty string should pass validation when required = false", function () {
-	var observable = ko.observable("").extend({ required: false });
-
-	ok(observable.isValid(), "Empty string should be valid");
+QUnit.test('Issue #376 - empty string should pass validation when required = false', function(assert) {
+	var testObj = ko.observable('').extend({ required: false });
+	assert.observableIsValid(testObj, '');
 });
 
 //#endregion
 
 //#region Min Validation
 
-module('Min Validation');
+QUnit.module('Min Validation');
 
-test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ min: 2 });
-	testObj();
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, undefined);
 });
 
-test('Object is Valid when null value is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when null value is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ min: 2 });
 	testObj(null);
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, null);
 });
 
-test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when empty string is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ min: 2 });
 	testObj('');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, '');
 });
 
-test('Object is Valid and isValid returns True', function () {
-	var testObj = ko.observable('')
-                    .extend({ min: 2 });
-
+QUnit.test('Object is Valid and isValid returns True', function(assert) {
+	var testObj = ko.observable('').extend({ min: 2 });
 	testObj(3);
-
-	equal(testObj(), 3, 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 3);
 });
 
-test('Object is Valid and isValid returns True (with min: 0)', function () {
-	var testObj = ko.observable('')
-            .extend({ min: 0 });
-
-	testObj("0");
-
-	equal(testObj(), "0", 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+QUnit.test('Object is Valid and isValid returns True (with min: 0)', function(assert) {
+	var testObj = ko.observable('').extend({ min: 0 });
+	testObj('0');
+	assert.observableIsValid(testObj, '0');
 });
 
-test('Object is NOT Valid and isValid returns False', function () {
-	var testObj = ko.observable('')
-                    .extend({ min: 2 });
-
+QUnit.test('Object is NOT Valid and isValid returns False', function(assert) {
+	var testObj = ko.observable('').extend({ min: 2 });
 	testObj(1);
-
-	equal(testObj(), 1, 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
-	equal(testObj.error(), 'Please enter a value greater than or equal to 2.', 'Message needs to be formatted correctly');
+	assert.violatesMinRule(testObj, 1, 2);
 });
 
-test('Object is NOT Valid and isValid returns False and min is observable', function () {
+QUnit.test('Object is NOT Valid and isValid returns False and min is observable', function(assert) {
 	var minValue = ko.observable(3);
-	var testObj = ko.observable('')
-                    .extend({ min: minValue });
-
+	var testObj = ko.observable('').extend({ min: minValue });
 	testObj(1);
-
-	equal(testObj(), 1, 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
-	equal(testObj.error(), 'Please enter a value greater than or equal to 3.', 'Message needs to be formatted correctly');
+	assert.violatesMinRule(testObj, 1, 3);
 });
 
-test('Object is Valid and isValid returns True and min is observable', function () {
+QUnit.test('Object is Valid and isValid returns True and min is observable', function(assert) {
 	var minValue = ko.observable(3);
-	var testObj = ko.observable('')
-                    .extend({ min: minValue });
-
+	var testObj = ko.observable('').extend({ min: minValue });
 	testObj(4);
-
-	equal(testObj(), 4, 'observable still works');
-	equal(testObj.isValid(), true, 'testObj is valid');
+	assert.observableIsValid(testObj, 4);
 });
 
-test('Object is Valid and isValid returns True and min is date', function () {
-       var obj = new Date(2012, 05, 04);
-       var testObj = ko.observable('')
-                    .extend({ min: new Date(2012, 03, 04) });
-
-       testObj(obj);
-
-       equal(testObj(), obj, 'observable still works');
-       equal(testObj.isValid(), true, 'testObj is valid');
+QUnit.test('Object is Valid and isValid returns True and min is date', function(assert) {
+	var obj = new Date(2012, 5, 4);
+	var testObj = ko.observable('').extend({ min: new Date(2012, 3, 4) });
+	testObj(obj);
+	assert.observableIsValid(testObj, obj);
 });
 
-test('Object is NOT Valid and isValid returns False and min is date', function () {
-       var obj = new Date(2011, 05, 04);
-       var testObj = ko.observable('')
-                    .extend({ min: new Date(2012, 03, 04) });
-
-       testObj(obj);
-
-       equal(testObj(), obj, 'observable still works');
-       equal(testObj.isValid(), false, 'testObj is not valid');
+QUnit.test('Object is NOT Valid and isValid returns False and min is date', function(assert) {
+	var obj = new Date(2011, 5, 4);
+	var minValue = new Date(2012, 3, 4);
+	var testObj = ko.observable('').extend({ min: minValue });
+	testObj(obj);
+	assert.violatesMinRule(testObj, obj, minValue);
 });
 
 //#endregion
 
 //#region Max Validation
 
-module('Max Validation');
+QUnit.module('Max Validation');
 
-test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ max: 2 });
-	testObj();
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, undefined);
 });
 
-test('Object is Valid when null value is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when null value is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ max: 2 });
 	testObj(null);
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, null);
 });
 
-test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when empty string is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ max: 2 });
 	testObj('');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, '');
 });
 
-test('Object is Valid and isValid returns True', function () {
-	var testObj = ko.observable('')
-                    .extend({ max: 5 });
-
+QUnit.test('Object is Valid and isValid returns True', function(assert) {
+	var testObj = ko.observable('').extend({ max: 5 });
 	testObj(3);
-
-	equal(testObj(), 3, 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 3);
 });
 
-test('Object is NOT Valid and isValid returns False', function () {
-	var testObj = ko.observable('')
-                    .extend({ max: 5 });
-
+QUnit.test('Object is NOT Valid and isValid returns False', function(assert) {
+	var testObj = ko.observable('').extend({ max: 5 });
 	testObj(6);
-
-	equal(testObj(), 6, 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
-	equal(testObj.error(), 'Please enter a value less than or equal to 5.', 'Message needs to be formatted correctly');
+	assert.violatesMaxRule(testObj, 6, 5);
 });
 
-test('Object is NOT Valid and isValid returns False and max is observable', function () {
+QUnit.test('Object is NOT Valid and isValid returns False and max is observable', function(assert) {
 	var minValue = ko.observable(3);
-	var testObj = ko.observable('')
-                    .extend({ max: minValue });
-
+	var testObj = ko.observable('').extend({ max: minValue });
 	testObj(4);
-
-	equal(testObj(), 4, 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
-	equal(testObj.error(), 'Please enter a value less than or equal to 3.', 'Message needs to be formatted correctly');
+	assert.violatesMaxRule(testObj, 4, minValue());
 });
 
-test('Object is Valid and isValid returns True and max is observable', function () {
+QUnit.test('Object is Valid and isValid returns True and max is observable', function(assert) {
 	var minValue = ko.observable(3);
-	var testObj = ko.observable('')
-                    .extend({ max: minValue });
-
+	var testObj = ko.observable('').extend({ max: minValue });
 	testObj(1);
-
-	equal(testObj(), 1, 'observable still works');
-	equal(testObj.isValid(), true, 'testObj is valid');
+	assert.observableIsValid(testObj, 1);
 });
 
-test('Object is Valid and isValid returns True and max is date', function () {
-       var obj = new Date(2011, 05, 04);
-       var testObj = ko.observable('')
-                    .extend({ max: new Date(2012, 03, 04) });
-
-       testObj(obj);
-
-       equal(testObj(), obj, 'observable still works');
-       equal(testObj.isValid(), true, 'testObj is valid');
+QUnit.test('Object is Valid and isValid returns True and max is date', function(assert) {
+	var obj = new Date(2011, 5, 4);
+	var testObj = ko.observable('').extend({ max: new Date(2012, 3, 4) });
+	testObj(obj);
+	assert.observableIsValid(testObj, obj);
 });
 
-test('Object is NOT Valid and isValid returns False and max is date', function () {
-       var obj = new Date(2013, 05, 04);
-       var testObj = ko.observable('')
-                    .extend({ max: new Date(2012, 03, 04) });
-
-       testObj(obj);
-
-       equal(testObj(), obj, 'observable still works');
-       equal(testObj.isValid(), false, 'testObj is not valid');
+QUnit.test('Object is NOT Valid and isValid returns False and max is date', function(assert) {
+	var obj = new Date(2013, 5, 4);
+	var maxValue = new Date(2012, 3, 4);
+	var testObj = ko.observable('').extend({ max: maxValue });
+	testObj(obj);
+	assert.violatesMaxRule(testObj, obj, maxValue);
 });
 
 //#endregion
 
 //#region Min Length Validation
 
-module('MinLength Validation');
+QUnit.module('MinLength Validation');
 
-test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ minLength: 2 });
-	testObj();
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, undefined);
 });
 
-test('Object is Valid when null value is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when null value is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ minLength: 2 });
 	testObj(null);
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, null);
 });
 
-test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when empty string is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ minLength: 2 });
 	testObj('');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, '');
 });
 
-test('Object is Valid when no value is present - Preserves Optional Properties', function () {
-
-	var testObj = ko.observable().extend({ minLength: 2 });
-	testObj('');
-	ok(testObj.isValid(), 'testObj is Valid');
-
-});
-
-test('Object is Valid and isValid returns True', function () {
-	var testObj = ko.observable('')
-                    .extend({ minLength: 5 });
-
+QUnit.test('Object is Valid and isValid returns True', function(assert) {
+	var testObj = ko.observable('').extend({ minLength: 5 });
 	testObj('something');
-
-	equal(testObj(), 'something', 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 'something');
 });
 
-test('Object is NOT Valid and isValid returns False', function () {
-	var testObj = ko.observable('')
-                    .extend({ minLength: 12 });
-
+QUnit.test('Object is NOT Valid and isValid returns False', function(assert) {
+	var testObj = ko.observable('').extend({ minLength: 12 });
 	testObj('something');
-
-	equal(testObj(), 'something', 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
+	assert.violatesMinLengthRule(testObj, 'something', 12);
 });
 
-test('Issue #33 - Arrays - Valid', function () {
-	var testObj = ko.observableArray()
-                    .extend({ minLength: 2 });
-
-	testObj(['one', 'two', 'three']);
-	ok(testObj.isValid(), 'testObj is Valid');
+QUnit.test('Issue #33 - Arrays - Valid', function(assert) {
+	var testObj = ko.observableArray().extend({ minLength: 2 });
+	var obj = ['one', 'two', 'three'];
+	testObj(obj);
+	assert.observableIsValid(testObj, obj);
 });
 
-test('Issue #33 - Arrays - Invalid', function () {
-	var testObj = ko.observableArray()
-                    .extend({ minLength: 4 });
-
-	testObj(['one', 'two', 'three']);
-	ok(!testObj.isValid(), testObj.error());
+QUnit.test('Issue #33 - Arrays - Invalid', function(assert) {
+	var testObj = ko.observableArray().extend({ minLength: 4 });
+	var obj = ['one', 'two', 'three'];
+	testObj(obj);
+	assert.violatesMinLengthRule(testObj, obj, 4);
 });
 
-test('Object is Valid and minLength is observable and isValid returns True', function () {
+QUnit.test('Object is Valid and minLength is observable and isValid returns True', function(assert) {
 	var minLength = ko.observable(5);
-	var testObj = ko.observable('')
-                    .extend({ minLength: minLength });
-
+	var testObj = ko.observable('').extend({ minLength: minLength });
 	testObj('something');
-
-	equal(testObj(), 'something', 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 'something');
 });
 
-test('Object is NOT Valid and minLength is observable and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and minLength is observable and isValid returns False', function(assert) {
 	var minLength = ko.observable(12);
-	var testObj = ko.observable('')
-                    .extend({ minLength: minLength });
-
+	var testObj = ko.observable('').extend({ minLength: minLength });
 	testObj('something');
-
-	equal(testObj(), 'something', 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
+	assert.violatesMinLengthRule(testObj, 'something', 12);
 });
 
-test('Issue #457 - Number is valid when digits are within applicable length', function () {
+QUnit.test('Issue #457 - Number is valid when digits are within applicable length', function(assert) {
 	var minLength = ko.observable(5);
-	var testObj = ko.observable('')
-                    .extend({ minLength: minLength });
-
+	var testObj = ko.observable('').extend({ minLength: minLength });
 	testObj(12345);
-
-	equal(testObj(), 12345, 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 12345);
 });
 
-test('Issue #457 - Number is invalid when digits are outside of applicable length', function () {
+QUnit.test('Issue #457 - Number is invalid when digits are outside of applicable length', function(assert) {
 	var minLength = ko.observable(5);
-	var testObj = ko.observable('')
-                    .extend({ minLength: minLength });
-
+	var testObj = ko.observable('').extend({ minLength: minLength });
 	testObj(1234);
-
-	equal(testObj(), 1234, 'observable still works');
-	ok(!testObj.isValid(), 'testObj is Valid');
+	assert.violatesMinLengthRule(testObj, 1234, 5);
 });
+
 //#endregion
 
 //#region Max Length Validation
 
-module('MaxLength Validation');
+QUnit.module('MaxLength Validation');
 
-test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ maxLength: 2 });
-	testObj();
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, undefined);
 });
 
-test('Object is Valid when null value is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when null value is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ maxLength: 2 });
 	testObj(null);
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, null);
 });
 
-test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when empty string is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ maxLength: 2 });
 	testObj('');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, '');
 });
 
-test('Object is Valid and isValid returns True', function () {
-	var testObj = ko.observable('')
-                    .extend({ maxLength: 10 });
-
+QUnit.test('Object is Valid and isValid returns True', function(assert) {
+	var testObj = ko.observable('').extend({ maxLength: 10 });
 	testObj('something');
-
-	equal(testObj(), 'something', 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 'something');
 });
 
-test('Object is NOT Valid and isValid returns False', function () {
-	var testObj = ko.observable('')
-                    .extend({ maxLength: 6 });
-
+QUnit.test('Object is NOT Valid and isValid returns False', function(assert) {
+	var testObj = ko.observable('').extend({ maxLength: 6 });
 	testObj('something');
-
-	equal(testObj(), 'something', 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
+	assert.violatesMaxLengthRule(testObj, 'something', 6);
 });
 
-test('Issue #33 - Arrays - Valid', function () {
-	var testObj = ko.observableArray()
-                    .extend({ maxLength: 4 });
-
-	testObj(['one', 'two', 'three']);
-	ok(testObj.isValid(), 'testObj is Valid');
+QUnit.test('Issue #33 - Arrays - Valid', function(assert) {
+	var testObj = ko.observableArray().extend({ maxLength: 4 });
+	var obj = ['one', 'two', 'three'];
+	testObj(obj);
+	assert.observableIsValid(testObj, obj);
 });
 
-test('Issue #33 - Arrays - Invalid', function () {
-	var testObj = ko.observableArray()
-                    .extend({ maxLength: 2 });
-
-	testObj(['one', 'two', 'three']);
-	ok(!testObj.isValid(), testObj.error());
+QUnit.test('Issue #33 - Arrays - Invalid', function(assert) {
+	var testObj = ko.observableArray().extend({ maxLength: 2 });
+	var obj = ['one', 'two', 'three'];
+	testObj(obj);
+	assert.violatesMaxLengthRule(testObj, obj, 2);
 });
 
-test('Object is Valid and maxLength is observable and isValid returns True', function () {
+QUnit.test('Object is Valid and maxLength is observable and isValid returns True', function(assert) {
 	var maxLength = ko.observable(20);
-	var testObj = ko.observable('')
-                    .extend({ maxLength: maxLength });
-
+	var testObj = ko.observable('').extend({ maxLength: maxLength });
 	testObj('something');
-
-	equal(testObj(), 'something', 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 'something');
 });
 
-test('Object is NOT Valid and maxLength is observable and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and maxLength is observable and isValid returns False', function(assert) {
 	var maxLength = ko.observable(3);
-	var testObj = ko.observable('')
-                    .extend({ maxLength: maxLength });
-
+	var testObj = ko.observable('').extend({ maxLength: maxLength });
 	testObj('something');
-
-	equal(testObj(), 'something', 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
+	assert.violatesMaxLengthRule(testObj, 'something', 3);
 });
 
-test('Issue #457 - Number is valid when digits are within applicable length', function () {
+QUnit.test('Issue #457 - Number is valid when digits are within applicable length', function(assert) {
 	var maxLength = ko.observable(5);
-	var testObj = ko.observable('')
-                    .extend({ maxLength: maxLength });
-
+	var testObj = ko.observable('').extend({ maxLength: maxLength });
 	testObj(1);
-
-	equal(testObj(), 1, 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 1);
 });
 
-test('Issue #457 - Number is invalid when digits are outside of applicable length', function () {
+QUnit.test('Issue #457 - Number is invalid when digits are outside of applicable length', function(assert) {
 	var maxLength = ko.observable(5);
-	var testObj = ko.observable('')
-                    .extend({ maxLength: maxLength });
-
+	var testObj = ko.observable('').extend({ maxLength: maxLength });
 	testObj(123456);
-
-	equal(testObj(), 123456, 'observable still works');
-	ok(!testObj.isValid(), 'testObj is Valid');
+	assert.violatesMaxLengthRule(testObj, 123456, 5);
 });
+
 //#endregion
 
 //#region Pattern Validation
 
-module('Pattern Validation');
+QUnit.module('Pattern Validation');
 
-test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ pattern: 'test' });
-	testObj();
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, undefined);
 });
 
-test('Object is Valid when null value is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when null value is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ pattern: 'test' });
 	testObj(null);
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, null);
 });
 
-test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when empty string is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ pattern: 'test' });
 	testObj('');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, '');
 });
 
-test('Object is Valid and isValid returns True', function () {
-	var testObj = ko.observable('')
-                    .extend({ pattern: 'some' });
-
+QUnit.test('Object is Valid and isValid returns True', function(assert) {
+	var testObj = ko.observable('').extend({ pattern: 'some' });
 	testObj('something');
-
-	equal(testObj(), 'something', 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 'something');
 });
 
-test('Object is NOT Valid and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and isValid returns False', function(assert) {
 	var testObj = ko.observable('')
                     .extend({ pattern: 'none' });
 
 	testObj('something');
 
-	equal(testObj(), 'something', 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
+	assert.equal(testObj(), 'something', 'observable still works');
+	assert.equal(testObj.isValid(), false, 'testObj is not valid');
 });
 
-test('Pattern validation matches numbers', function () {
-	var testObj = ko.observable('')
-                    .extend({ pattern: '^12' });
-
+QUnit.test('Pattern validation matches numbers', function(assert) {
+	var testObj = ko.observable('').extend({ pattern: '^12' });
 	testObj(123);
-
-	equal(testObj(), 123, 'observable still works');
-	equal(testObj.isValid(), true, 'testObj is valid');
+	assert.observableIsValid(testObj, 123);
 });
 
-test('Pattern validation mismatches numbers', function () {
-	var testObj = ko.observable('')
-                    .extend({ pattern: 'none' });
-
+QUnit.test('Pattern validation mismatches numbers', function(assert) {
+	var testObj = ko.observable('').extend({ pattern: 'none' });
 	testObj(123);
-
-	equal(testObj(), 123, 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
+	assert.violatesPatternRule(testObj, 123);
 });
 
-test('Pattern validation doesn\'t break with non-string values', function () {
-	var testObj = ko.observable('')
-                    .extend({ pattern: '^$' });
+QUnit.test('Pattern validation does not break with non-string values', function(assert) {
+	assert.expect(1);
+
+	var testObj = ko.observable('').extend({ pattern: '^$' });
 
 	testObj(12345);
 	testObj.isValid();
@@ -586,663 +414,502 @@ test('Pattern validation doesn\'t break with non-string values', function () {
 	testObj({});
 	testObj.isValid();
 
-	expect(0);
+	assert.ok(true, 'all checks succeeded');
 });
 
-test('Pattern validation matches numbers and pattern is observable', function () {
+QUnit.test('Pattern validation matches numbers and pattern is observable', function(assert) {
 	var pattern = ko.observable('^12');
-	var testObj = ko.observable('')
-                    .extend({ pattern: pattern });
-
+	var testObj = ko.observable('').extend({ pattern: pattern });
 	testObj(123);
-
-	equal(testObj(), 123, 'observable still works');
-	equal(testObj.isValid(), true, 'testObj is valid');
+	assert.observableIsValid(testObj, 123);
 });
 
-test('Pattern validation mismatches numbers and pattern is observable', function () {
+QUnit.test('Pattern validation mismatches numbers and pattern is observable', function(assert) {
 	var pattern = ko.observable('none');
-	var testObj = ko.observable('')
-                    .extend({ pattern: 'none' });
-
+	var testObj = ko.observable('').extend({ pattern: pattern });
 	testObj(123);
-
-	equal(testObj(), 123, 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
+	assert.violatesPatternRule(testObj, 123);
 });
+
 //#endregion
 
 //#region Step Validation
 
-module('Step Validation');
+QUnit.module('Step Validation');
 
-test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ step: 2 });
-	testObj();
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, undefined);
 });
 
-test('Object is Valid when null value is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when null value is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ step: 2 });
 	testObj(null);
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, null);
 });
 
-test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when empty string is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ step: 2 });
 	testObj('');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, '');
 });
 
-test('Object is Valid and isValid returns True', function () {
-	var testObj = ko.observable('')
-                    .extend({ step: 3 });
-
+QUnit.test('Object is Valid and isValid returns True', function(assert) {
+	var testObj = ko.observable('').extend({ step: 3 });
 	testObj(6);
-
-	equal(testObj(), 6, 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 6);
 });
 
-test('Object is NOT Valid and isValid returns False', function () {
-	var testObj = ko.observable('')
-                    .extend({ step: 2 });
-
+QUnit.test('Object is NOT Valid and isValid returns False', function(assert) {
+	var testObj = ko.observable('').extend({ step: 2 });
 	testObj(5);
-
-	equal(testObj(), 5, 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
+	assert.violatesStepRule(testObj, 5, 2);
 });
 
-test('Issue 74 - Object is Valid with a step of 0.1 and isValid returns True', function () {
-	var testObj = ko.observable('')
-                    .extend({ step: 0.1 });
-
+QUnit.test('Issue 74 - Object is Valid with a step of 0.1 and isValid returns True', function(assert) {
+	var testObj = ko.observable('').extend({ step: 0.1 });
 	testObj(6);
-
-	equal(testObj(), 6, 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 6);
 });
 
-
-test('Issue 74 - Object is Valid with a step of 0.1 and incremented by 0.1 and isValid returns True', function () {
-	var testObj = ko.observable(6)
-                    .extend({ step: 0.1 });
-
+QUnit.test('Issue 74 - Object is Valid with a step of 0.1 and incremented by 0.1 and isValid returns True', function(assert) {
+	var testObj = ko.observable(6).extend({ step: 0.1 });
 	testObj(6.1);
-
-	equal(testObj(), 6.1, 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 6.1);
 });
 
-test('Issue 74 - Object is NOT Valid with a step of 0.1 and isValid returns False', function () {
-	var testObj = ko.observable('')
-                    .extend({ step: 0.1 });
-
+QUnit.test('Issue 74 - Object is NOT Valid with a step of 0.1 and isValid returns False', function(assert) {
+	var testObj = ko.observable('').extend({ step: 0.1 });
 	testObj(5);
 	testObj(5.15);
-
-	equal(testObj(), 5.15, 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
+	assert.violatesStepRule(testObj, 5.15, 0.1);
 });
 
-test('Step validation fix regression check', function () {
+QUnit.test('Step validation fix regression check', function(assert) {
 	var testObj = ko.observable(33.34).extend({ step: 0.01 });
-	ok(!testObj.error(), 'step validation not triggered');
+	assert.observableIsValid(testObj, 33.34);
 });
 
-test('Step validation any value is allowed', function () {
+QUnit.test('Step validation any value is allowed', function(assert) {
 	var testObj = ko.observable(33.34).extend({ step: 'any' });
-	ok(!testObj.error(), '"any" value for step is allowed');
+	assert.observableIsValid(testObj, 33.34);
 });
 
-test('Object is Valid and step is observable and isValid returns True', function () {
+QUnit.test('Object is Valid and step is observable and isValid returns True', function(assert) {
 	var step = ko.observable(3);
-	var testObj = ko.observable('')
-                    .extend({ step: step });
-
+	var testObj = ko.observable('').extend({ step: step });
 	testObj(6);
-
-	equal(testObj(), 6, 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 6);
 });
 
-test('Object is NOT Valid and step is observable and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and step is observable and isValid returns False', function(assert) {
 	var step = ko.observable(3);
-	var testObj = ko.observable('')
-                    .extend({ step: step });
-
+	var testObj = ko.observable('').extend({ step: step });
 	testObj(5);
-
-	equal(testObj(), 5, 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
+	assert.violatesStepRule(testObj, 5, 3);
 });
 
 //#endregion
 
 //#region Email Validation
 
-module('Email Validation');
+QUnit.module('Email Validation');
 
-test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ email: true });
-	testObj();
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, undefined);
 });
 
-test('Object is Valid when null value is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when null value is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ email: true });
 	testObj(null);
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, null);
 });
 
-test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when empty string is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ email: true });
 	testObj('');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, '');
 });
 
-test('Object is Valid and isValid returns True', function () {
+QUnit.test('Object is Valid and isValid returns True', function(assert) {
 	var testObj = ko.observable('').extend({ email: true });
-
 	testObj('test@example.com');
-
-	equal(testObj(), 'test@example.com', 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 'test@example.com');
 });
 
-test('Object is NOT Valid and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and isValid returns False', function(assert) {
 	var testObj = ko.observable('').extend({ email: true });
-
 	testObj('text#example.com');
-
-	equal(testObj(), 'text#example.com', 'observable still works');
-	equal(testObj.isValid(), false, testObj.error());
-	equal(testObj.error(), 'Please enter a proper email address.', "Error Message Needs to be formatted correctly");
+	assert.violatesEmailRule(testObj, 'text#example.com');
 });
 
-test('Email with invalid domain', function () {
+QUnit.test('Email with invalid domain', function(assert) {
 	var testObj = ko.observable().extend({ email: true });
-
-	testObj("john@abc.com123");
-
-	equal(testObj.isValid(), false, testObj.error());
-	equal(testObj.error(), 'Please enter a proper email address.');
+	testObj('john@abc.com123');
+	assert.violatesEmailRule(testObj, 'john@abc.com123');
 });
 
-test('Object is Valid and email is observable and isValid returns True', function () {
+QUnit.test('Object is Valid and email is observable and isValid returns True', function(assert) {
 	var email = ko.observable(true);
 	var testObj = ko.observable('').extend({ email: email });
-
 	testObj('test@example.com');
-
-	equal(testObj(), 'test@example.com', 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 'test@example.com');
 });
 
-test('Object is NOT Valid and email is observable and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and email is observable and isValid returns False', function(assert) {
 	var email = ko.observable(true);
 	var testObj = ko.observable('').extend({ email: email });
-
 	testObj('text#example.com');
-
-	equal(testObj(), 'text#example.com', 'observable still works');
-	equal(testObj.isValid(), false, testObj.error());
-	equal(testObj.error(), 'Please enter a proper email address.', "Error Message Needs to be formatted correctly");
+	assert.violatesEmailRule(testObj, 'text#example.com');
 });
+
 //#endregion
 
 //#region Date Validation
 
-module('Date Validation');
+QUnit.module('Date Validation');
 
-test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ date: 'test' });
-	testObj();
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, undefined);
 });
 
-test('Object is Valid when null value is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when null value is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ date: 'test' });
 	testObj(null);
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, null);
 });
 
-test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when empty string is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ date: 'test' });
 	testObj('');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, '');
 });
 
-test('Object is Valid and isValid returns True', function () {
+QUnit.test('Object is Valid and isValid returns True', function(assert) {
 	var testObj = ko.observable('').extend({ date: true });
-
 	testObj('11/18/2011');
-
-	equal(testObj(), '11/18/2011', 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, '11/18/2011');
 });
 
-test('Object is NOT Valid and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and isValid returns False', function(assert) {
 	var testObj = ko.observable('').extend({ date: true });
-
 	testObj('stuff');
-
-	equal(testObj(), 'stuff', 'observable still works');
-	equal(testObj.isValid(), false, testObj.error());
+	assert.violatesDateRule(testObj, 'stuff');
 });
 
-test('Object is Valid and date is observable and isValid returns True', function () {
+QUnit.test('Object is Valid and date is observable and isValid returns True', function(assert) {
 	var date = ko.observable(true);
 	var testObj = ko.observable('').extend({ date: date });
-
 	testObj('11/18/2011');
-
-	equal(testObj(), '11/18/2011', 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, '11/18/2011');
 });
 
-test('Object is NOT Valid and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and isValid returns False', function(assert) {
 	var date = ko.observable(true);
 	var testObj = ko.observable('').extend({ date: date });
-
 	testObj('stuff');
-
-	equal(testObj(), 'stuff', 'observable still works');
-	equal(testObj.isValid(), false, testObj.error());
+	assert.violatesDateRule(testObj, 'stuff');
 });
 
 //#endregion
 
 //#region DateISO Validation
 
-module('DateISO Validation');
+QUnit.module('DateISO Validation');
 
-test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ dateISO: 'test' });
-	testObj();
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, undefined);
 });
 
-test('Object is Valid when null value is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when null value is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ dateISO: 'test' });
 	testObj(null);
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, null);
 });
 
-test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when empty string is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ dateISO: 'test' });
 	testObj('');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, '');
 });
 
-test('Object is Valid and isValid returns True', function () {
+QUnit.test('Object is Valid and isValid returns True', function(assert) {
 	var testObj = ko.observable('').extend({ dateISO: true });
-
 	testObj('2011-11-18');
-
-	equal(testObj(), '2011-11-18', 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, '2011-11-18');
 });
 
-test('Object is NOT Valid and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and isValid returns False', function(assert) {
 	var testObj = ko.observable('').extend({ dateISO: true });
-
 	testObj('stuff');
-
-	equal(testObj(), 'stuff', 'observable still works');
-	equal(testObj.isValid(), false, testObj.error());
+	assert.violatesDateRule(testObj, 'stuff');
 });
 
-test('Object is Valid and dateISO is observable and isValid returns True', function () {
+QUnit.test('Object is Valid and dateISO is observable and isValid returns True', function(assert) {
 	var dateISO = ko.observable(true);
 	var testObj = ko.observable('').extend({ dateISO: dateISO });
-
 	testObj('2011-11-18');
-
-	equal(testObj(), '2011-11-18', 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, '2011-11-18');
 });
 
-test('Object is NOT Valid and dateISO is observable and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and dateISO is observable and isValid returns False', function(assert) {
 	var dateISO = ko.observable(true);
 	var testObj = ko.observable('').extend({ dateISO: dateISO });
-
 	testObj('stuff');
-
-	equal(testObj(), 'stuff', 'observable still works');
-	equal(testObj.isValid(), false, testObj.error());
+	assert.violatesDateRule(testObj, 'stuff');
 });
 
-test('Object is NOT Valid if month is not in acceptable range', function() {
+QUnit.test('Object is NOT Valid if month is not in acceptable range', function(assert) {
 	var testObj = ko.observable('').extend({ dateISO: true });
-
 	testObj('2011-13-18');
-
-	equal(testObj(), '2011-13-18', 'observable still works');
-	equal(testObj.isValid(), false, testObj.error());
+	assert.violatesDateRule(testObj, '2011-13-18');
 });
 
-test('Object is NOT Valid if day is not in acceptable range', function() {
+QUnit.test('Object is NOT Valid if day is not in acceptable range', function(assert) {
 	var testObj = ko.observable('').extend({ dateISO: true });
-
 	testObj('2011-12-40');
-
-	equal(testObj(), '2011-12-40', 'observable still works');
-	equal(testObj.isValid(), false, testObj.error());
+	assert.violatesDateRule(testObj, '2011-12-40');
 });
 
 //#endregion
 
 //#region Number Validation
 
-module('Number Validation');
+QUnit.module('Number Validation');
 
-test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ number: true });
-	testObj();
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, undefined);
 });
 
-test('Object is Valid when null value is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when null value is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ number: true });
 	testObj(null);
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, null);
 });
 
-test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when empty string is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ number: true });
 	testObj('');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, '');
 });
 
-test('Object is Valid and isValid returns True', function () {
+QUnit.test('Object is Valid and isValid returns True', function(assert) {
 	var testObj = ko.observable('').extend({ number: true });
-
 	testObj(200.01);
-
-	equal(testObj(), 200.01, 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 200.01);
 });
 
-test('Number is Valid (starting with point) and isValid returns True', function () {
+QUnit.test('Number is Valid (starting with point) and isValid returns True', function(assert) {
 	var testObj = ko.observable('').extend({ number: true });
-
-	testObj(".15");
-
-	equal(testObj(), ".15", 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	testObj('.15');
+	assert.observableIsValid(testObj, '.15');
 });
 
-test('Object is NOT Valid and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and isValid returns False', function(assert) {
 	var testObj = ko.observable('').extend({ number: true });
-
 	testObj('stuff');
-
-	equal(testObj(), 'stuff', 'observable still works');
-	equal(testObj.isValid(), false, testObj.error());
+	assert.violatesNumberRule(testObj, 'stuff');
 });
 
-test('Number is Valid (starting with point) and number is observable and isValid returns True', function () {
+QUnit.test('Number is Valid (starting with point) and number is observable and isValid returns True', function(assert) {
 	var number = ko.observable(true);
 	var testObj = ko.observable('').extend({ number: number });
-
-	testObj(".15");
-
-	equal(testObj(), ".15", 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	testObj('.15');
+	assert.observableIsValid(testObj, '.15');
 });
 
-test('Object is NOT Valid and number is observable and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and number is observable and isValid returns False', function(assert) {
 	var number = ko.observable(true);
 	var testObj = ko.observable('').extend({ number: number });
-
 	testObj('stuff');
-
-	equal(testObj(), 'stuff', 'observable still works');
-	equal(testObj.isValid(), false, testObj.error());
+	assert.violatesNumberRule(testObj, 'stuff');
 });
+
 //#endregion
 
 //#region Digit Validation
 
-module('Digit Validation');
+QUnit.module('Digit Validation');
 
-test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ digit: true });
-	testObj();
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, undefined);
 });
 
-test('Object is Valid when null value is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when null value is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ digit: true });
 	testObj(null);
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, null);
 });
 
-test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when empty string is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ digit: true });
 	testObj('');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, '');
 });
 
-test('Object is Valid and isValid returns True', function () {
+QUnit.test('Object is Valid and isValid returns True', function(assert) {
 	var testObj = ko.observable('').extend({ digit: true });
-
 	testObj(2);
-
-	equal(testObj(), 2, 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 2);
 });
 
-test('Object is NOT Valid and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and isValid returns False', function(assert) {
 	var testObj = ko.observable('').extend({ digit: true });
-
 	testObj('stuff');
-
-	equal(testObj(), 'stuff', 'observable still works');
-	equal(testObj.isValid(), false, testObj.error());
+	assert.violatesDigitRule(testObj, 'stuff');
 });
 
-test('Object is Valid and digit is observable and isValid returns True', function () {
+QUnit.test('Object is Valid and digit is observable and isValid returns True', function(assert) {
 	var digit = ko.observable(true);
 	var testObj = ko.observable('').extend({ digit: digit });
-
 	testObj(2);
-
-	equal(testObj(), 2, 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 2);
 });
 
-test('Object is NOT Valid and digit is observable and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and digit is observable and isValid returns False', function(assert) {
 	var digit = ko.observable(true);
 	var testObj = ko.observable('').extend({ digit: digit });
-
 	testObj('stuff');
-
-	equal(testObj(), 'stuff', 'observable still works');
-	equal(testObj.isValid(), false, testObj.error());
+	assert.violatesDigitRule(testObj, 'stuff');
 });
 
 //#endregion
 
 //#region PhoneUS Validation
-module('PhoneUS Validation');
 
-test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function () {
+QUnit.module('PhoneUS Validation');
 
+QUnit.test('Object is Valid when observable has not been initialized - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ phoneUS: true });
-	testObj();
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, undefined);
 });
 
-test('Object is Valid when null value is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when null value is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ phoneUS: true });
 	testObj(null);
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, null);
 });
 
-test('Object is Valid when empty string is present - Preserves Optional Properties', function () {
-
+QUnit.test('Object is Valid when empty string is present - Preserves Optional Properties', function(assert) {
 	var testObj = ko.observable().extend({ phoneUS: true });
 	testObj('');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, '');
 });
 
-test('Object is Valid and isValid returns True', function () {
+QUnit.test('Object is Valid and isValid returns True', function(assert) {
 	var testObj = ko.observable('').extend({ phoneUS: true });
-
 	testObj('765-523-4569');
-
-	equal(testObj(), '765-523-4569', 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, '765-523-4569');
 });
 
-test('Object is NOT Valid and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and isValid returns False', function(assert) {
 	var testObj = ko.observable('').extend({ phoneUS: true });
-
 	testObj(5);
-
-	equal(testObj(), 5, 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
+	assert.violatesPhoneUSRule(testObj, 5);
 });
 
-test('Object is Valid and phoneUS is observable and isValid returns True', function () {
+QUnit.test('Object is Valid and phoneUS is observable and isValid returns True', function(assert) {
 	var phoneUS = ko.observable(true);
 	var testObj = ko.observable('').extend({ phoneUS: phoneUS });
-
 	testObj('765-523-4569');
-
-	equal(testObj(), '765-523-4569', 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, '765-523-4569');
 });
 
-test('Object is NOT Valid and phoneUS is observable and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and phoneUS is observable and isValid returns False', function(assert) {
 	var phoneUS = ko.observable(true);
 	var testObj = ko.observable('').extend({ phoneUS: phoneUS });
-
 	testObj(5);
-
-	equal(testObj(), 5, 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
+	assert.violatesPhoneUSRule(testObj, 5);
 });
+
 //#endregion
 
 //#region Equal tests
-module("Equal Tests");
 
-test('Object is Valid and isValid returns True', function () {
+QUnit.module('Equal Tests');
+
+QUnit.test('Object is Valid and isValid returns True', function(assert) {
 	var compareObj = ko.observable(12);
 	var testObj = ko.observable('').extend({ equal: compareObj });
-
 	testObj(12);
-
-	equal(testObj(), 12, 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 12);
 });
 
-test('Object is NOT Valid and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and isValid returns False', function(assert) {
 	var compareObj = ko.observable(12);
 	var testObj = ko.observable('').extend({ equal: compareObj });
-
 	testObj(11);
-
-	equal(testObj(), 11, 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
+	assert.violatesMustEqualRule(testObj, 11);
 });
 
 //#endregion
 
 //#region NotEqual tests
-module("Not Equal Tests");
 
-test('Object is Valid and isValid returns True', function () {
+QUnit.module('Not Equal Tests');
+
+QUnit.test('Object is Valid and isValid returns True', function(assert) {
 	var compareObj = ko.observable(12);
 	var testObj = ko.observable('').extend({ notEqual: compareObj });
-
 	testObj(11);
-
-	equal(testObj(), 11, 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 11);
 });
 
-test('Object is NOT Valid and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and isValid returns False', function(assert) {
 	var compareObj = ko.observable(12);
 	var testObj = ko.observable('').extend({ notEqual: compareObj });
-
 	testObj(12);
-
-	equal(testObj(), 12, 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
+	assert.violatesNotEqualRule(testObj, 12);
 });
 
 //#endregion
 
 //#region Unique tests
-module("Unique Tests");
 
-test('Object is Valid and isValid returns True', function () {
+QUnit.module('Unique Tests');
+
+QUnit.test('Object is Valid and isValid returns True', function(assert) {
 	var compareObj = ko.observableArray([11, 12, 13]);
 	var testObj = ko.observable('').extend({ unique: { collection: compareObj } });
-
 	testObj(11);
-
-	equal(testObj(), 11, 'observable still works');
-	ok(testObj.isValid(), 'testObj is Valid');
+	assert.observableIsValid(testObj, 11);
 });
 
-test('Object is NOT Valid and isValid returns False', function () {
+QUnit.test('Object is NOT Valid and isValid returns False', function(assert) {
 	var compareObj = ko.observableArray([11, 12, 13, 13]);
 	var testObj = ko.observable('').extend({ unique: { collection: compareObj } });
-
 	testObj(13);
-
-	equal(testObj(), 13, 'observable still works');
-	equal(testObj.isValid(), false, 'testObj is not valid');
+	assert.violatesUniqueRule(testObj, 13);
 });
 
-test('Correct unique validation behaviour for external values', function () {
+QUnit.test('Correct unique validation behaviour for external values', function(assert) {
 	var compareObj = ko.observableArray([11, 12, 13, 13]);
 	var testObj = ko.observable('').extend({ unique: { collection: compareObj, externalValue: true } });
 
 	testObj(12);
-	equal(testObj.isValid(), false, 'testObj is not valid');
+	assert.violatesUniqueRule(testObj, 12);
 
 	testObj(13);
-	equal(testObj.isValid(), false, 'testObj is not valid');
+	assert.violatesUniqueRule(testObj, 13);
 
 	testObj(10);
-	equal(testObj.isValid(), true, 'testObj is valid');
+	assert.observableIsValid(testObj, 10);
 });
 
-test('Issue #365 - Correct unique validation behaviour for external values that are in the collection', function () {
+QUnit.test('Issue #365 - Correct unique validation behaviour for external values that are in the collection', function(assert) {
 	var compareObj = ko.observableArray([11, 12, 13, 13]);
 	var testObj = ko.observable('').extend({ unique: { collection: compareObj, externalValue: 12 } });
 
 	testObj(12);
-	equal(testObj.isValid(), false, 'testObj is not valid');
+	assert.violatesUniqueRule(testObj, 12);
 
 	testObj(10);
-	equal(testObj.isValid(), true, 'testObj is valid');
+	assert.observableIsValid(testObj, 10);
 });
 
 //#endregion

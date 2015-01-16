@@ -29,16 +29,18 @@
 		cleanUpSubscriptions(context);
 		traverseGraph(obj, context);
 		dispose(context);
-		}
+	}
 
 	function traverseGraph(obj, context, level) {
 		var objValues = [],
 			val = obj.peek ? obj.peek() : obj;
 
-		if (obj.__kv_traversed === true) { return; }
+		if (obj.__kv_traversed === true) {
+			return;
+		}
 
 		if (context.options.deep) {
-	    obj.__kv_traversed = true;
+			obj.__kv_traversed = true;
 			context.flagged.push(obj);
 		}
 
@@ -47,34 +49,36 @@
 
 		// if object is observable then add it to the list
 		if (ko.isObservable(obj)) {
-
-			//make sure it is validatable object
-			if (!obj.isValid) { obj.extend({ validatable: true }); }
+			// ensure it's validatable but don't extend validatedObservable because it
+			// would overwrite isValid property.
+			if (!obj.errors && !utils.isValidatable(obj)) {
+				obj.extend({ validatable: true });
+			}
 			context.validatables.push(obj);
 
-			if(context.options.live && utils.isObservableArray(obj)) {
+			if (context.options.live && utils.isObservableArray(obj)) {
 				context.subscriptions.push(obj.subscribe(function () {
 					context.graphMonitor.valueHasMutated();
 				}));
-		}
+			}
 		}
 
 		//get list of values either from array or object but ignore non-objects
 		// and destroyed objects
 		if (val && !val._destroy) {
 			if (utils.isArray(val)) {
-			objValues = val;
-			} else if (utils.isObject(val)) {
+				objValues = val;
+			}
+			else if (utils.isObject(val)) {
 				objValues = utils.values(val);
-		}
+			}
 		}
 
-		//process recurisvely if it is deep grouping
+		//process recursively if it is deep grouping
 		if (level !== 0) {
 			utils.forEach(objValues, function (observable) {
-
 				//but not falsy things and not HTML Elements
-				if (observable && !observable.nodeType) {
+				if (observable && !observable.nodeType && (!ko.isComputed(observable) || observable.rules)) {
 					traverseGraph(observable, context, level + 1);
 				}
 			});
@@ -84,8 +88,11 @@
 	function collectErrors(array) {
 		var errors = [];
 		ko.utils.arrayForEach(array, function (observable) {
-			if (!observable.isValid()) {
-				errors.push(observable.error());
+			// Do not collect validatedObservable errors
+			if (utils.isValidatable(observable) && !observable.isValid()) {
+				// Use peek because we don't want a dependency for 'error' property because it
+				// changes before 'isValid' does. (Issue #99)
+				errors.push(observable.error.peek());
 			}
 		});
 		return errors;
@@ -100,7 +107,7 @@
 				return;
 			}
 
-			//becuase we will be accessing options properties it has to be an object at least
+			//because we will be accessing options properties it has to be an object at least
 			options = options || {};
 			//if specific error classes are not provided then apply generic errorClass
 			//it has to be done on option so that options.errorClass can override default
@@ -116,13 +123,13 @@
 
 			isInitialized = 1;
 		},
-		// backwards compatability
+		// backwards compatibility
 		configure: function (options) { ko.validation.init(options); },
 
 		// resets the config back to its original state
 		reset: ko.validation.configuration.reset,
 
-		// recursivly walks a viewModel and creates an object that
+		// recursively walks a viewModel and creates an object that
 		// provides validation information for the entire viewModel
 		// obj -> the viewModel to walk
 		// options -> {
@@ -138,25 +145,21 @@
 				flagged: [],
 				subscriptions: [],
 				validatables: []
-        };
+			};
 
 			var result = null;
 
 			//if using observables then traverse structure once and add observables
 			if (options.observable) {
-				runTraversal(obj, context);
-
 				result = ko.computed(function () {
 					context.graphMonitor(); //register dependency
 					runTraversal(obj, context);
-
 					return collectErrors(context.validatables);
 				});
-
-			} else { //if not using observables then every call to error() should traverse the structure
+			}
+			else { //if not using observables then every call to error() should traverse the structure
 				result = function () {
 					runTraversal(obj, context);
-
 					return collectErrors(context.validatables);
 				};
 			}
@@ -166,26 +169,73 @@
 					show = true;
 				}
 
-				// ensure we have latest changes
-				result();
-
-				ko.utils.arrayForEach(context.validatables, function (observable) {
-					observable.isModified(show);
+				result.forEach(function (observable) {
+					if (utils.isValidatable(observable)) {
+						observable.isModified(show);
+					}
 				});
 			};
 
 			result.isAnyMessageShown = function () {
-				var invalidAndModifiedPresent = false;
+				var invalidAndModifiedPresent;
 
-				// ensure we have latest changes
-				result();
-
-				invalidAndModifiedPresent = !!ko.utils.arrayFirst(context.validatables, function (observable) {
-					return !observable.isValid() && observable.isModified();
+				invalidAndModifiedPresent = !!result.find(function (observable) {
+					return utils.isValidatable(observable) && !observable.isValid() && observable.isModified();
 				});
 				return invalidAndModifiedPresent;
 			};
 
+			result.filter = function(predicate) {
+				predicate = predicate || function () { return true; };
+				// ensure we have latest changes
+				result();
+
+				return ko.utils.arrayFilter(context.validatables, predicate);
+			};
+
+			result.find = function(predicate) {
+				predicate = predicate || function () { return true; };
+				// ensure we have latest changes
+				result();
+
+				return ko.utils.arrayFirst(context.validatables, predicate);
+			};
+
+			result.forEach = function(callback) {
+				callback = callback || function () { };
+				// ensure we have latest changes
+				result();
+
+				ko.utils.arrayForEach(context.validatables, callback);
+			};
+
+			result.map = function(mapping) {
+				mapping = mapping || function (item) { return item; };
+				// ensure we have latest changes
+				result();
+
+				return ko.utils.arrayMap(context.validatables, mapping);
+			};
+
+			/**
+			 * @private You should not rely on this method being here.
+			 * It's a private method and it may change in the future.
+			 *
+			 * @description Updates the validated object and collects errors from it.
+			 */
+			result._updateState = function(newValue) {
+				if (!utils.isObject(newValue)) {
+					throw new Error('An object is required.');
+				}
+				obj = newValue;
+				if (options.observable) {
+					context.graphMonitor.valueHasMutated();
+				}
+				else {
+					runTraversal(newValue, context);
+					return collectErrors(context.validatables);
+				}
+			};
 			return result;
 		},
 
@@ -218,8 +268,14 @@
 		addRule: function (observable, rule) {
 			observable.extend({ validatable: true });
 
-			//push a Rule Context to the observables local array of Rule Contexts
-			observable.rules.push(rule);
+			var hasRule = !!ko.utils.arrayFirst(observable.rules(), function(item) {
+				return item.rule && item.rule === rule.rule;
+			});
+
+			if (!hasRule) {
+				//push a Rule Context to the observables local array of Rule Contexts
+				observable.rules.push(rule);
+			}
 			return observable;
 		},
 
@@ -313,22 +369,22 @@
 			ko.utils.arrayForEach(ko.validation.configuration.html5Attributes, function (attr) {
 				if (utils.hasAttribute(element, attr)) {
 
-                    var params = element.getAttribute(attr) || true;
+					var params = element.getAttribute(attr) || true;
 
-                    if (attr === 'min' || attr === 'max')
-                    {
-                        // If we're validating based on the min and max attributes, we'll
-                        // need to know what the 'type' attribute is set to
-                        var typeAttr = element.getAttribute('type');
-                        if (typeof typeAttr === "undefined" || !typeAttr)
-                        {
-                            // From http://www.w3.org/TR/html-markup/input:
-                            //   An input element with no type attribute specified represents the
-                            //   same thing as an input element with its type attribute set to "text".
-                            typeAttr = "text";
-                        }
-                        params = {typeAttr: typeAttr, value: params};
-                    }
+					if (attr === 'min' || attr === 'max')
+					{
+						// If we're validating based on the min and max attributes, we'll
+						// need to know what the 'type' attribute is set to
+						var typeAttr = element.getAttribute('type');
+						if (typeof typeAttr === "undefined" || !typeAttr)
+						{
+							// From http://www.w3.org/TR/html-markup/input:
+							//   An input element with no type attribute specified represents the
+							//   same thing as an input element with its type attribute set to "text".
+							typeAttr = "text";
+						}
+						params = {typeAttr: typeAttr, value: params};
+					}
 
 					ko.validation.addRule(valueAccessor(), {
 						rule: attr,
@@ -377,12 +433,12 @@
 						// we have to do some special things for the pattern validation
 						if (ctx.rule === "pattern" && params instanceof RegExp) {
 							// we need the pure string representation of the RegExpr without the //gi stuff
-							params = params.source; 
+							params = params.source;
 						}
 
-						element.setAttribute(attr, params); 
+						element.setAttribute(attr, params);
 					},
-					disposeWhenNodeIsRemoved: element,
+					disposeWhenNodeIsRemoved: element
 				});
 			});
 
