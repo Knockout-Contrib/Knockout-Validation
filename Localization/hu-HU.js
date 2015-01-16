@@ -37,7 +37,8 @@
 	if (!ko.validation && typeof ko.validation.localize !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	ko.validation.localize({
+	function local(){
+	  ko.validation.localize({
 		required: 'Kötelezõ megadni.',
 		min: 'Nem lehet kisebb, mint {0}.',
 		max: 'Nem lehet nagyobb, mint {0}.',
@@ -54,5 +55,8 @@
 		equal: 'Az értékeknek meg kel egyezniük.',
 		notEqual: 'Az értékeknek különbözniük kell.',
 		unique: 'Az értéknek egyedieknek kell lennie.'
-	});
+	  });
+	}
+	local();
+	return local;
 }));

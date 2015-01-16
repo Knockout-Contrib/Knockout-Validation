@@ -37,7 +37,8 @@
 	if (!ko.validation && typeof ko.validation.localize !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	ko.validation.localize({
+	function local(){
+	  ko.validation.localize({
 		required: 'Το πεδίο αυτό είναι υποχρεωτικό.',
 		min: 'Παρακαλώ εισάγετε μια τιμή μεγαλύτερη ή ίση από {0}.',
 		max: 'Παρακαλώ εισάγετε μια τιμή μικρότερη ή ίση από {0}.',
@@ -54,5 +55,8 @@
 		equal: 'Οι τιμές πρέπει να είναι ίσες',
 		notEqual: 'Παρακαλώ επιλέξτε μια άλλη τιμή.',
 		unique: 'Παρακαλώ βεβαιωθείτε ότι η τιμή είναι μοναδική.'
-	});
+	  });
+	}
+	local();
+	return local;
 }));

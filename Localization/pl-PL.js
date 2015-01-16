@@ -37,7 +37,8 @@
 	if (!ko.validation && typeof ko.validation.localize !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	ko.validation.localize({
+	function local(){
+	  ko.validation.localize({
 		required: 'To pole jest wymagane.',
 		min: 'Wprowadź liczbę więszką lub równą {0}.',
 		max: 'Wprowadź liczbę mniejszą lub równą {0}.',
@@ -54,5 +55,8 @@
 		equal: 'Wartości muszą być równe.',
 		notEqual: 'Wybierz inną wartość.',
 		unique: 'Sprawdź czy wartość jest unikalna.'
-	});
+	  });
+	}
+	local();
+	return local;
 }));

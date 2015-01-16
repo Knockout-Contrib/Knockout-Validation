@@ -37,7 +37,8 @@
 	if (!ko.validation && typeof ko.validation.localize !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	ko.validation.localize({
+	function local(){
+	  ko.validation.localize({
 		required: 'Lauks ir obligāts.',
 		min: 'Lūdzu, ievadiet vērtību lielāku vai vienādu ar {0}.',
 		max: 'Lūdzu, ievadiet vērtību mazāku vai vienādu par {0}.',
@@ -54,5 +55,8 @@
 		equal: 'Norādītām vērtībām jābūt vienādām.',
 		notEqual: 'Norādītās vērtības nav vienādas.',
 		unique: 'Vērtībai jābūt unikālai.'
-	});
+	  });
+	}
+	local();
+	return local;
 }));

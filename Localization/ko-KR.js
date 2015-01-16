@@ -37,7 +37,8 @@
 	if (!ko.validation && typeof ko.validation.localize !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	ko.validation.localize({
+	function local(){
+	  ko.validation.localize({
 		required: '필수 입력항목입니다.',
 		min: '{0}보다 큰 값을 입력해 주십시오.',
 		max: '{0}보다 작은 값을 입력해 주십시오.',
@@ -54,5 +55,8 @@
 		equal: '같은 값을 입력해 주십시오.',
 		notEqual: '다른 값을 선택해 주십시오.',
 		unique: '고유한 값인지 확인해 주십시오.'
-	});
+	  });
+	}
+	local();
+	return local;
 }));

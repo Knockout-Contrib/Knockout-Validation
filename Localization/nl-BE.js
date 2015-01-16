@@ -37,7 +37,8 @@
 	if (!ko.validation && typeof ko.validation.localize !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	ko.validation.localize({
+	function local(){
+	  ko.validation.localize({
 		required: 'Dit veld is verplicht.',
 		min: 'Vul een waarde in groter dan of gelijk aan {0}.',
 		max: 'Vul een waarde in kleiner dan of gelijk aan {0}.',
@@ -54,5 +55,8 @@
 		equal: 'Waarden moeten gelijk zijn.',
 		notEqual: 'Vul een andere waarde in.',
 		unique: 'Vul een unieke waarde in.'
-	});
+	  });
+	}
+	local();
+	return local;
 }));

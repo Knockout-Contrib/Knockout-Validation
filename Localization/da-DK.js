@@ -37,7 +37,8 @@
 	if (!ko.validation && typeof ko.validation.localize !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	ko.validation.localize({
+	function local(){
+	  ko.validation.localize({
 		required: 'Dette felt er påkrævet.',
 		min: 'Angiv en værdi der mindst er {0}.',
 		max: 'Angiv en værdi der højst er {0}.',
@@ -54,5 +55,8 @@
 		equal: 'Indtast den samme værdi igen.',
 		notEqual: 'Indtast en anden værdi.',
 		unique: 'Sørg for at værdien er unik.'
-	});
+	  });
+	}
+	local();
+	return local;
 }));

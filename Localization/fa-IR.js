@@ -37,7 +37,8 @@
 	if (!ko.validation && typeof ko.validation.localize !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	ko.validation.localize({
+	function local(){
+	  ko.validation.localize({
 		required: 'تکمیل این فیلد اجباری است.',
 		min: 'لطفاً مقداری بزرگتر یا برابر {0} وارد نمائید.',
 		max: 'لطفاً مقداری کوچکتر یا برابر {0} وارد نمائید.',
@@ -54,5 +55,8 @@
 		equal: 'مقدارها باید برابر باشند.',
 		notEqual: 'لطفاً یک مقدار دیگر وارد نمائید.',
 		unique: 'لطفاً یک مقدار منحصربه فرد وارد نمائید.'
-	});
+	  });
+	}
+	local();
+	return local;
 }));

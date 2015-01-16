@@ -37,7 +37,8 @@
 	if (!ko.validation && typeof ko.validation.localize !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	ko.validation.localize({
+	function local(){
+	  ko.validation.localize({
 		required: 'Este campo es obligatorio',
 		min: 'Por favor, introduzca un valor igual o mayor a {0}',
 		max: 'Por favor, introduzca un valor menor o igual a {0}',
@@ -54,5 +55,8 @@
 		equal: 'Los valores deben ser iguales',
 		notEqual: 'Por favor, elija otro valor',
 		unique: 'Por favor, asegurese de que el valor sea único'
-	});
+	  });
+	}
+	local();
+	return local;
 }));

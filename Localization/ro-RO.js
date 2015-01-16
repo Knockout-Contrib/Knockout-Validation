@@ -37,7 +37,8 @@
 	if (!ko.validation && typeof ko.validation.localize !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	ko.validation.localize({
+	function local(){
+	  ko.validation.localize({
 		required: 'Acest câmp este obligatoriu.',
 		min: 'Introduceţi un număr mai mare sau egal cu {0}.',
 		max: 'Introduceţi un număr mai mic sau egal cu {0}.',
@@ -54,5 +55,8 @@
 		equal: 'Valorile trebuie să fie egale.',
 		notEqual: 'Vă rugăm să alegeți o altă valoare.',
 		unique: 'Vă rugăm să vă asigurați că valoarea este unică.'
-	});
+	  });
+	}
+	local();
+	return local;
 }));

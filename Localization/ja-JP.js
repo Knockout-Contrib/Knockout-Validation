@@ -37,7 +37,8 @@
 	if (!ko.validation && typeof ko.validation.localize !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	ko.validation.localize({
+	function local(){
+	  ko.validation.localize({
 		required: 'このフィールドは必須入力項目です。',
 		min: '{0}以上の値を入力してください。',
 		max: '{0}以下の値を入力してください。',
@@ -54,5 +55,8 @@
 		equal: '同一の値にしてください。',
 		notEqual: '他の値を選択してください。',
 		unique: '一意の値であることを確認してください。'
-	});
+	  });
+	}
+	local();
+	return local;
 }));

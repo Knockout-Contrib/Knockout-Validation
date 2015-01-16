@@ -37,7 +37,8 @@
 	if (!ko.validation && typeof ko.validation.localize !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	ko.validation.localize({
+	function local(){
+	  ko.validation.localize({
 		required: 'שדה נדרש',
 		min: 'אנא הכנס ערך גדול יותר או שווה ל- {0}',
 		max: 'אנא הכנס ערך קטן יותר או שווה ל- {0}',
@@ -54,5 +55,8 @@
 		equal: 'ערכים חייבים להיות שווים',
 		notEqual: 'אנא בחר ערך שונה',
 		unique: 'אנא וודא שהערך ייחודי'
-	});
+	  });
+	}
+	local();
+	return local;
 }));

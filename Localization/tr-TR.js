@@ -37,7 +37,8 @@
 	if (!ko.validation && typeof ko.validation.localize !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	ko.validation.localize({
+	function local(){
+	  ko.validation.localize({
 		required: 'Bu alanın doldurulması zorunludur.',
 		min: 'Lütfen {0} veya daha yüksek değer giriniz.',
 		max: 'Lütfen {0} veya daha düşük değer giriniz.',
@@ -54,5 +55,8 @@
 		equal: 'Değerler eşit olmalıdır.',
 		notEqual: 'Lütfen farklı bir değer seçiniz.',
 		unique: 'Lütfen değerin farklı olduğunu kontrol ediniz.'
-	});
+	  });
+	}
+	local();
+	return local;
 }));

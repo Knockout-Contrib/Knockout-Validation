@@ -37,7 +37,8 @@
 	if (!ko.validation && typeof ko.validation.localize !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	ko.validation.localize({
+	function local(){
+	  ko.validation.localize({
 		required: 'Ovo polje je obavezno.',
 		min: 'Unesena vrijednost mora biti jednaka ili veća od {0}.',
 		max: 'Unesena vrijednost mora biti jednaka ili manja od {0}.',
@@ -54,5 +55,8 @@
 		equal: 'Vrijednosti moraju biti jednake.',
 		notEqual: 'Unesite drugu vrijednost.',
 		unique: 'Unesena vrijednost mora biti jedinstvena.'
-	});
+	  });
+	}
+	local();
+	return local;
 }));

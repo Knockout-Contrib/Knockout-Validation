@@ -37,7 +37,8 @@
 	if (!ko.validation && typeof ko.validation.localize !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	ko.validation.localize({
+	function local(){
+	  ko.validation.localize({
 		required: '必填字段',
 		min: '输入值必须大于等于 {0}',
 		max: '输入值必须小于等于 {0}',
@@ -54,5 +55,8 @@
 		equal: '输入值不一样',
 		notEqual: '请选择另一个值',
 		unique: '此值应该是唯一的'
-	});
+	  });
+	}
+	local();
+	return local;
 }));

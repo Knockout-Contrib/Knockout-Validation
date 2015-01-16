@@ -195,3 +195,12 @@ Add a reference to the localization js file after the Knockout Validation plugin
 <script type="text/javascript" src ="knockout.validation.js"></script>
 <script type="text/javascript" src ="el-GR.js"> </script>
 ```
+
+Alternatively, you can use require.js and do like this. 
+**Note** On the first load of the file, the language is automatically changed to the new language.
+
+```javascript
+require([PATH_TO_KNOCKOUT_VALIDATION/localization/'+iso], function(dynLanguageChange){
+	   dynLanguageChange(); //language changed
+	})
+```

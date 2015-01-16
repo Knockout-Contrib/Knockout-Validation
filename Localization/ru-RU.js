@@ -37,7 +37,8 @@
 	if (!ko.validation && typeof ko.validation.localize !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	ko.validation.localize({
+	function local(){
+	  ko.validation.localize({
 		required: 'Пожалуйста, заполните это поле.',
 		min: 'Пожалуйста, введите число большее или равное {0}.',
 		max: 'Пожалуйста, введите число меньшее или равное {0}.',
@@ -54,5 +55,8 @@
 		equal: 'Значения должны быть равны',
 		notEqual: 'Пожалуйста, выберите другое значение.',
 		unique: 'Пожалуйста, укажите уникальное значение.'
-	});
+	  });
+	}
+	local();
+	return local;
 }));

@@ -37,7 +37,8 @@
 	if (!ko.validation && typeof ko.validation.localize !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	ko.validation.localize({
+	function local(){
+	  ko.validation.localize({
 		required: 'Toto pole je povinné.',
 		min: 'Zadejte číslo větší nebo rovné {0}.',
 		max: 'Zadejte číslo menší nebo rovné {0}.',
@@ -54,5 +55,8 @@
 		equal: 'Hodnoty musí být stejné.',
 		notEqual: 'Vyberte jinou hodnotu.',
 		unique: 'Zkontrolujte, zda hodnota je jedinečná.'
-	});
+	  });
+	}
+	local();
+	return local;
 }));
