@@ -200,7 +200,7 @@ Alternatively, you can use require.js and do like this.
 **Note** On the first load of the file, the language is automatically changed to the new language.
 
 ```javascript
-require([PATH_TO_KNOCKOUT_VALIDATION/localization/'+iso], function(dynLanguageChange){
+require(['PATH_TO_KNOCKOUT_VALIDATION/localization/'+iso], function(dynLanguageChange){
 	   dynLanguageChange(); //language changed
 	})
 ```
