@@ -192,6 +192,22 @@ Check out our [Async Validation](https://github.com/Knockout-Contrib/Knockout-Va
 Add a reference to the localization js file after the Knockout Validation plugin
 
 ```html
-<script type="text/javascript" src ="knockout.validation.js"></script>
-<script type="text/javascript" src ="el-GR.js"> </script>
+<script type="text/javascript" src ="knockout.validation-2.0.0.js"></script>
+<script type="text/javascript" src ="knockout.validation.i18n-2.0.0.js"> </script>
+...
+ko.validation.locale('el-GR');
 ```
+
+Alternatively, you can use require.js and do like this:
+
+```javascript
+define(['knockout-validation', 'knockout-validation-i18n'], function(kv) {
+  var interfaceLanguage = ko.observable();
+  interfaceLanguage.subscribe(function(iso){
+   kv.locale((iso);
+  });
+  interfaceLanguage('da-DK');
+  window.interfaceLanguage = interfaceLanguage;
+});
+```
+

@@ -10,3 +10,13 @@ ko.validation.localize = function (msgTranslations) {
 		}
 	}
 };
+//hash to contain all translations
+ko.validation.localizations = {};
+//function to switch between languages
+ko.validation.locale = function(iso) {
+  var lang = ko.validation.localizations[iso];
+  if (!lang) {
+    throw new Error(iso+" is not a defined language");
+  }
+  ko.validation.localize(lang);
+};

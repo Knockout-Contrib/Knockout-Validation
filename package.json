@@ -1,9 +1,9 @@
 {
   "name": "knockout.validation",
-  "version": "2.0.0-pre.3",
+  "version": "2.0.0-pre-4",
   "description": "A KnockoutJS Plugin for model and property validation",
   "main": "Dist/knockout.validation.js",
-  "files": ["Dist/knockout.validation.js"],
+  "files": ["Dist/knockout.validation.js", "Dist/knockout.validation.i18n.js"],
   "dependencies": {},
   "devDependencies": {
     "grunt": "~0.4.5",

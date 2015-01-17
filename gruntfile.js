@@ -2,6 +2,16 @@
 /*jshint node:true*/
 module.exports = function (grunt) {
 
+function expandFiles( files ) {
+	return grunt.util._.pluck( grunt.file.expandMapping( files ), "" ).map(function( values ) {
+		return values[ 0 ];
+	});
+}
+
+    //var allI18nFiles = expandFiles( "Localization/*.js" );
+
+	//console.log(allI18nFiles);
+	
 	// Project configuration.
 	grunt.initConfig({
 		pkg: grunt.file.readJSON("package.json"),
@@ -41,8 +51,21 @@ module.exports = function (grunt) {
 					"Src/ko.extensions.js",
 					"Src/ko.validation.end.frag"
 				],
-				dest: "Dist/<%= pkg.name %>.js"
-			}
+				dest: "Dist/<%= pkg.name %>-<%= pkg.version %>.js"
+			},
+			i18n: {
+				options: {
+    				banner: "<%= meta.banner %>" + grunt.file.read('Localization/i18n.start.frag'),
+					footer: grunt.file.read('Localization/i18n.end.frag'),
+					process: function(src, filepath) {
+						return 'kvl["' + filepath.replace(/^(?:.*[/\\])?([^/\\]+?).js$/, '$1') + '"] =\n' + src;
+					},
+				},
+			    src: [
+				    "Localization/*.js",
+				],
+				dest: "Dist/<%= pkg.name %>.i18n-<%= pkg.version %>.js"
+			},
 		},
 		uglify: {
 			options: {
@@ -52,15 +75,20 @@ module.exports = function (grunt) {
 			},
 			dist: {
 				files: {
-					"Dist/<%= pkg.name %>.min.js": ["<%= concat.dist.dest %>"]
+					"Dist/<%= pkg.name %>-<%= pkg.version %>.min.js": ["<%= concat.dist.dest %>"]
 				}
-			}
+			},
+			i18n: {
+				files: {
+					"Dist/<%= pkg.name %>.i18n-<%= pkg.version %>.min.js": ["<%= concat.i18n.dest %>"]
+				}
+			},
 		},
 		qunit: {
 			files: ["Tests/test-runner.htm"]
 		},
 		jshint: {
-			files: ["gruntfile.js", "Src/**/*.js", "Tests/*.js", "Localization/*.js"],
+			files: ["gruntfile.js", "Src/**/*.js", "Tests/*.js"],
 			options: {
 				jshintrc: ".jshintrc",
 				reporter: require('jshint-stylish')
