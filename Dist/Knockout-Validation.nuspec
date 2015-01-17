@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>Knockout.Validation</id>
-    <version>1.0.1</version>
+    <version>2.0.0-pre-4</version>
     <authors>ericbarnard</authors>
     <owners>ericbarnard</owners>
     <licenseUrl>http://www.opensource.org/licenses/mit-license.html</licenseUrl>

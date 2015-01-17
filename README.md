@@ -192,43 +192,22 @@ Check out our [Async Validation](https://github.com/Knockout-Contrib/Knockout-Va
 Add a reference to the localization js file after the Knockout Validation plugin
 
 ```html
-<script type="text/javascript" src ="knockout.validation.js"></script>
-<script type="text/javascript" src ="el-GR.js"> </script>
+<script type="text/javascript" src ="knockout.validation-2.0.0.js"></script>
+<script type="text/javascript" src ="knockout.validation.i18n-2.0.0.js"> </script>
+...
+ko.validation.locale('el-GR');
 ```
 
-Alternatively, you can use require.js and do like this. 
-**Note** On the first load of the file, the language is automatically changed to the new language.
+Alternatively, you can use require.js and do like this:
 
 ```javascript
-define(['knockout-validation'], function() {
-  var intlang = '';
-  window.interfaceLanguage = ko.computed({
-    read: function(){ return intlang;};
-    write: function(iso){ 
-    require(['PATH_TO_KNOCKOUT_VALIDATION/localization/'+iso], function(dynLanguageChange){
-	   dynLanguageChange(); //language changed
-	   intlang = iso;
-	   interfaceLanguage.valueHasMutated();
-	});
-   };
-  });
-  interfaceLanguage('da-DK');
-});
-```
-
-The above method is nice, if you can accept the load time to fetch the new language, and the possible repercussions that has for the UI.
-
-If you have a limited set of known interface languages, this may be more appropriate...
-
-```javascript
-define(['knockout-validation/localization/da-dk', 'knockout-validation/localization/en-US'], function(daDK, enUS) {
-  window.interfaceLanguages = ['en-US', 'da-DK'];
-  var interfaceLanguagesValidation = [enUS, daDK];
-  window.interfaceLanguage = ko.observable();
+define(['knockout-validation', 'knockout-validation-i18n'], function(kv) {
+  var interfaceLanguage = ko.observable();
   interfaceLanguage.subscribe(function(iso){
-   interfaceLanguagesValidation[interfaceLanguages.indexOf(iso)]();
+   kv.locale((iso);
   });
-  //set default, before this, it is set to either en-US or da-DK depending on which file the browser loaded first
   interfaceLanguage('da-DK');
+  window.interfaceLanguage = interfaceLanguage;
 });
 ```
+

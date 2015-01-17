@@ -3,7 +3,7 @@
 	License:		MIT (http://opensource.org/licenses/mit-license.php)		
 																				
 	Description:	Validation Library for KnockoutJS							
-	Version:		2.0.0-pre.3											
+	Version:		2.0.0-pre-4											
 ===============================================================================
 */
 /*globals require: false, exports: false, define: false, ko: false */
@@ -1401,6 +1401,16 @@ kv.localize = function (msgTranslations) {
 		}
 	}
 };
+//hash to contain all translations
+kv.localizations = {};
+//function to switch between languages
+kv.locale = function(iso) {
+  var lang = kv.localizations[iso];
+  if (!lang) {
+    throw new Error(iso+" is not a defined language");
+  }
+  kv.localize(lang);
+};
 ;/**
  * Possible invocations:
  * 		applyBindingsWithValidation(viewModel)
@@ -1475,4 +1485,6 @@ ko.validatedObservable = function (initialValue, options) {
 
 	return obsv;
 };
-;}));
+;  if ("function" == typeof define && define.amd)
+    define("knockout-validation", [], function() { return kv; });
+}));
