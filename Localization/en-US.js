@@ -23,35 +23,35 @@
 (function(factory) {
 	// Module systems magic dance.
 	/*global require,ko,define*/
-	if (typeof require === "function" && typeof exports === "object" && typeof module === "object") {
-		// CommonJS or Node: hard-coded dependency on "knockout"
-		factory(require("knockout"));
-	} else if (typeof define === "function" && define["amd"]) {
-		// AMD anonymous module with hard-coded dependency on "knockout"
-		define(["knockout"], factory);
+	if (typeof require === 'function' && typeof exports === 'object' && typeof module === 'object') {
+		// CommonJS or Node: hard-coded dependency on 'knockout'
+		factory(require('knockout'));
+	} else if (typeof define === "function" && define['amd']) {
+		// AMD anonymous module with hard-coded dependency on 'knockout'
+		define(['knockout'], factory);
 	} else {
-		// <script> tag: use the global `ko` object, attaching a `mapping` property
+		// <script> tag: use the global `ko` object
 		factory(ko);
 	}
 }(function(ko) {
-	if (!ko.validation && typeof ko.validation.localize !== 'function') {
+	if (!ko.validation || typeof ko.validation.defineLocale !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	ko.validation.localize({
+	return ko.validation.defineLocale('en-US', {
 		required: 'This field is required.',
 		min: 'Please enter a value greater than or equal to {0}.',
 		max: 'Please enter a value less than or equal to {0}.',
 		minLength: 'Please enter at least {0} characters.',
 		maxLength: 'Please enter no more than {0} characters.',
 		pattern: 'Please check this value.',
-		step: 'The value must increment by {0}',
-		email: 'This is not a proper email address',
-		date: 'Please enter a proper date',
-		dateISO: 'Please enter a proper date',
-		number: 'Please enter a number',
-		digit: 'Please enter a digit',
-		phoneUS: 'Please specify a valid phone number',
-		equal: 'Values must equal',
+		step: 'The value must increment by {0}.',
+		email: 'Please enter a proper email address.',
+		date: 'Please enter a proper date.',
+		dateISO: 'Please enter a proper date.',
+		number: 'Please enter a number.',
+		digit: 'Please enter a digit.',
+		phoneUS: 'Please specify a valid phone number.',
+		equal: 'Values must equal.',
 		notEqual: 'Please choose another value.',
 		unique: 'Please make sure the value is unique.'
 	});
