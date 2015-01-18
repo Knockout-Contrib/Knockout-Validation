@@ -189,9 +189,17 @@ Check out our [Async Validation](https://github.com/Knockout-Contrib/Knockout-Va
 
 ##Localization
 
-Add a reference to the localization js file after the Knockout Validation plugin
+Add a reference to the localization js files after the Knockout Validation plugin
 
 ```html
-<script type="text/javascript" src ="knockout.validation.js"></script>
-<script type="text/javascript" src ="el-GR.js"> </script>
+<script type="text/javascript" src="knockout.validation.js"></script>
+<script type="text/javascript" src="el-GR.js"></script>
+<script type="text/javascript" src="fr-FR.js"></script>
+<script type="text/javascript" src="de-DE.js"></script>
+```
+
+Apply localized messages
+
+```js
+ko.validation.locale('el-GR');
 ```

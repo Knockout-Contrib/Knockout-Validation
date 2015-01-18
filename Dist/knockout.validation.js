@@ -1390,6 +1390,32 @@ kv.validateObservable = function (observable) {
 	return true;
 };
 ;
+var _locales = {};
+var _currentLocale;
+
+kv.defineLocale = function(name, values) {
+	if (name && values) {
+		_locales[name.toLowerCase()] = values;
+		return values;
+	}
+	return null;
+};
+
+kv.locale = function(name) {
+	if (name) {
+		name = name.toLowerCase();
+
+		if (_locales.hasOwnProperty(name)) {
+			kv.localize(_locales[name]);
+			_currentLocale = name;
+		}
+		else {
+			throw new Error('Localization ' + name + ' has not been loaded.');
+		}
+	}
+	return _currentLocale;
+};
+
 //quick function to override rule messages
 kv.localize = function (msgTranslations) {
 	var rules = kv.rules;
@@ -1401,6 +1427,22 @@ kv.localize = function (msgTranslations) {
 		}
 	}
 };
+
+// Populate default locale (this will make en-US.js somewhat redundant)
+(function() {
+	var localeData = {};
+	var rules = kv.rules;
+
+	for (var ruleName in rules) {
+		if (rules.hasOwnProperty(ruleName)) {
+			localeData[ruleName] = rules[ruleName].message;
+		}
+	}
+	kv.defineLocale('en-us', localeData);
+})();
+
+// No need to invoke locale because the messages are already defined along with the rules for en-US
+_currentLocale = 'en-us';
 ;/**
  * Possible invocations:
  * 		applyBindingsWithValidation(viewModel)
