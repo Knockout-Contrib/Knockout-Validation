@@ -51,7 +51,7 @@ function expandFiles( files ) {
 					"Src/ko.extensions.js",
 					"Src/ko.validation.end.frag"
 				],
-				dest: "Dist/<%= pkg.name %>-<%= pkg.version %>.js"
+				dest: "Dist/<%= pkg.name %>.js"
 			},
 			i18n: {
 				options: {
@@ -64,7 +64,7 @@ function expandFiles( files ) {
 			    src: [
 				    "Localization/*.js",
 				],
-				dest: "Dist/<%= pkg.name %>.i18n-<%= pkg.version %>.js"
+				dest: "Dist/<%= pkg.name %>.i18n.js"
 			},
 		},
 		uglify: {
@@ -75,12 +75,12 @@ function expandFiles( files ) {
 			},
 			dist: {
 				files: {
-					"Dist/<%= pkg.name %>-<%= pkg.version %>.min.js": ["<%= concat.dist.dest %>"]
+					"Dist/<%= pkg.name %>.min.js": ["<%= concat.dist.dest %>"]
 				}
 			},
 			i18n: {
 				files: {
-					"Dist/<%= pkg.name %>.i18n-<%= pkg.version %>.min.js": ["<%= concat.i18n.dest %>"]
+					"Dist/<%= pkg.name %>.i18n.min.js": ["<%= concat.i18n.dest %>"]
 				}
 			},
 		},
