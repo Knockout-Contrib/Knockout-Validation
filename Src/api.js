@@ -123,8 +123,6 @@
 
 			isInitialized = 1;
 		},
-		// backwards compatibility
-		configure: function (options) { ko.validation.init(options); },
 
 		// resets the config back to its original state
 		reset: ko.validation.configuration.reset,

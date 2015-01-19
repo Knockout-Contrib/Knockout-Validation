@@ -319,8 +319,6 @@ kv.configuration = configuration;
 
 			isInitialized = 1;
 		},
-		// backwards compatibility
-		configure: function (options) { kv.init(options); },
 
 		// resets the config back to its original state
 		reset: kv.configuration.reset,
