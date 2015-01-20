@@ -78,8 +78,8 @@ function minMaxValidatorFactory(validatorName) {
                 regex = /^(\d{4})-W(\d{2})$/;
                 valMatches = val.match(regex);
                 if (valMatches === null) {
-                    throw "Invalid value for " + validatorName + " attribute for week input.  Should look like " +
-                        "'2000-W33' http://www.w3.org/TR/html-markup/input.week.html#input.week.attrs.min";
+                    throw new Error("Invalid value for " + validatorName + " attribute for week input.  Should look like " +
+                        "'2000-W33' http://www.w3.org/TR/html-markup/input.week.html#input.week.attrs.min");
                 }
                 comparisonValueMatches = comparisonValue.match(regex);
                 // If no regex matches were found, validation fails
@@ -102,8 +102,8 @@ function minMaxValidatorFactory(validatorName) {
                 regex = /^(\d{4})-(\d{2})$/;
                 valMatches = val.match(regex);
                 if (valMatches === null) {
-                    throw "Invalid value for " + validatorName + " attribute for month input.  Should look like " +
-                        "'2000-03' http://www.w3.org/TR/html-markup/input.month.html#input.month.attrs.min";
+                    throw new Error("Invalid value for " + validatorName + " attribute for month input.  Should look like " +
+                        "'2000-03' http://www.w3.org/TR/html-markup/input.month.html#input.month.attrs.min");
                 }
                 comparisonValueMatches = comparisonValue.match(regex);
                 // If no regex matches were found, validation fails

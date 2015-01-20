@@ -18,7 +18,7 @@ module.exports = function (grunt) {
 			options: {
 				separator: ";",
 				banner: "<%= meta.banner %>",
-				process: function (src, filepath) {
+				process: function (src) {
 					return src
 						.replace(/ko\.validation\./g, 'kv.')
 						.replace(/ko\.utils\.arrayForEach/g, 'forEach')
@@ -30,18 +30,18 @@ module.exports = function (grunt) {
 			dist: {
 				src: [
 					"<%= meta.banner %>",
-					"Src/ko.validation.start.frag",
-					"Src/configuration.js",
-					"Src/utils.js",
-					"Src/api.js",
-					"Src/rules.js",
-					"Src/bindingHandlers.js",
-					"Src/extenders.js",
-					"Src/localization.js",
-					"Src/ko.extensions.js",
-					"Src/ko.validation.end.frag"
+					"src/ko.validation.start.frag",
+					"src/configuration.js",
+					"src/utils.js",
+					"src/api.js",
+					"src/rules.js",
+					"src/bindingHandlers.js",
+					"src/extenders.js",
+					"src/localization.js",
+					"src/ko.extensions.js",
+					"src/ko.validation.end.frag"
 				],
-				dest: "Dist/<%= pkg.name %>.js"
+				dest: "dist/<%= pkg.name %>.js"
 			}
 		},
 		uglify: {
@@ -52,15 +52,15 @@ module.exports = function (grunt) {
 			},
 			dist: {
 				files: {
-					"Dist/<%= pkg.name %>.min.js": ["<%= concat.dist.dest %>"]
+					"dist/<%= pkg.name %>.min.js": ["<%= concat.dist.dest %>"]
 				}
 			}
 		},
 		qunit: {
-			files: ["Tests/test-runner.htm"]
+			files: ["test/test-runner.htm"]
 		},
 		jshint: {
-			files: ["gruntfile.js", "Src/**/*.js", "Tests/*.js", "Localization/*.js"],
+			files: ["gruntfile.js", "src/**/*.js", "test/*.js", "localization/*.js"],
 			options: {
 				jshintrc: ".jshintrc",
 				reporter: require('jshint-stylish')
@@ -68,7 +68,7 @@ module.exports = function (grunt) {
 		},
 		watch: {
 			clear: {
-				files: ["Src/**/*.js", "Tests/*.js"],
+				files: ["src/**/*.js", "test/*.js"],
 				tasks: ["clear", "test"]
 			}
 		}

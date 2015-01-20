@@ -1,15 +1,13 @@
 {
   "name": "knockout-validation",
   "description": "A KnockoutJS Plugin for model and property validation",
-  "main": "Dist/knockout.validation.js",
+  "main": "dist/knockout.validation.js",
   "license": "MIT",
   "ignore": [
     "**/.*",
     "node_modules",
-    "Lib",
-    "Src",
-    "Scripts",
-    "Tests",
+    "src",
+    "test",
     "gruntfile.js"
   ],
   "keywords": [
