@@ -1,7 +1,7 @@
 #Knockout Validation
 A KnockoutJS Plugin for model and property validation
 
-[![Build Status](https://travis-ci.org/Knockout-Contrib/Knockout-Validation.png)](https://travis-ci.org/Knockout-Contrib/Knockout-Validation)
+[![Build Status](https://travis-ci.org/Knockout-Contrib/Knockout-Validation.svg)](https://travis-ci.org/Knockout-Contrib/Knockout-Validation)
 [![Bower version](https://badge.fury.io/bo/knockout-validation.svg)](http://badge.fury.io/bo/knockout-validation)
 [![npm version](https://badge.fury.io/js/knockout.validation.svg)](http://badge.fury.io/js/knockout.validation)
 [![NuGet version](https://badge.fury.io/nu/Knockout.Validation.svg)](http://badge.fury.io/nu/Knockout.Validation)
