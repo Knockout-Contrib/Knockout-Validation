@@ -3,22 +3,22 @@
  */
 (function(factory) {
 	// Module systems magic dance.
-	/*global require,ko,define*/
+	/*global require,ko.validation,define*/
 	if (typeof require === 'function' && typeof exports === 'object' && typeof module === 'object') {
-		// CommonJS or Node: hard-coded dependency on 'knockout'
-		factory(require('knockout'));
+		// CommonJS or Node: hard-coded dependency on 'knockout-validation'
+		factory(require('knockout.validation'));
 	} else if (typeof define === "function" && define['amd']) {
-		// AMD anonymous module with hard-coded dependency on 'knockout'
-		define(['knockout'], factory);
+		// AMD anonymous module with hard-coded dependency on 'knockout-validation'
+		define(['knockout.validation'], factory);
 	} else {
-		// <script> tag: use the global `ko` object
-		factory(ko);
+		// <script> tag: use the global `ko.validation` object
+		factory(ko.validation);
 	}
-}(function(ko) {
-	if (!ko.validation || typeof ko.validation.defineLocale !== 'function') {
+}(function(kv) {
+	if (!kv || typeof kv.defineLocale !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	return ko.validation.defineLocale('el-GR', {
+	return kv.defineLocale('el-GR', {
 		required: 'Το πεδίο αυτό είναι υποχρεωτικό.',
 		min: 'Παρακαλώ εισάγετε μια τιμή μεγαλύτερη ή ίση από {0}.',
 		max: 'Παρακαλώ εισάγετε μια τιμή μικρότερη ή ίση από {0}.',

@@ -3,22 +3,22 @@
  */
 (function(factory) {
 	// Module systems magic dance.
-	/*global require,ko,define*/
+	/*global require,ko.validation,define*/
 	if (typeof require === 'function' && typeof exports === 'object' && typeof module === 'object') {
-		// CommonJS or Node: hard-coded dependency on 'knockout'
-		factory(require('knockout'));
+		// CommonJS or Node: hard-coded dependency on 'knockout-validation'
+		factory(require('knockout.validation'));
 	} else if (typeof define === "function" && define['amd']) {
-		// AMD anonymous module with hard-coded dependency on 'knockout'
-		define(['knockout'], factory);
+		// AMD anonymous module with hard-coded dependency on 'knockout-validation'
+		define(['knockout.validation'], factory);
 	} else {
-		// <script> tag: use the global `ko` object
-		factory(ko);
+		// <script> tag: use the global `ko.validation` object
+		factory(ko.validation);
 	}
-}(function(ko) {
-	if (!ko.validation || typeof ko.validation.defineLocale !== 'function') {
+}(function(kv) {
+	if (!kv || typeof kv.defineLocale !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	return ko.validation.defineLocale('ru-RU', {
+	return kv.defineLocale('ru-RU', {
 		required: 'Пожалуйста, заполните это поле.',
 		min: 'Пожалуйста, введите число большее или равное {0}.',
 		max: 'Пожалуйста, введите число меньшее или равное {0}.',
