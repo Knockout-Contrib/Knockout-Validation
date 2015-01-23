@@ -10,7 +10,7 @@
 		factory(require('knockout'));
 	} else if (typeof define === "function" && define['amd']) {
 		// AMD anonymous module with hard-coded dependency on 'knockout'
-		define(['knockout'], factory);
+		define(['knockout', 'knockout.validation'], factory);
 	} else {
 		// <script> tag: use the global `ko` object
 		factory(ko);
