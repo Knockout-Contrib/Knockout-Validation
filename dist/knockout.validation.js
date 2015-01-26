@@ -1062,12 +1062,8 @@ ko.bindingHandlers['validationMessage'] = { // individual error message, if modi
 				element.getAttribute('data-bind'));
 		}
 
-		if (!obsv.isValid || !obsv.isModified) {
-			throw new Error("Observable is not validatable");
-		}
-
-		isModified = obsv.isModified();
-		isValid = obsv.isValid();
+		isModified = obsv.isModified && obsv.isModified();
+		isValid = obsv.isValid && obsv.isValid();
 
 		var error = null;
 		if (!config.messagesOnModified || isModified) {
@@ -1105,12 +1101,8 @@ ko.bindingHandlers['validationElement'] = {
 				element.getAttribute('data-bind'));
 		}
 
-		if (!obsv.isValid || !obsv.isModified) {
-			throw new Error("Observable is not validatable");
-		}
-
-		isModified = obsv.isModified();
-		isValid = obsv.isValid();
+		isModified = obsv.isModified && obsv.isModified();
+		isValid = obsv.isValid && obsv.isValid();
 
 		// create an evaluator function that will return something like:
 		// css: { validationElement: true }
