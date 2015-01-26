@@ -28,7 +28,7 @@ var defaults = {
 // make a copy  so we can use 'reset' later
 var configuration = ko.utils.extend({}, defaults);
 
-configuration.html5Attributes = ['required', 'pattern', 'min', 'max', 'step'];
+configuration.html5Attributes = ['required', 'pattern', 'min', 'max', 'step', 'maxlength', 'minlength'];
 configuration.html5InputTypes = ['email', 'number', 'date'];
 
 configuration.reset = function () {

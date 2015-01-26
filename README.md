@@ -180,7 +180,21 @@ Learn more about Custom Rules on the [WIKI](https://github.com/Knockout-Contrib/
 ```html
 <input type="text" data-bind="value: myProp" step="3" />
 ```
-**Special Note, the 'MinLength' attribute was removed until the HTML5 spec fully supports it**
+
+**MaxLength**:
+
+```html
+<input type="text" data-bind="value: myProp" maxlength="20" />
+```
+
+**MinLength**:
+
+```html
+<input type="text" data-bind="value: myProp" minlength="3" />
+```
+
+_Note that the HTML5 attributes are lowercase ("maxlength"), whereas the
+Native Validation Rules are camel case ("maxLength")._
 
 ##Knockout Bindings
 

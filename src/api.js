@@ -245,9 +245,9 @@
 				return message(params, observable);
 			}
 			var replacements = ko.utils.unwrapObservable(params);
-            if (replacements == null) {
-                replacements = [];
-            }
+			if (replacements == null) {
+				replacements = [];
+			}
 			if (!utils.isArray(replacements)) {
 				replacements = [replacements];
 			}
@@ -369,16 +369,14 @@
 		parseInputValidationAttributes: function (element, valueAccessor) {
 			ko.utils.arrayForEach(ko.validation.configuration.html5Attributes, function (attr) {
 				if (utils.hasAttribute(element, attr)) {
-
 					var params = element.getAttribute(attr) || true;
+					var rule = attr;
 
-					if (attr === 'min' || attr === 'max')
-					{
+					if (attr === 'min' || attr === 'max') {
 						// If we're validating based on the min and max attributes, we'll
 						// need to know what the 'type' attribute is set to
 						var typeAttr = element.getAttribute('type');
-						if (typeof typeAttr === "undefined" || !typeAttr)
-						{
+						if (typeof typeAttr === "undefined" || !typeAttr) {
 							// From http://www.w3.org/TR/html-markup/input:
 							//   An input element with no type attribute specified represents the
 							//   same thing as an input element with its type attribute set to "text".
@@ -386,9 +384,17 @@
 						}
 						params = {typeAttr: typeAttr, value: params};
 					}
+					else if (attr === "minlength" || attr === "maxlength") {
+						// Change params from a string to a number
+						params = parseInt(params);
+
+						// The Native Rule names are Camel Case, but the HTML5 validation
+						// attributes are all lower case
+                        rule = (attr === 'minlength') ? 'minLength' : 'maxLength';
+					}
 
 					ko.validation.addRule(valueAccessor(), {
-						rule: attr,
+						rule: rule,
 						params: params
 					});
 				}
