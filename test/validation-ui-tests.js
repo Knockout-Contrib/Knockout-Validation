@@ -683,10 +683,10 @@ QUnit.test('Issue #481 - writeInputAttributes doesn\'t unwrap params to sync att
     assert.strictEqual($element.attr('min'), '15', 'min attribute is written');
 });
 
-QUnit.test('Issue #80 - Write HTML5 Validation Attributes programmatically', function(assert) {
+QUnit.test('Issues #80,#200 - Write HTML5 Validation Attributes programmatically', function(assert) {
 
     var vm = {
-        testObj: ko.observable(15).extend({ min: 1, max: 100, required: true, step: 2, pattern: /blah/i })
+        testObj: ko.observable(15).extend({ min: 1, max: 100, minLength: 5, maxLength: 25, required: true, step: 2, pattern: /blah/i })
     };
 
     // setup the html
@@ -703,13 +703,17 @@ QUnit.test('Issue #80 - Write HTML5 Validation Attributes programmatically', fun
     var $el = $('#testElement');
     var tests = {};
 
-    ko.utils.arrayForEach(['required', 'min', 'max', 'step', 'pattern'], function(attr) {
+    // The Native Rule names are Camel Case, but the HTML5 validation
+		// attributes are all lower case
+    ko.utils.arrayForEach(['required', 'min', 'max', 'minlength', 'maxlength', 'step', 'pattern'], function(attr) {
         tests[attr] = $el.attr(attr);
     });
 
     assert.ok(tests.required, 'Required Found');
     assert.strictEqual(tests.min, '1', 'Min Found');
     assert.strictEqual(tests.max, '100', 'Max Found');
+    assert.strictEqual(tests.minlength, '5', 'MinLength Found');
+    assert.strictEqual(tests.maxlength, '25', 'MaxLength Found');
     assert.strictEqual(tests.step, '2', 'Step Found');
     assert.strictEqual(tests.pattern, 'blah', 'Pattern Found');
 
@@ -843,6 +847,110 @@ QUnit.test('HTML5 Input types', function(assert) {
             done();
         }
     }, 1);
+});
+
+QUnit.test('maxlength Attribute of 8 should fail for text of length 11', function(assert) {
+	var done = assert.async();
+	assert.expect(3);
+
+	var vm = {
+		someText: ko.validatedObservable()
+	};
+
+	addTestHtml('<input id="myTestInput" type="text" maxlength="8" data-bind="value: someText, validationElement: someText" />');
+
+	ko.validation.init({parseInputAttributes: true}, true);
+	applyTestBindings(vm);
+
+	setTimeout(function() {
+		vm.someText('MuchTooLong'); // should fail the maxLength rule
+
+		var el = $('#myTestInput');
+
+		assert.ok(el, 'found element');
+		assert.ok(!vm.someText.isValid(), 'Object is not valid');
+		assert.equal(vm.someText.error(), 'Please enter no more than 8 characters.',
+				'Message needs to be formatted correctly');
+
+		done();
+	}, 1);
+});
+
+QUnit.test('maxlength Attribute of 20 should succeed for text of length 11', function(assert) {
+	var done = assert.async();
+	assert.expect(2);
+
+	var vm = {
+		someText: ko.validatedObservable()
+	};
+
+	addTestHtml('<input id="myTestInput" type="text" maxlength="20" data-bind="value: someText, validationElement: someText" />');
+
+	ko.validation.init({parseInputAttributes: true}, true);
+	applyTestBindings(vm);
+
+	setTimeout(function() {
+		vm.someText('ShortEnough'); // should pass the maxLength rule
+
+		var el = $('#myTestInput');
+
+		assert.ok(el, 'found element');
+		assert.ok(vm.someText.isValid(), 'Object is valid');
+
+		done();
+	}, 1);
+});
+
+QUnit.test('minlength Attribute of 20 should fail for text of length 8', function(assert) {
+	var done = assert.async();
+	assert.expect(3);
+
+	var vm = {
+		someText: ko.validatedObservable()
+	};
+
+	addTestHtml('<input id="myTestInput" type="text" minlength="20" data-bind="value: someText, validationElement: someText" />');
+
+	ko.validation.init({parseInputAttributes: true}, true);
+	applyTestBindings(vm);
+
+	setTimeout(function() {
+		vm.someText('TooShort'); // should fail the minLength rule
+
+		var el = $('#myTestInput');
+
+		assert.ok(el, 'found element');
+		assert.ok(!vm.someText.isValid(), 'Object is not valid');
+		assert.equal(vm.someText.error(), 'Please enter at least 20 characters.',
+				'Message needs to be formatted correctly');
+
+		done();
+	}, 1);
+});
+
+QUnit.test('minlength Attribute of 5 should succeed for text of length 10', function(assert) {
+	var done = assert.async();
+	assert.expect(2);
+
+	var vm = {
+		someText: ko.validatedObservable()
+	};
+
+	addTestHtml('<input id="myTestInput" type="text" minlength=5 data-bind="value: someText, validationElement: someText" />');
+
+	ko.validation.init({parseInputAttributes: true}, true);
+	applyTestBindings(vm);
+
+	setTimeout(function() {
+		vm.someText('LongEnough'); // should pass the minLength rule
+
+		var el = $('#myTestInput');
+
+		assert.ok(el, 'found element');
+		assert.ok(vm.someText.isValid(), 'Object is valid');
+
+		done();
+	}, 1);
 });
 
 QUnit.test('min Attribute of 20 should fail for value of 8', function(assert) {
@@ -1368,4 +1476,3 @@ QUnit.test('min Attribute of 2012-W03 should succeed for value of 2013-W01', fun
 });
 
 //#endregion
-
