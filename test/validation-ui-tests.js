@@ -625,6 +625,50 @@ QUnit.test('Issue #44 - Validation Element - Is Invalid Test', function(assert) 
 
 });
 
+QUnit.test('Issue #519 - validationElement can be applied before element is validatable', function(assert) {
+    var vm = {
+        testObj: ko.observable()
+    };
+
+    addTestHtml('<input type="text" id="testElement" data-bind="value: testObj, validationElement: testObj"/>');
+    applyTestBindings(vm);
+
+    assert.strictEqual($("#testElement").attr("class"), "");
+    assert.ok(!ko.validation.utils.isValidatable(vm.testObj));
+
+    vm.testObj.extend({ required: true });
+    vm.testObj(null);
+    assert.ok(ko.validation.utils.isValidatable(vm.testObj));
+    assert.strictEqual($("#testElement").attr("class"), "validationElement");
+    assert.strictEqual($("#testElement").attr("title"), "This field is required.");
+
+    vm.testObj.extend({ validatable: false });
+    assert.ok(!ko.validation.utils.isValidatable(vm.testObj));
+    assert.strictEqual($("#testElement").attr("title"), undefined);
+});
+
+QUnit.test('Issue #519 - validationMessage can be applied before element is validatable', function(assert) {
+    var vm = {
+        testObj: ko.observable()
+    };
+
+    addTestHtml('<span id="testElement" data-bind="validationMessage: testObj"/>');
+    applyTestBindings(vm);
+
+    assert.ok(!$("#testElement").is(':visible'));
+    assert.ok(!ko.validation.utils.isValidatable(vm.testObj));
+
+    vm.testObj.extend({ required: true });
+    vm.testObj(null);
+    assert.ok(ko.validation.utils.isValidatable(vm.testObj));
+    assert.ok($("#testElement").is(':visible'));
+    assert.strictEqual($("#testElement").html(), "This field is required.");
+
+    vm.testObj.extend({ validatable: false });
+    assert.ok(!ko.validation.utils.isValidatable(vm.testObj));
+    assert.strictEqual($("#testElement").html(), "");
+});
+
 QUnit.test('Issue #481 - writeInputAttributes doesn\'t unwrap params to sync attribute', function(assert) {
     var minValue = ko.observable(4);
     var testObj = ko.observable(10).extend({min: minValue});
