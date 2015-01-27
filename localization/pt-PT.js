@@ -2,23 +2,23 @@
  * Localization file for Portuguese - Portugal (pt-PT)
  */
 (function(factory) {
-	// Module systems magic dance.
-	/*global require,ko,define*/
-	if (typeof require === 'function' && typeof exports === 'object' && typeof module === 'object') {
-		// CommonJS or Node: hard-coded dependency on 'knockout-validation'
-		factory(require('knockout-validation'));
-	} else if (typeof define === "function" && define['amd']) {
-		// AMD anonymous module with hard-coded dependency on 'knockout-validation'
-		define(['knockout-validation', 'knockout.validation'], factory);
-	} else {
-		// <script> tag: use the global `ko` object
-		factory(ko);
-	}
-}(function(ko) {
-	if (!ko.validation || typeof ko.validation.defineLocale !== 'function') {
-		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
-	}
-	return ko.validation.defineLocale('pt-PT', {
+    // Module systems magic dance.
+    /*global require,ko.validation,define,module*/
+    if (typeof require === 'function' && typeof exports === 'object' && typeof module === 'object') {
+        // CommonJS or Node
+        module.exports = factory(require('../'));
+    } else if (typeof define === 'function' && define['amd']) {
+        // AMD anonymous module
+        define(['knockout.validation'], factory);
+    } else {
+        // <script> tag: use the global `ko.validation` object
+        factory(ko.validation);
+    }
+}(function(kv) {
+    if (!kv || typeof kv.defineLocale !== 'function') {
+        throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
+    }
+	return kv.defineLocale('pt-PT', {
 		required: 'Este campo é obrigatório.',
 		min: 'Por favor, introduza um valor maior ou igual a {0}.',
 		max: 'Por favor, introduza um valor menor ou igual a {0}.',

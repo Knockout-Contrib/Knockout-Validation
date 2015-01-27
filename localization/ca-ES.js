@@ -3,12 +3,12 @@
  */
 (function(factory) {
 	// Module systems magic dance.
-	/*global require,ko.validation,define*/
+	/*global require,ko.validation,define,module*/
 	if (typeof require === 'function' && typeof exports === 'object' && typeof module === 'object') {
-		// CommonJS or Node: hard-coded dependency on 'knockout-validation'
-		factory(require('knockout.validation'));
-	} else if (typeof define === "function" && define['amd']) {
-		// AMD anonymous module with hard-coded dependency on 'knockout-validation'
+		// CommonJS or Node
+        module.exports = factory(require('../'));
+	} else if (typeof define === 'function' && define['amd']) {
+		// AMD anonymous module with hard-coded dependency on 'knockout.validation'
 		define(['knockout.validation'], factory);
 	} else {
 		// <script> tag: use the global `ko.validation` object
