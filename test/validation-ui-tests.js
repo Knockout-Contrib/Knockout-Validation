@@ -611,6 +611,20 @@ QUnit.test('Issue #44 - Validation Element - Is Invalid Test', function(assert) 
 
 });
 
+QUnit.test('Issue #519 - validationMessage and validationElement can be applied to non-validatable element', 0, function(assert) {
+    var vm = {
+        testObj: ko.observable()
+    };
+
+    // setup the html
+    addTestHtml('<input type="text" id="testElement" data-bind="value: testObj, validationElement: testObj, validationMessage: testObj"/>');
+
+    // make sure we allow element decorations
+    ko.validation.init({ decorateInputElement: true }, true);
+
+    applyTestBindings(vm);
+});
+
 QUnit.test('Issue #481 - writeInputAttributes doesn\'t unwrap params to sync attribute', function(assert) {
     var minValue = ko.observable(4);
     var testObj = ko.observable(10).extend({min: minValue});
