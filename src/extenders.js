@@ -107,15 +107,6 @@ ko.extenders['validatable'] = function (observable, options) {
 			//first dispose of the subscriptions
 			observable.isValid.dispose();
 			observable.rules.removeAll();
-			if (observable.isModified.getSubscriptionsCount() > 0) {
-				observable.isModified._subscriptions['change'] = [];
-			}
-			if (observable.isValidating.getSubscriptionsCount() > 0) {
-				observable.isValidating._subscriptions['change'] = [];
-			}
-			if (observable.__valid__.getSubscriptionsCount() > 0) {
-				observable.__valid__._subscriptions['change'] = [];
-			}
 			h_change.dispose();
 			h_obsValidationTrigger.dispose();
 
@@ -125,6 +116,9 @@ ko.extenders['validatable'] = function (observable, options) {
 			delete observable['isValidating'];
 			delete observable['__valid__'];
 			delete observable['isModified'];
+            delete observable['setError'];
+            delete observable['clearError'];
+            delete observable['_disposeValidation'];
 		};
 	} else if (options.enable === false && observable._disposeValidation) {
 		observable._disposeValidation();
