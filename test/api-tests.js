@@ -878,6 +878,7 @@ QUnit.test('Basic Removal', function(assert) {
 	testObj(3);
 
 	var testFlag = false;
+    var changeFlag = false;
 
 	assert.equal(testObj(), 3, 'observable still works');
 	assert.ok(testObj.isValid(), 'testObj is Valid');
@@ -886,11 +887,16 @@ QUnit.test('Basic Removal', function(assert) {
 		testFlag = true;
 	});
 
+    testObj.isModified.subscribe(function() {
+        changeFlag = true;
+    });
+
 	testObj.extend({ validatable: false });
 
 	assert.ok(!testObj.isValid, 'Validation features removed');
 	testObj(1);
-	assert.ok(!testFlag, 'Subscriptions to isValid didnt fire');
+	assert.ok(!testFlag, 'Subscriptions to isValid did not fire');
+	assert.ok(!changeFlag, 'Subscriptions to isModified did not fire');
 });
 
 //#endregion
@@ -1081,4 +1087,5 @@ QUnit.test('can be invoked with (viewModel, rootNode, options)', function(assert
 	ko.applyBindings = _applyBindings;
 	ko.validation.utils.setDomData = _setDomData;
 });
+
 

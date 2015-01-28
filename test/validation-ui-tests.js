@@ -163,6 +163,20 @@ QUnit.test('Issue #277 - parseInputAttributes does not duplicate rules when pars
     }, 1);
 });
 
+QUnit.test('Issue #526 - validation cannot be removed from attached observable', function(assert) {
+
+    var testObj = ko.observable(1).extend({ min: 2 });
+
+    addTestHtml('<input id="myTestInput" data-bind="value: value" type="text" />');
+    applyTestBindings({value: testObj});
+
+    assert.violatesMinRule(testObj, 1, 2);
+    assert.ok(ko.validation.utils.isValidatable(testObj));
+
+    testObj.extend({validatable: false});
+    assert.equal(ko.validation.utils.isValidatable(testObj), false);
+});
+
 //#region Inserting Messages
 
 QUnit.test('Inserting Messages Works', function(assert) {
