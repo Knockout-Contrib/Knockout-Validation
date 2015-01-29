@@ -4,7 +4,7 @@
   "description": "A KnockoutJS Plugin for model and property validation",
   "main": "dist/knockout.validation.js",
   "files": ["dist", "localization", "CONTRIBUTING.md"],
-  "dependencies": {
+  "peerDependencies": {
     "knockout": ">=2.3.0"
   },
   "devDependencies": {
