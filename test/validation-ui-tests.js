@@ -196,6 +196,40 @@ QUnit.test('Inserting Messages Works', function(assert) {
     assert.equal(msg, 'This field is required.', msg);
 });
 
+QUnit.test('Translating Messages Works', function(assert) {
+   addTestHtml('<input id="myTestInput" data-bind="value: firstName" type="text" />');
+   var $testInput = $('#myTestInput'),
+       msg;
+
+   var vm = {
+       firstName: ko.observable('').extend({ required: true })
+   };
+
+   applyTestBindings(vm);
+
+   var originalMessage = ko.validation.rules.required.message,
+       translatedMessage = 'translation test';
+   ko.validation.localize({'required': translatedMessage});
+
+   $testInput.val('a').change().val('').change();
+   msg = $testInput.siblings().first().text();
+
+   assert.equal(msg, translatedMessage, msg);
+
+   translatedMessage = 'translation test 2';
+   ko.validation.localize({'required': translatedMessage});
+
+   msg = $testInput.siblings().first().text();
+   assert.equal(msg, translatedMessage, msg);
+
+   $testInput.val('a').change().val('').change();
+   msg = $testInput.siblings().first().text();
+
+   assert.equal(msg, translatedMessage, msg);
+
+   ko.validation.localize({'required': originalMessage});
+});
+
 QUnit.test('Inserting Messages with HTML Works', function(assert) {
 
     ko.validation.init({
