@@ -207,7 +207,7 @@ QUnit.test('Translating Messages Works', function(assert) {
 
    applyTestBindings(vm);
 
-   var originalMessage = ko.validation.rules.required.message,
+   var originalMessage = ko.unwrap(ko.validation.rules.required.message),
        translatedMessage = 'translation test';
    ko.validation.localize({'required': translatedMessage});
 
