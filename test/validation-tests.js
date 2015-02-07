@@ -368,6 +368,7 @@ QUnit.test('341 Async Rule is not valid when it returns immediately', function (
         async: true,
         validator: function (val, otherVal, callBack) {
             callBack(false);
+            assert.ok(!testObj.isValid());
             done();
         },
         message: 'this should be false.'
