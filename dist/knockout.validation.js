@@ -1336,8 +1336,10 @@ function validateAsync(observable, rule, ctx) {
 		observable.isValidating(false);
 	};
 
-	//fire the validator and hand it the callback
-	rule.validator(observable(), unwrap(ctx.params || true), callBack);
+	kv.utils.async(function() {
+	    //fire the validator and hand it the callback
+        rule.validator(observable(), ctx.params === undefined ? true : unwrap(ctx.params), callBack);
+	});
 }
 
 kv.validateObservable = function (observable) {
