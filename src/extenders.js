@@ -176,13 +176,10 @@ function validateAsync(observable, rule, ctx) {
 		// tell it that we're done
 		observable.isValidating(false);
 	};
-	
-	//ko.validation.utils.async(function() {
-        //observable.isValidating(true);
         	
-        //fire the validator and hand it the callback
-        rule.validator(observable(), unwrap(typeof ctx.params === 'undefined' ? true : ctx.params), callBack);
-    //});
+    //fire the validator and hand it the callback
+    rule.validator(observable(), unwrap(typeof ctx.params === 'undefined' ? true : ctx.params), callBack);
+    
 }
 
 ko.validation.validateObservable = function (observable) {
@@ -192,6 +189,8 @@ ko.validation.validateObservable = function (observable) {
 		ruleContexts = observable.rules(), //cache for iterator
 		len = ruleContexts.length; //cache for iterator
 
+    //finally if we got this far, make the observable valid again!
+	observable.clearError();
 	for (; i < len; i++) {
 
 		//get the Rule Context info to give to the core Rule
@@ -216,7 +215,5 @@ ko.validation.validateObservable = function (observable) {
 			}
 		}
 	}
-	//finally if we got this far, make the observable valid again!
-	observable.clearError();
 	return true;
 };
