@@ -176,9 +176,11 @@ function validateAsync(observable, rule, ctx) {
 		// tell it that we're done
 		observable.isValidating(false);
 	};
-
-	//fire the validator and hand it the callback
-	rule.validator(observable(), ko.utils.unwrapObservable(ctx.params || true), callBack);
+    
+	ko.validation.utils.async(function() {
+	    //fire the validator and hand it the callback
+	    rule.validator(observable(), ko.utils.unwrapObservable(ctx.params || true), callBack);
+	});
 }
 
 ko.validation.validateObservable = function (observable) {
