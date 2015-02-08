@@ -176,9 +176,10 @@ function validateAsync(observable, rule, ctx) {
 		// tell it that we're done
 		observable.isValidating(false);
 	};
-
-	//fire the validator and hand it the callback
-	rule.validator(observable(), ko.utils.unwrapObservable(ctx.params || true), callBack);
+        	
+    //fire the validator and hand it the callback
+    rule.validator(observable(), ko.utils.unwrapObservable(ctx.params || true), callBack);
+    
 }
 
 ko.validation.validateObservable = function (observable) {
@@ -187,6 +188,8 @@ ko.validation.validateObservable = function (observable) {
 		ctx, // the current Rule Context for the loop
 		ruleContexts = observable.rules(), //cache for iterator
 		len = ruleContexts.length; //cache for iterator
+
+	observable.clearError();
 
 	for (; i < len; i++) {
 
@@ -212,7 +215,5 @@ ko.validation.validateObservable = function (observable) {
 			}
 		}
 	}
-	//finally if we got this far, make the observable valid again!
-	observable.clearError();
 	return true;
 };
