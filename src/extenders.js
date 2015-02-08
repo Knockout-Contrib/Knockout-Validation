@@ -178,7 +178,7 @@ function validateAsync(observable, rule, ctx) {
 	};
         	
     //fire the validator and hand it the callback
-    rule.validator(observable(), unwrap(typeof ctx.params === 'undefined' ? true : ctx.params), callBack);
+    rule.validator(observable(), ko.utils.unwrapObservable(ctx.params || true), callBack);
     
 }
 
