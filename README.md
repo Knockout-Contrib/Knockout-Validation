@@ -76,7 +76,7 @@ myViewModel().property2(9);
 console.log(myViewModel.isValid()); //true
 
 ```
-see more examples on the Fiddle: http://jsfiddle.net/KHFn8/2971/
+see more examples on the Fiddle: http://jsfiddle.net/KHFn8/5424/
 
 ##Native Validation Rules
 **Required**:
