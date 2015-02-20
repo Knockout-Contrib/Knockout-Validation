@@ -68,6 +68,7 @@ QUnit.test('Defining locales works', function(assert) {
 
 QUnit.test('Localization files can be loaded and applied', function(assert) {
     // Simple check to ensure localization files can be loaded with script tag
+    assert.equal(ko.validation.locale('ar-JO'), 'ar-jo', 'Arabic - Jordan (ar-JO)');
     assert.equal(ko.validation.locale('bg-BG'), 'bg-bg', 'Bulgarian - Bulgaria (bg-BG)');
     assert.equal(ko.validation.locale('ca-ES'), 'ca-es', 'Catalan - Catalan (ca-ES)');
     assert.equal(ko.validation.locale('cs-CZ'), 'cs-cz', 'Czech - Czech Republic (cs-CZ)');
