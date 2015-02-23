@@ -37,6 +37,17 @@ PM> Install-Package Knockout.Validation
 npm install knockout.validation --save
 ```
 
+#### CDN
+
+##### [cdnjs](https://cdnjs.com/libraries/knockout-validation)
+* https://cdnjs.cloudflare.com/ajax/libs/knockout-validation/2.0.2/knockout.validation.js
+* https://cdnjs.cloudflare.com/ajax/libs/knockout-validation/2.0.2/knockout.validation.min.js
+
+##### [jsdelivr](http://www.jsdelivr.com/#!knockout.validation)
+- https://cdn.jsdelivr.net/knockout.validation/2.0.2/knockout.validation.js
+- https://cdn.jsdelivr.net/knockout.validation/2.0.2/knockout.validation.min.js
+
+
 ##Getting Started
 ```javascript
 //start using it!
