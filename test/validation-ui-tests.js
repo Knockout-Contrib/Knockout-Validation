@@ -633,7 +633,7 @@ QUnit.test('Issue #519 - validationElement can be applied before element is vali
     addTestHtml('<input type="text" id="testElement" data-bind="value: testObj, validationElement: testObj"/>');
     applyTestBindings(vm);
 
-    assert.strictEqual($("#testElement").attr("class"), "");
+    assert.strictEqual(!!$("#testElement").attr("class"), false);
     assert.ok(!ko.validation.utils.isValidatable(vm.testObj));
 
     vm.testObj.extend({ required: true });
