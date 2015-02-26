@@ -977,6 +977,15 @@ QUnit.test('formatMessage may use multiple replacements', function(assert) {
 	assert.equal(result, 'Value must be between 1 and 5.');
 });
 
+QUnit.test('Issue #547 - formatMessage fails when params is 0', function(assert) {
+    var params = 0,
+        message = 'Please enter a value greater than or equal to {0}.',
+        obsv = ko.observable(-1);
+
+    var result = ko.validation.formatMessage(message, params, obsv);
+    assert.equal(result, 'Please enter a value greater than or equal to 0.');
+});
+
 
 QUnit.module('applyBindingsWithValidation Tests');
 
