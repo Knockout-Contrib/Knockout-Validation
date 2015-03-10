@@ -36,6 +36,12 @@ ko.applyBindings = function (viewModel, rootNode) {
 	origApplyBindings(viewModel, rootNode);
 };
 
+var origApplyExtenders = ko.subscribable.fn.extend;
+ko.subscribable.fn.extend = function(requestedExtenders) {
+	ko.validation.init();
+	return origApplyExtenders.call(this, requestedExtenders);
+};
+
 ko.validatedObservable = function (initialValue, options) {
 	if (!options && !ko.validation.utils.isObject(initialValue)) {
 		return ko.observable(initialValue).extend({ validatable: true });

@@ -200,7 +200,8 @@ kv.configuration = configuration;
 
 	var isInitialized = 0,
 		configuration = kv.configuration,
-		utils = kv.utils;
+		utils = kv.utils,
+        bindingHandlersValidatable = false;
 
 	function cleanUpSubscriptions(context) {
 		forEach(context.subscriptions, function (subscription) {
@@ -315,11 +316,22 @@ kv.configuration = configuration;
 
 			extend(configuration, options);
 
+            if (!bindingHandlersValidatable) {
+                bindingHandlersValidatable = true;
+
+                kv.makeBindingHandlerValidatable('value');
+                kv.makeBindingHandlerValidatable('checked');
+                if (ko.bindingHandlers.textInput) {
+                    kv.makeBindingHandlerValidatable('textInput');
+                }
+                kv.makeBindingHandlerValidatable('selectedOptions');
+            }
+
 			if (configuration.registerExtenders) {
 				kv.registerExtenders();
 			}
 
-			isInitialized = 1;
+            isInitialized = 1;
 		},
 
 		// resets the config back to its original state
@@ -998,64 +1010,47 @@ kv.rules['unique'] = {
 	},
 	message: 'Please make sure the value is unique.'
 };
-
-
-//now register all of these!
-(function () {
-	kv.registerExtenders();
-}());
 ;// The core binding handler
 // this allows us to setup any value binding that internally always
 // performs the same functionality
-ko.bindingHandlers['validationCore'] = (function () {
+ko.bindingHandlers['validationCore'] = {
+	init: function (element, valueAccessor) {
+		var config = kv.utils.getConfigOptions(element);
+		var observable = valueAccessor();
 
-	return {
-		init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-			var config = kv.utils.getConfigOptions(element);
-			var observable = valueAccessor();
+		// parse html5 input validation attributes, optional feature
+		if (config.parseInputAttributes) {
+			kv.utils.async(function () { kv.parseInputValidationAttributes(element, valueAccessor); });
+		}
 
-			// parse html5 input validation attributes, optional feature
-			if (config.parseInputAttributes) {
-				kv.utils.async(function () { kv.parseInputValidationAttributes(element, valueAccessor); });
-			}
-
+		if (kv.utils.isValidatable(observable)) {
 			// if requested insert message element and apply bindings
-			if (config.insertMessages && kv.utils.isValidatable(observable)) {
+			if (config.insertMessages) {
 
 				// insert the <span></span>
 				var validationMessageElement = kv.insertValidationMessage(element);
 
 				// if we're told to use a template, make sure that gets rendered
 				if (config.messageTemplate) {
-					ko.renderTemplate(config.messageTemplate, { field: observable }, null, validationMessageElement, 'replaceNode');
-				} else {
-					ko.applyBindingsToNode(validationMessageElement, { validationMessage: observable });
+					ko.renderTemplate(config.messageTemplate, {field: observable}, null, validationMessageElement, 'replaceNode');
+				}
+				else {
+					ko.applyBindingsToNode(validationMessageElement, {validationMessage: observable});
 				}
 			}
 
 			// write the html5 attributes if indicated by the config
-			if (config.writeInputAttributes && kv.utils.isValidatable(observable)) {
-
+			if (config.writeInputAttributes) {
 				kv.writeInputValidationAttributes(element, valueAccessor);
 			}
 
 			// if requested, add binding to decorate element
-			if (config.decorateInputElement && kv.utils.isValidatable(observable)) {
-				ko.applyBindingsToNode(element, { validationElement: observable });
+			if (config.decorateInputElement) {
+				ko.applyBindingsToNode(element, {validationElement: observable});
 			}
 		}
-	};
-
-}());
-
-// override for KO's default 'value', 'checked', 'textInput' and selectedOptions bindings
-kv.makeBindingHandlerValidatable("value");
-kv.makeBindingHandlerValidatable("checked");
-if (ko.bindingHandlers.textInput) {
-	kv.makeBindingHandlerValidatable("textInput");
-}
-kv.makeBindingHandlerValidatable("selectedOptions");
-
+	}
+};
 
 ko.bindingHandlers['validationMessage'] = { // individual error message, if modified or post binding
 	update: function (element, valueAccessor) {
@@ -1476,6 +1471,12 @@ ko.applyBindings = function (viewModel, rootNode) {
 	kv.init();
 
 	origApplyBindings(viewModel, rootNode);
+};
+
+var origApplyExtenders = ko.subscribable.fn.extend;
+ko.subscribable.fn.extend = function(requestedExtenders) {
+	kv.init();
+	return origApplyExtenders.call(this, requestedExtenders);
 };
 
 ko.validatedObservable = function (initialValue, options) {

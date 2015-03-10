@@ -284,9 +284,3 @@ ko.validation.rules['unique'] = {
 	},
 	message: 'Please make sure the value is unique.'
 };
-
-
-//now register all of these!
-(function () {
-	ko.validation.registerExtenders();
-}());

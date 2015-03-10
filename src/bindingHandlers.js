@@ -1,55 +1,44 @@
 ﻿// The core binding handler
 // this allows us to setup any value binding that internally always
 // performs the same functionality
-ko.bindingHandlers['validationCore'] = (function () {
+ko.bindingHandlers['validationCore'] = {
+	init: function (element, valueAccessor) {
+		var config = ko.validation.utils.getConfigOptions(element);
+		var observable = valueAccessor();
 
-	return {
-		init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-			var config = ko.validation.utils.getConfigOptions(element);
-			var observable = valueAccessor();
+		// parse html5 input validation attributes, optional feature
+		if (config.parseInputAttributes) {
+			ko.validation.utils.async(function () { ko.validation.parseInputValidationAttributes(element, valueAccessor); });
+		}
 
-			// parse html5 input validation attributes, optional feature
-			if (config.parseInputAttributes) {
-				ko.validation.utils.async(function () { ko.validation.parseInputValidationAttributes(element, valueAccessor); });
-			}
-
+		if (ko.validation.utils.isValidatable(observable)) {
 			// if requested insert message element and apply bindings
-			if (config.insertMessages && ko.validation.utils.isValidatable(observable)) {
+			if (config.insertMessages) {
 
 				// insert the <span></span>
 				var validationMessageElement = ko.validation.insertValidationMessage(element);
 
 				// if we're told to use a template, make sure that gets rendered
 				if (config.messageTemplate) {
-					ko.renderTemplate(config.messageTemplate, { field: observable }, null, validationMessageElement, 'replaceNode');
-				} else {
-					ko.applyBindingsToNode(validationMessageElement, { validationMessage: observable });
+					ko.renderTemplate(config.messageTemplate, {field: observable}, null, validationMessageElement, 'replaceNode');
+				}
+				else {
+					ko.applyBindingsToNode(validationMessageElement, {validationMessage: observable});
 				}
 			}
 
 			// write the html5 attributes if indicated by the config
-			if (config.writeInputAttributes && ko.validation.utils.isValidatable(observable)) {
-
+			if (config.writeInputAttributes) {
 				ko.validation.writeInputValidationAttributes(element, valueAccessor);
 			}
 
 			// if requested, add binding to decorate element
-			if (config.decorateInputElement && ko.validation.utils.isValidatable(observable)) {
-				ko.applyBindingsToNode(element, { validationElement: observable });
+			if (config.decorateInputElement) {
+				ko.applyBindingsToNode(element, {validationElement: observable});
 			}
 		}
-	};
-
-}());
-
-// override for KO's default 'value', 'checked', 'textInput' and selectedOptions bindings
-ko.validation.makeBindingHandlerValidatable("value");
-ko.validation.makeBindingHandlerValidatable("checked");
-if (ko.bindingHandlers.textInput) {
-	ko.validation.makeBindingHandlerValidatable("textInput");
-}
-ko.validation.makeBindingHandlerValidatable("selectedOptions");
-
+	}
+};
 
 ko.bindingHandlers['validationMessage'] = { // individual error message, if modified or post binding
 	update: function (element, valueAccessor) {

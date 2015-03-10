@@ -2,7 +2,8 @@
 
 	var isInitialized = 0,
 		configuration = ko.validation.configuration,
-		utils = ko.validation.utils;
+		utils = ko.validation.utils,
+        bindingHandlersValidatable = false;
 
 	function cleanUpSubscriptions(context) {
 		ko.utils.arrayForEach(context.subscriptions, function (subscription) {
@@ -117,11 +118,22 @@
 
 			ko.utils.extend(configuration, options);
 
+            if (!bindingHandlersValidatable) {
+                bindingHandlersValidatable = true;
+
+                ko.validation.makeBindingHandlerValidatable('value');
+                ko.validation.makeBindingHandlerValidatable('checked');
+                if (ko.bindingHandlers.textInput) {
+                    ko.validation.makeBindingHandlerValidatable('textInput');
+                }
+                ko.validation.makeBindingHandlerValidatable('selectedOptions');
+            }
+
 			if (configuration.registerExtenders) {
 				ko.validation.registerExtenders();
 			}
 
-			isInitialized = 1;
+            isInitialized = 1;
 		},
 
 		// resets the config back to its original state
