@@ -1,3 +1,15 @@
+# 2.0.3 (2015-05-18)
+
+### Features
+* Add Arabic - Jordan (ar-JO) localization #546
+
+
+### Bug Fixes
+
+* formatMessage fails when params is falsy #547
+* async rules cannot return immediately #341
+
+
 # 2.0.2 (2015-02-02)
 
 ### Bug Fixes

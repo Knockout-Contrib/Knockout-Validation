@@ -1,6 +1,6 @@
 {
   "name": "knockout-validation",
-  "version": "2.0.2",
+  "version": "2.0.3",
   "description": "A KnockoutJS Plugin for model and property validation",
   "main": "dist/knockout.validation.js",
   "license": "MIT",
