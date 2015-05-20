@@ -79,6 +79,17 @@ QUnit.test('Custom Message Correctly appears', function(assert) {
     assert.observableIsNotValid(testObj, '', 'This Message is Special');
 });
 
+QUnit.test('Allow validation params in object without custom message and without onlyIf', function(assert) {
+    var testObj = ko.observable('something').extend({
+        minLength: {
+            params: 9
+            // no custom message, no onlyIf
+        }
+    });
+    testObj("short");
+    assert.violatesMinLengthRule(testObj, "short", 9);
+});
+
 //#endregion
 
 //#region Anonymous Rule Validation
