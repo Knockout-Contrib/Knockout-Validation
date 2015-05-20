@@ -524,7 +524,8 @@ kv.configuration = configuration;
 				//	  }
 				//  )};
 				//
-				if (params && (params.message || params.onlyIf)) { //if it has a message or condition object, then its an object literal to use
+				//if it has an embedded params, a message or condition object, then it's an object literal to use
+				if (params && (params.params || params.message || params.onlyIf)) {
 					return kv.addRule(observable, {
 						rule: ruleName,
 						message: params.message,
