@@ -447,13 +447,17 @@
 		},
 
 		//take an existing binding handler and make it cause automatic validations
-		makeBindingHandlerValidatable: function (handlerName) {
+		makeBindingHandlerValidatable: function (handlerName, validatedPropName) {
 			var init = ko.bindingHandlers[handlerName].init;
-
 			ko.bindingHandlers[handlerName].init = function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-
+				
 				init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
-
+				
+				if (validatedPropName != undefined) {
+					var unwrapped = ko.unwrap(valueAccessor())[validatedPropName];
+					valueAccessor = function () { return unwrapped; };
+				}
+				
 				return ko.bindingHandlers['validationCore'].init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
 			};
 		},
