@@ -453,7 +453,7 @@
 				
 				init(element, valueAccessor, allBindingsAccessor, viewModel, bindingContext);
 				
-				if (validatedPropName != undefined) {
+				if (validatedPropName !== undefined) {
 					var unwrapped = ko.unwrap(valueAccessor())[validatedPropName];
 					valueAccessor = function () { return unwrapped; };
 				}
