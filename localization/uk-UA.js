@@ -1,5 +1,5 @@
 /**
- * Localization file for Ukrainian - Ukraine (ua-UK)
+ * Localization file for Ukrainian - Ukraine (uk-UA)
  */
 (function(factory) {
 	// Module systems magic dance.
