@@ -743,6 +743,46 @@ QUnit.test('validatedObservable works when changing from undefined to object', f
 	assert.equal(testObj.errors()[0], 'This field is required.', 'message is correct');
 });
 
+QUnit.test('validatedObservable by default is automatically isModified whenever it\'s value changes', function (assert) {
+	var testObj = ko.observable().extend({ validatable: true });
+
+	assert.strictEqual(testObj.isModified(), false, 'observable is not modified');
+
+	testObj(1);
+
+	assert.strictEqual(testObj.isModified(), true, 'observable is modified');
+});
+
+QUnit.test('validatedObservable isModified(true) on change can be disabled using global configuration', function (assert) {
+	ko.validation.init({
+		validate: {
+			setModifiedOnChange: false
+		}
+	}, true);
+
+	var testObj = ko.observable().extend({ validatable: true });
+
+	assert.strictEqual(testObj.isModified(), false, 'observable is not modified');
+
+	testObj(1);
+
+	assert.strictEqual(testObj.isModified(), false, 'observable is not modified');
+});
+
+QUnit.test('validatedObservable isModified(true) on change can be disabled using local configuration', function (assert) {
+	var testObj = ko.observable().extend({
+		validatable: {
+			setModifiedOnChange: false
+		}
+	});
+
+	assert.strictEqual(testObj.isModified(), false, 'observable is not modified');
+
+	testObj(1);
+
+	assert.strictEqual(testObj.isModified(), false, 'observable is not modified');
+});
+
 //#endregion
 
 //#region setRules Tests

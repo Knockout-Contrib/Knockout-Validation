@@ -58,6 +58,7 @@ var defaults = {
 		live: false		    //react to changes to observableArrays if observable === true
 	},
 	validate: {
+		setModifiedOnChange: true, // enables setting `isModified(true)` when observable changes
 		// throttle: 10
 	}
 };
@@ -1194,14 +1195,13 @@ ko.extenders['validatable'] = function (observable, options) {
 		options = { enable: options };
 	}
 
-	if (!('enable' in options)) {
-		options.enable = true;
-	}
+	options = extend(extend({
+		enable: true,
+	}, kv.configuration.validate), options);
 
 	if (options.enable && !kv.utils.isValidatable(observable)) {
-		var config = kv.configuration.validate || {};
 		var validationOptions = {
-			throttleEvaluation : options.throttle || config.throttle
+			throttleEvaluation : options.throttle,
 		};
 
 		observable.error = ko.observable(null); // holds the error message, we only need one since we stop processing validators when one is invalid
@@ -1245,10 +1245,13 @@ ko.extenders['validatable'] = function (observable, options) {
 			return observable;
 		};
 
-		//subscribe to changes in the observable
-		var h_change = observable.subscribe(function () {
-			observable.isModified(true);
-		});
+		var h_change;
+		if (options.setModifiedOnChange) {
+			//subscribe to changes in the observable
+			h_change = observable.subscribe(function () {
+				observable.isModified(true);
+			});
+		}
 
 		// we use a computed here to ensure that anytime a dependency changes, the
 		// validation logic evaluates
@@ -1269,7 +1272,9 @@ ko.extenders['validatable'] = function (observable, options) {
 			//first dispose of the subscriptions
 			observable.isValid.dispose();
 			observable.rules.removeAll();
-			h_change.dispose();
+			if (h_change) {
+				h_change.dispose();
+			}
 			h_obsValidationTrigger.dispose();
 
 			delete observable['rules'];
