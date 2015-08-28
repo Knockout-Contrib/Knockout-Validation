@@ -436,6 +436,9 @@ kv.configuration = configuration;
 		},
 
 		formatMessage: function (message, params, observable) {
+			if (typeof message === 'object') {
+				return message;
+			}
 			if (utils.isObject(params) && params.typeAttr) {
 				params = params.value;
 			}
