@@ -20,7 +20,7 @@
   "homepage": "https://github.com/Knockout-Contrib/Knockout-Validation",
   "repository": {
     "type": "git",
-    "url": "git://github.com/Knockout-Contrib/Knockout-Validation.git"
+    "url": "git://github.com/EikosPartners/Knockout-Validation.git"
   },
   "dependencies": {
     "knockout": ">=2.3.0"
