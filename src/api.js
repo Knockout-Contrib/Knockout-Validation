@@ -314,6 +314,7 @@
 				// 1. Just the params to be passed to the validator
 				// 2. An object containing the Message to be used and the Params to pass to the validator
 				// 3. A condition when the validation rule to be applied
+				// 4. An object containing the severity to be ysed
 				//
 				// Example:
 				// var test = ko.observable(3).extend({
@@ -326,17 +327,19 @@
 				//	  }
 				//  )};
 				//
-				if (params && (params.message || params.onlyIf)) { //if it has a message or condition object, then its an object literal to use
-					return ko.validation.addRule(observable, {
+				if (params && (params.message || params.onlyIf || params.severity)) { //if it has a message, condition, or severity object, then its an object literal to use
+					return kv.addRule(observable, {
 						rule: ruleName,
 						message: params.message,
 						params: utils.isEmptyVal(params.params) ? true : params.params,
+						severity: params.severity || 1,
 						condition: params.onlyIf
 					});
 				} else {
-					return ko.validation.addRule(observable, {
+					return kv.addRule(observable, {
 						rule: ruleName,
-						params: params
+						params: params,
+						severity: 1
 					});
 				}
 			};

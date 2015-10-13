@@ -42,12 +42,13 @@ ko.extenders['validatable'] = function (observable, options) {
 			throttleEvaluation : options.throttle || config.throttle
 		};
 
-		observable.error = ko.observable(null); // holds the error message, we only need one since we stop processing validators when one is invalid
-
+		observable.error = ko.observable(null); // holds the error message, we only need one since we stop processing validators when one is invalid and has and has a severity of 1
+		observable.severity = ko.observable(1);
+		
 		// observable.rules:
 		// ObservableArray of Rule Contexts, where a Rule Context is simply the name of a rule and the params to supply to it
 		//
-		// Rule Context = { rule: '<rule name>', params: '<passed in params>', message: '<Override of default Message>' }
+		// Rule Context = { rule: '<rule name>', params: '<passed in params>', message: '<Override of default Message>', severity: '<severity level' }
 		observable.rules = ko.observableArray(); //holds the rule Contexts to use as part of validation
 
 		//in case async validation is occurring
@@ -62,11 +63,12 @@ ko.extenders['validatable'] = function (observable, options) {
 		observable.isValid = ko.computed(observable.__valid__);
 
 		//manually set error state
-		observable.setError = function (error) {
+		observable.setError = function (error, severity) {
 			var previousError = observable.error.peek();
 			var previousIsValid = observable.__valid__.peek();
 
 			observable.error(error);
+			observable.severity(severity);
 			observable.__valid__(false);
 
 			if (previousError !== error && !previousIsValid) {
