@@ -133,11 +133,11 @@ function validateSync(observable, rule, ctx) {
 	if (!rule.validator(observable(), (ctx.params === undefined ? true : ko.utils.unwrapObservable(ctx.params)))) { // default param is true, eg. required = true
 
 		//not valid, so format the error message and stick it in the 'error' variable
-		observable.setError(ko.validation.formatMessage(
+		observable.setError(kv.formatMessage(
 					ctx.message || rule.message,
-					ko.utils.unwrapObservable(ctx.params),
-					observable));
-		return false;
+					unwrap(ctx.params),
+					observable), ctx.severity);
+		return ctx.severity === 1 ? false : "warning";
 	} else {
 		return true;
 	}
@@ -185,12 +185,14 @@ function validateAsync(observable, rule, ctx) {
 	});
 }
 
-ko.validation.validateObservable = function (observable) {
+kv.validateObservable = function (observable) {
 	var i = 0,
 		rule, // the rule validator to execute
 		ctx, // the current Rule Context for the loop
 		ruleContexts = observable.rules(), //cache for iterator
-		len = ruleContexts.length; //cache for iterator
+		len = ruleContexts.length, //cache for iterator
+		result, // holds result of validate call
+		hasWarning; // holds result if there is a warning
 
 	for (; i < len; i++) {
 
@@ -203,7 +205,7 @@ ko.validation.validateObservable = function (observable) {
 		}
 
 		//get the core Rule to use for validation
-		rule = ctx.rule ? ko.validation.rules[ctx.rule] : ctx;
+		rule = ctx.rule ? kv.rules[ctx.rule] : ctx;
 
 		if (rule['async'] || ctx['async']) {
 			//run async validation
@@ -211,10 +213,22 @@ ko.validation.validateObservable = function (observable) {
 
 		} else {
 			//run normal sync validation
-			if (!validateSync(observable, rule, ctx)) {
+			result = validateSync(observable, rule, ctx);
+
+			if (result === 'warning') {
+				hasWarning = true;
+			}
+
+			if (!result) {
 				return false; //break out of the loop
 			}
 		}
+	}
+	if(hasWarning) {
+		// durring the loop we encountered a warning
+		// but wanted to keep looping incase there was an error
+		// so return false as if we had an error
+		return false;
 	}
 	//finally if we got this far, make the observable valid again!
 	observable.clearError();

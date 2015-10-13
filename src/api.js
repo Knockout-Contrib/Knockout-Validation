@@ -314,7 +314,7 @@
 				// 1. Just the params to be passed to the validator
 				// 2. An object containing the Message to be used and the Params to pass to the validator
 				// 3. A condition when the validation rule to be applied
-				// 4. An object containing the severity to be ysed
+				// 4. An object containing the severity to be used
 				//
 				// Example:
 				// var test = ko.observable(3).extend({

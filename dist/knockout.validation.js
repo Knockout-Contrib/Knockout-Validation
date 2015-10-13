@@ -512,7 +512,7 @@ kv.configuration = configuration;
 				// 1. Just the params to be passed to the validator
 				// 2. An object containing the Message to be used and the Params to pass to the validator
 				// 3. A condition when the validation rule to be applied
-				// 4. An object containing the severity to be ysed
+				// 4. An object containing the severity to be used
 				//
 				// Example:
 				// var test = ko.observable(3).extend({
@@ -1207,12 +1207,13 @@ ko.extenders['validatable'] = function (observable, options) {
 			throttleEvaluation : options.throttle || config.throttle
 		};
 
-		observable.error = ko.observable(null); // holds the error message, we only need one since we stop processing validators when one is invalid
-
+		observable.error = ko.observable(null); // holds the error message, we only need one since we stop processing validators when one is invalid and has and has a severity of 1
+		observable.severity = ko.observable(1);
+		
 		// observable.rules:
 		// ObservableArray of Rule Contexts, where a Rule Context is simply the name of a rule and the params to supply to it
 		//
-		// Rule Context = { rule: '<rule name>', params: '<passed in params>', message: '<Override of default Message>' }
+		// Rule Context = { rule: '<rule name>', params: '<passed in params>', message: '<Override of default Message>', severity: '<severity level' }
 		observable.rules = ko.observableArray(); //holds the rule Contexts to use as part of validation
 
 		//in case async validation is occurring
@@ -1227,11 +1228,12 @@ ko.extenders['validatable'] = function (observable, options) {
 		observable.isValid = ko.computed(observable.__valid__);
 
 		//manually set error state
-		observable.setError = function (error) {
+		observable.setError = function (error, severity) {
 			var previousError = observable.error.peek();
 			var previousIsValid = observable.__valid__.peek();
 
 			observable.error(error);
+			observable.severity(severity);
 			observable.__valid__(false);
 
 			if (previousError !== error && !previousIsValid) {
@@ -1299,8 +1301,8 @@ function validateSync(observable, rule, ctx) {
 		observable.setError(kv.formatMessage(
 					ctx.message || rule.message,
 					unwrap(ctx.params),
-					observable));
-		return false;
+					observable), ctx.severity);
+		return ctx.severity === 1 ? false : "warning";
 	} else {
 		return true;
 	}
@@ -1353,7 +1355,9 @@ kv.validateObservable = function (observable) {
 		rule, // the rule validator to execute
 		ctx, // the current Rule Context for the loop
 		ruleContexts = observable.rules(), //cache for iterator
-		len = ruleContexts.length; //cache for iterator
+		len = ruleContexts.length, //cache for iterator
+		result, // holds result of validate call
+		hasWarning; // holds result if there is a warning
 
 	for (; i < len; i++) {
 
@@ -1374,10 +1378,22 @@ kv.validateObservable = function (observable) {
 
 		} else {
 			//run normal sync validation
-			if (!validateSync(observable, rule, ctx)) {
+			result = validateSync(observable, rule, ctx);
+
+			if (result === 'warning') {
+				hasWarning = true;
+			}
+
+			if (!result) {
 				return false; //break out of the loop
 			}
 		}
+	}
+	if(hasWarning) {
+		// durring the loop we encountered a warning
+		// but wanted to keep looping incase there was an error
+		// so return false as if we had an error
+		return false;
 	}
 	//finally if we got this far, make the observable valid again!
 	observable.clearError();
