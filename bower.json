@@ -1,0 +1,28 @@
+{
+  "name": "knockout-validation",
+  "version": "2.0.3",
+  "description": "A KnockoutJS Plugin for model and property validation",
+  "main": "dist/knockout.validation.js",
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "src",
+    "test",
+    "gruntfile.js"
+  ],
+  "keywords": [
+    "Knockout-Validation",
+    "knockout",
+    "validation",
+    "ko"
+  ],
+  "homepage": "https://github.com/Knockout-Contrib/Knockout-Validation",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/Knockout-Contrib/Knockout-Validation.git"
+  },
+  "dependencies": {
+    "knockout": ">=2.3.0"
+  }
+}

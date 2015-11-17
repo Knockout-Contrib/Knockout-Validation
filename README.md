@@ -1,7 +1,10 @@
 #Knockout Validation
 A KnockoutJS Plugin for model and property validation
 
-[![Build Status](https://travis-ci.org/Knockout-Contrib/Knockout-Validation.png)](https://travis-ci.org/Knockout-Contrib/Knockout-Validation)
+[![Build Status](https://travis-ci.org/Knockout-Contrib/Knockout-Validation.svg)](https://travis-ci.org/Knockout-Contrib/Knockout-Validation)
+[![Bower version](https://badge.fury.io/bo/knockout-validation.svg)](http://badge.fury.io/bo/knockout-validation)
+[![npm version](https://badge.fury.io/js/knockout.validation.svg)](http://badge.fury.io/js/knockout.validation)
+[![NuGet version](https://badge.fury.io/nu/Knockout.Validation.svg)](http://badge.fury.io/nu/Knockout.Validation)
 
 Contributors:
 
@@ -13,16 +16,45 @@ Contributors:
 
 License: [MIT](http://www.opensource.org/licenses/mit-license.php)
 
-###NuGet: [Knockout.Validation](http://nuget.org/packages/Knockout.Validation)
 
-Tested in IE 6+, FF7, Chrome 15
+## Install
+
+#### Bower
+
+```sh
+bower install knockout-validation --save-dev
+```
+
+#### NuGet
+
+```ps1
+PM> Install-Package Knockout.Validation
+```
+
+#### NPM
+
+```sh
+npm install knockout.validation --save
+```
+
+#### CDN
+
+##### [cdnjs](https://cdnjs.com/libraries/knockout-validation)
+* https://cdnjs.cloudflare.com/ajax/libs/knockout-validation/2.0.3/knockout.validation.js
+* https://cdnjs.cloudflare.com/ajax/libs/knockout-validation/2.0.3/knockout.validation.min.js
+
+##### [jsdelivr](http://www.jsdelivr.com/#!knockout.validation)
+- https://cdn.jsdelivr.net/knockout.validation/2.0.3/knockout.validation.js
+- https://cdn.jsdelivr.net/knockout.validation/2.0.3/knockout.validation.min.js
+
+
 ##Getting Started
 ```javascript
 //start using it!
 var myValue = ko.observable().extend({ required: true });
 
 //oooh complexity
-var myComplexValue = ko.observable().extend({ 
+var myComplexValue = ko.observable().extend({
                      required: true,
                      minLength: 3,
                      pattern: {
@@ -55,7 +87,7 @@ myViewModel().property2(9);
 console.log(myViewModel.isValid()); //true
 
 ```
-see more examples on the Fiddle: http://jsfiddle.net/KHFn8/2971/
+see more examples on the Fiddle: http://jsfiddle.net/KHFn8/5424/
 
 ##Native Validation Rules
 **Required**:
@@ -94,7 +126,7 @@ var myObj = ko.observable('').extend({ email: true });
 _Much thanks to the [jQuery Validation Plug-In](https://github.com/jzaefferer/jquery-validation) team for their work on many of the rules_
 ##Custom Validation Rules
 ####Custom Rules
-Custom Rules can be created using the simple example below. All you need is to define a validator function and a default message. 
+Custom Rules can be created using the simple example below. All you need is to define a validator function and a default message.
 The validator function takes in the observable's value, and the `params` that you pass in with the `extend` method.
 
 ```javascript
@@ -115,7 +147,7 @@ Learn more about Custom Rules on the [WIKI](https://github.com/Knockout-Contrib/
 
 ##HTML5 Validation Attributes
 
-**Required**: 
+**Required**:
 
 ```html
 <input type="text" data-bind="value: myProp" required />
@@ -129,7 +161,7 @@ Learn more about Custom Rules on the [WIKI](https://github.com/Knockout-Contrib/
 <input type="month" data-bind="value:myMonth" min="2012-08" />
 ```
 
-**Max**: 
+**Max**:
 
 ```html
 <input type="number" data-bind="value: myProp" max="99" />
@@ -137,13 +169,13 @@ Learn more about Custom Rules on the [WIKI](https://github.com/Knockout-Contrib/
 <input type="month" data-bind="value:myMonth" min="2012-08" />
 ```
 
-**Pattern**: 
+**Pattern**:
 
 ```html
 <input type="text" data-bind="value: myProp" pattern="^[a-z0-9].*" />
 ```
 
-**Step**: 
+**Step**:
 
 ```html
 <input type="text" data-bind="value: myProp" step="3" />
@@ -168,9 +200,17 @@ Check out our [Async Validation](https://github.com/Knockout-Contrib/Knockout-Va
 
 ##Localization
 
-Add a reference to the localization js file after the Knockout Validation plugin
+Add a reference to the localization js files after the Knockout Validation plugin
 
 ```html
-<script type="text/javascript" src ="knockout.validation.js"></script>
-<script type="text/javascript" src ="el-GR.js"> </script>
+<script type="text/javascript" src="knockout.validation.js"></script>
+<script type="text/javascript" src="el-GR.js"></script>
+<script type="text/javascript" src="fr-FR.js"></script>
+<script type="text/javascript" src="de-DE.js"></script>
+```
+
+Apply localized messages
+
+```js
+ko.validation.locale('el-GR');
 ```
