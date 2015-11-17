@@ -199,6 +199,10 @@ ko.validation.validateObservable = function (observable) {
 		if (ctx.condition && !ctx.condition()) {
 			continue;
 		}
+		
+		if (ko.validation.utils.isObject(ctx.params) && 'params' in ctx.params){
+			ctx.params = ctx.params.params;
+		}
 
 		//get the core Rule to use for validation
 		rule = ctx.rule ? ko.validation.rules[ctx.rule] : ctx;
