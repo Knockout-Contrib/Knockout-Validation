@@ -466,11 +466,12 @@ kv.configuration = configuration;
 		//
 		addRule: function (observable, rule) {
 			observable.extend({ validatable: true });
-
-			var hasRule = !!koUtils.arrayFirst(observable.rules(), function(item) {
+			//calculate if the observable already has this rule
+			//peek the set of rules so this function does not cause any encapsulating subsciptions to fire if the rules change
+			var hasRule = !!koUtils.arrayFirst(observable.rules.peek(), function(item) {
 				return item.rule && item.rule === rule.rule;
 			});
-
+			//do not add the rule if it already exists on the observable
 			if (!hasRule) {
 				//push a Rule Context to the observables local array of Rule Contexts
 				observable.rules.push(rule);
