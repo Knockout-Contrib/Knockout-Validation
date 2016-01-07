@@ -16,6 +16,11 @@ QUnit.test('Object is NOT Valid and isValid returns False', function(assert) {
 	assert.violatesRequiredRule(testObj, '');
 });
 
+QUnit.test('Issue #598 - "false" is NOT valid and isValid returns false', function(assert) {
+	var testObj = ko.observable(false).extend({ required: true });
+	assert.violatesRequiredRule(testObj, false);
+});
+
 QUnit.test('Zero is a valid value for required', function(assert) {
 	var testObj = ko.observable(0).extend({ required: true });
 	assert.observableIsValid(testObj, 0);

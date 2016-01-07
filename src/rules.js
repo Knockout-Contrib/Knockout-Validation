@@ -24,7 +24,7 @@ ko.validation.rules['required'] = {
 	validator: function (val, required) {
 		var testVal;
 
-		if (val === undefined || val === null) {
+		if (val === undefined || val === null || val === false) {
 			return !required;
 		}
 
