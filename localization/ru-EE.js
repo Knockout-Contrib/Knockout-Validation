@@ -1,5 +1,5 @@
 /**
- * Localization file for Russian - Russia (ru-RU)
+ * Localization file for Russian - Russia (ru-EE)
  */
 (function(factory) {
 	// Module systems magic dance.
@@ -18,7 +18,7 @@
 	if (!kv || typeof kv.defineLocale !== 'function') {
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
-	return kv.defineLocale('ru-RU', {
+	return kv.defineLocale('ru-EE', {
 		required: 'Пожалуйста, заполните это поле.',
 		min: 'Пожалуйста, введите число большее или равное {0}.',
 		max: 'Пожалуйста, введите число меньшее или равное {0}.',
