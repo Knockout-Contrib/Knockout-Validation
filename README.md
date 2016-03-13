@@ -133,14 +133,14 @@ The validator function takes in the observable's value, and the `params` that yo
 
 ```javascript
 ko.validation.rules['mustEqual'] = {
-    validator: function (val, otherVal) {
-        return val === otherVal;
+    validator: function (val, params) {
+        return val === params;
     },
     message: 'The field must equal {0}'
 };
 ko.validation.registerExtenders();
 
-//the value '5' is the second arg ('otherVal') that is passed to the validator
+//the value '5' is the second arg ('params') that is passed to the validator
 var myCustomObj = ko.observable().extend({ mustEqual: 5 });
 ```
 Learn more about Custom Rules on the [WIKI](https://github.com/Knockout-Contrib/Knockout-Validation/wiki/Custom-Validation-Rules)
