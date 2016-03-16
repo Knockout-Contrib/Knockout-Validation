@@ -655,7 +655,7 @@
 }(function(kv) {
     return kv.defineLocale('pl-PL', {
         required: 'To pole jest wymagane.',
-        min: 'Wprowadź liczbę więszką lub równą {0}.',
+        min: 'Wprowadź liczbę większą lub równą {0}.',
         max: 'Wprowadź liczbę mniejszą lub równą {0}.',
         minLength: 'Wprowadź co najmniej {0} znaków.',
         maxLength: 'Wprowadź co najwyżej {0} znaków.',
