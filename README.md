@@ -182,6 +182,10 @@ Learn more about Custom Rules on the [WIKI](https://github.com/Knockout-Contrib/
 ```
 **Special Note, the 'MinLength' attribute was removed until the HTML5 spec fully supports it**
 
+**Another Note**: Validation Attributes should be enabled before use
+```js
+ko.validation.init( {parseInputAttributes: true, writeInputAttributes: true} );
+```
 ##Knockout Bindings
 
 ###ValidationMessage
