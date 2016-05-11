@@ -12,7 +12,7 @@
 			return o !== null && typeof o === 'object';
 		},
 		isNumber: function(o) {
-			return !isNaN(o);	
+			return !isNaN(o);
 		},
 		isObservableArray: function(instance) {
 			return !!instance &&
@@ -97,6 +97,7 @@
 			if (val === "") {
 				return true;
 			}
+			return false;
 		},
 		getOriginalElementTitle: function (element) {
 			var savedOriginalTitle = ko.validation.utils.getAttribute(element, 'data-orig-title'),
