@@ -87,7 +87,7 @@ kv.configuration = configuration;
 			return o !== null && typeof o === 'object';
 		},
 		isNumber: function(o) {
-			return !isNaN(o);	
+			return !isNaN(o);
 		},
 		isObservableArray: function(instance) {
 			return !!instance &&
@@ -169,9 +169,7 @@ kv.configuration = configuration;
 			if (val === null) {
 				return true;
 			}
-			if (val === "") {
-				return true;
-			}
+			return val === "";
 		},
 		getOriginalElementTitle: function (element) {
 			var savedOriginalTitle = kv.utils.getAttribute(element, 'data-orig-title'),
@@ -196,7 +194,8 @@ kv.configuration = configuration;
 			}
 		}
 	};
-}());;var api = (function () {
+}());
+;var api = (function () {
 
 	var isInitialized = 0,
 		configuration = kv.configuration,
