@@ -97,6 +97,8 @@
 			if (val === "") {
 				return true;
 			}
+			
+			return false;
 		},
 		getOriginalElementTitle: function (element) {
 			var savedOriginalTitle = ko.validation.utils.getAttribute(element, 'data-orig-title'),
