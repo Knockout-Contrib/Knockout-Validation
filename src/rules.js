@@ -171,7 +171,7 @@ ko.validation.rules['maxLength'] = {
 
 ko.validation.rules['pattern'] = {
 	validator: function (val, regex) {
-		return ko.validation.utils.isEmptyVal(val) || val.toString().match(regex) !== null;
+		return ko.validation.utils.isEmptyVal(val) || val.toString().match(regex.params) !== null;
 	},
 	message: 'Please check this value.'
 };
