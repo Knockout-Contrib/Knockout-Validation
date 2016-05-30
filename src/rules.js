@@ -171,7 +171,21 @@ ko.validation.rules['maxLength'] = {
 
 ko.validation.rules['pattern'] = {
 	validator: function (val, regex) {
-		return ko.validation.utils.isEmptyVal(val) || val.toString().match(typeof(regex)==='string'?regex:regex.params) !== null;
+
+		if(!(regex instanceof RegExp)){
+           var rule=typeof(regex)==='string'?regex:regex.params;
+           if(rule.lastIndexOf('/')>0)
+           {
+	           var patterns = rule.split('/');
+	           if(patterns[patterns.length-1].match(/[gmi]/)!==null){
+	           	  var attributes = patterns.pop();
+	           	  regex= new RegExp(patterns.join(''),attributes);
+	           }
+	       }else{
+	       	regex=new RegExp(rule);
+	       }
+		}
+		return ko.validation.utils.isEmptyVal(val) || val.toString().match(regex) !== null;
 	},
 	message: 'Please check this value.'
 };
