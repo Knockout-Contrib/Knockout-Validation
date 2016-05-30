@@ -879,6 +879,20 @@ kv.rules['maxLength'] = {
 
 kv.rules['pattern'] = {
 	validator: function (val, regex) {
+
+		if(!(regex instanceof RegExp)){
+           var rule=typeof(regex)==='string'?regex:regex.params;
+           if(rule.lastIndexOf('/')>0)
+           {
+	           var patterns = rule.split('/');
+	           if(patterns[patterns.length-1].match(/[gmi]/)!==null){
+	           	  var attributes = patterns.pop();
+	           	  regex= new RegExp(patterns.join(''),attributes);
+	           }
+	       }else{
+	       	regex=new RegExp(rule);
+	       }
+		}
 		return kv.utils.isEmptyVal(val) || val.toString().match(regex) !== null;
 	},
 	message: 'Please check this value.'
