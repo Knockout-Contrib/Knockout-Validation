@@ -1301,7 +1301,7 @@ function validateSync(observable, rule, ctx) {
 		observable.setError(kv.formatMessage(
 					ctx.message || rule.message,
 					unwrap(ctx.params),
-					observable), ctx.severity);
+					observable), ctx.severity || rule.severity);
 		return ctx.severity === 1 ? false : "warning";
 	} else {
 		return true;
