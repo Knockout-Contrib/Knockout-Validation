@@ -241,13 +241,16 @@
 			if (utils.isObject(params) && params.typeAttr) {
 				params = params.value;
 			}
+			if (ko.isObservable(message)) {
+        		    message = ko.unwrap(message);
+    			}
 			if (typeof message === 'function') {
 				return message(params, observable);
 			}
 			var replacements = ko.utils.unwrapObservable(params);
-            if (replacements == null) {
-                replacements = [];
-            }
+        		if (replacements == null) {
+            		    replacements = [];
+        		}
 			if (!utils.isArray(replacements)) {
 				replacements = [replacements];
 			}
