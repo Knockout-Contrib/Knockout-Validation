@@ -862,8 +862,9 @@ kv.rules['max'] = {
 kv.rules['minLength'] = {
 	validator: function (val, minLength) {
 		if(kv.utils.isEmptyVal(val)) { return true; }
+		var minLengthUW = ko.unwrap(minLength);
 		var normalizedVal = kv.utils.isNumber(val) ? ('' + val) : val;
-		return normalizedVal.length >= minLength;
+		return normalizedVal.length >= minLengthUW;
 	},
 	message: 'Please enter at least {0} characters.'
 };
@@ -871,8 +872,9 @@ kv.rules['minLength'] = {
 kv.rules['maxLength'] = {
 	validator: function (val, maxLength) {
 		if(kv.utils.isEmptyVal(val)) { return true; }
+		var maxLengthUW = ko.unwrap(maxLength);
 		var normalizedVal = kv.utils.isNumber(val) ? ('' + val) : val;
-		return normalizedVal.length <= maxLength;
+		return normalizedVal.length <= maxLengthUW;
 	},
 	message: 'Please enter no more than {0} characters.'
 };
