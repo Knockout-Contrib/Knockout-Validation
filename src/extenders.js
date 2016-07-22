@@ -132,7 +132,7 @@ function validateSync(observable, rule, ctx) {
 
 		//not valid, so format the error message and stick it in the 'error' variable
 		observable.setError(ko.validation.formatMessage(
-					unwrap(ctx.message) || rule.message,
+					ko.utils.unwrapObservable(ctx.message) || rule.message,
 					ko.utils.unwrapObservable(ctx.params),
 					observable));
 		return false;
@@ -167,7 +167,7 @@ function validateAsync(observable, rule, ctx) {
 		if (!isValid) {
 			//not valid, so format the error message and stick it in the 'error' variable
 			observable.error(ko.validation.formatMessage(
-				msg || unwrap(ctx.message) || rule.message,
+				msg || ko.utils.unwrapObservable(ctx.message) || rule.message,
 				ko.utils.unwrapObservable(ctx.params),
 				observable));
 			observable.__valid__(isValid);
