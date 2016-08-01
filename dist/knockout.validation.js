@@ -289,9 +289,7 @@ kv.configuration = configuration;
 		forEach(array, function (observable) {
 			// Do not collect validatedObservable errors
 			if (utils.isValidatable(observable) && !observable.isValid()) {
-				// Use peek because we don't want a dependency for 'error' property because it
-				// changes before 'isValid' does. (Issue #99)
-				errors.push(observable.error.peek());
+				errors.push(observable.error());
 			}
 		});
 		return errors;
@@ -1183,6 +1181,68 @@ ko.extenders['validation'] = function (observable, rules) { // allow single rule
 	return observable;
 };
 
+function validateSync(observable, rule, ctx) {
+	//Execute the validator and see if its valid
+	if (!rule.validator(observable(), (ctx.params === undefined ? true : unwrap(ctx.params)))) { // default param is true, eg. required = true
+
+		//not valid, so format the error message and stick it in the 'error' variable
+		return kv.formatMessage(
+			ctx.message || rule.message,
+			unwrap(ctx.params),
+			observable
+		);
+	}
+	return null;
+}
+
+function validateAsync(observable, rule, ctx) {
+	observable.__isValidatingAsync(true);
+
+	var callback = function (valObj) {
+		var isValid = false,
+			msg = '';
+
+		if (observable.__errorManual() || observable.__errorSync()) {
+
+			// since we're returning early, make sure we turn this off
+			observable.__isValidatingAsync(false);
+
+			return; //if its already NOT valid, don't add to that
+		}
+
+		//we were handed back a complex object
+		if (valObj['message']) {
+			isValid = valObj.isValid;
+			msg = valObj.message;
+		} else {
+			isValid = valObj;
+		}
+
+		if (!isValid) {
+			//not valid, so format the error message and stick it in the 'error' variable
+			observable.__errorAsync(
+				kv.formatMessage(
+					msg || ctx.message || rule.message,
+					unwrap(ctx.params),
+					observable
+				)
+			);
+		}
+
+		// tell it that we're done
+		observable.__isValidatingAsync(false);
+	};
+
+	kv.utils.async(function() {
+		//fire the validator and hand it the callback
+		rule.validator(
+			observable(),
+			ctx.params === undefined ? true : unwrap(ctx.params),
+			callback
+		);
+	});
+}
+
 //This is the extender that makes a Knockout Observable also 'Validatable'
 //examples include:
 // 1. var test = ko.observable('something').extend({validatable: true});
@@ -1204,7 +1264,91 @@ ko.extenders['validatable'] = function (observable, options) {
 			throttleEvaluation : options.throttle,
 		};
 
-		observable.error = ko.observable(null); // holds the error message, we only need one since we stop processing validators when one is invalid
+		// holds an error set by setError (and cleared by clearError)
+		observable.__errorManual = ko.observable(null);
+
+		// holds an error from synchronous validation rules
+		observable.__errorSync = ko.pureComputed(function () {
+			var i,
+				rule, // the rule validator to execute
+				ctx, // the current Rule Context for the loop
+				ruleContexts = observable.rules(), //cache for iterator
+				len = ruleContexts.length, //cache for iterator
+				error = null;
+
+			for (i = 0; i < len; i++) {
+
+				//get the Rule Context info to give to the core Rule
+				ctx = ruleContexts[i];
+
+				// checks an 'onlyIf' condition
+				if (ctx.condition && !ctx.condition()) {
+					continue;
+				}
+
+				//get the core Rule to use for validation
+				rule = ctx.rule ? kv.rules[ctx.rule] : ctx;
+
+				if (rule['async'] || ctx['async']) {
+					// skip async rules
+					continue;
+
+				} else {
+					//run normal sync validation
+					error = validateSync(observable, rule, ctx);
+					if (error) {
+						return error; //break out of the loop
+					}
+				}
+			}
+
+			// all sync rules are satisfied, fire async validation
+			(function () {
+				for (i = 0; i < len; i++) {
+
+					//get the Rule Context info to give to the core Rule
+					ctx = ruleContexts[i];
+
+					// checks an 'onlyIf' condition
+					if (ctx.condition && !ctx.condition()) {
+						continue;
+					}
+
+					//get the core Rule to use for validation
+					rule = ctx.rule ? kv.rules[ctx.rule] : ctx;
+
+					if (rule['async'] || ctx['async']) {
+						validateAsync(observable, rule, ctx);
+
+					} else {
+						// skip sync rules
+						continue;
+					}
+				}
+			}());
+
+			return null;
+		});
+
+		extend(observable.__errorSync, validationOptions);
+
+		// holds an error from asynchronous validation rules
+		observable.__errorAsync = ko.observable(null);
+		// is async validation currently running
+		observable.__isValidatingAsync = ko.observable(false);
+
+		// holds the overall error message
+		observable.error = ko.pureComputed(function () {
+			return observable.__errorManual() || observable.__errorSync() || observable.__errorAsync() || null;
+		});
+
+		// readonly overall validity status
+		observable.isValid = ko.pureComputed(function () {
+			return !observable.error();
+		});
+
+		// readonly "async validation is running"
+		observable.isValidating = ko.pureComputed(observable.__isValidatingAsync);
 
 		// observable.rules:
 		// ObservableArray of Rule Contexts, where a Rule Context is simply the name of a rule and the params to supply to it
@@ -1212,36 +1356,18 @@ ko.extenders['validatable'] = function (observable, options) {
 		// Rule Context = { rule: '<rule name>', params: '<passed in params>', message: '<Override of default Message>' }
 		observable.rules = ko.observableArray(); //holds the rule Contexts to use as part of validation
 
-		//in case async validation is occurring
-		observable.isValidating = ko.observable(false);
-
-		//the true holder of whether the observable is valid or not
-		observable.__valid__ = ko.observable(true);
-
+		// this could also be called `isMessageVisible`
 		observable.isModified = ko.observable(false);
-
-		// a semi-protected observable
-		observable.isValid = ko.computed(observable.__valid__);
 
 		//manually set error state
 		observable.setError = function (error) {
-			var previousError = observable.error.peek();
-			var previousIsValid = observable.__valid__.peek();
-
-			observable.error(error);
-			observable.__valid__(false);
-
-			if (previousError !== error && !previousIsValid) {
-				// if the observable was not valid before then isValid will not mutate,
-				// hence causing any grouping to not display the latest error.
-				observable.isValid.notifySubscribers();
-			}
+			observable.__errorManual(error);
+			return observable;
 		};
 
 		//manually clear error state
 		observable.clearError = function () {
-			observable.error(null);
-			observable.__valid__(true);
+			observable.__errorManual(null);
 			return observable;
 		};
 
@@ -1253,39 +1379,31 @@ ko.extenders['validatable'] = function (observable, options) {
 			});
 		}
 
-		// we use a computed here to ensure that anytime a dependency changes, the
-		// validation logic evaluates
-		var h_obsValidationTrigger = ko.computed(extend({
-			read: function () {
-				var obs = observable(),
-					ruleContexts = observable.rules();
-
-				kv.validateObservable(observable);
-
-				return true;
-			}
-		}, validationOptions));
-
-		extend(h_obsValidationTrigger, validationOptions);
-
 		observable._disposeValidation = function () {
-			//first dispose of the subscriptions
-			observable.isValid.dispose();
+			// first dispose of the subscriptions
 			observable.rules.removeAll();
+			observable.clearError();
+			observable.__errorSync.dispose();
+			observable.error.dispose();
+			observable.isValid.dispose();
+			observable.isValidating.dispose();
+
 			if (h_change) {
 				h_change.dispose();
 			}
-			h_obsValidationTrigger.dispose();
 
-			delete observable['rules'];
-			delete observable['error'];
-			delete observable['isValid'];
-			delete observable['isValidating'];
-			delete observable['__valid__'];
-			delete observable['isModified'];
-            delete observable['setError'];
-            delete observable['clearError'];
-            delete observable['_disposeValidation'];
+			delete observable.__errorManual;
+			delete observable.__errorSync;
+			delete observable.__errorAsync;
+			delete observable.__isValidatingAsync;
+			delete observable.error;
+			delete observable.isValid;
+			delete observable.isValidating;
+			delete observable.rules;
+			delete observable.isModified;
+			delete observable.setError;
+			delete observable.clearError;
+			delete observable._disposeValidation;
 		};
 	} else if (options.enable === false && observable._disposeValidation) {
 		observable._disposeValidation();
@@ -1293,98 +1411,10 @@ ko.extenders['validatable'] = function (observable, options) {
 	return observable;
 };
 
-function validateSync(observable, rule, ctx) {
-	//Execute the validator and see if its valid
-	if (!rule.validator(observable(), (ctx.params === undefined ? true : unwrap(ctx.params)))) { // default param is true, eg. required = true
-
-		//not valid, so format the error message and stick it in the 'error' variable
-		observable.setError(kv.formatMessage(
-					ctx.message || rule.message,
-					unwrap(ctx.params),
-					observable));
-		return false;
-	} else {
-		return true;
-	}
-}
-
-function validateAsync(observable, rule, ctx) {
-	observable.isValidating(true);
-
-	var callBack = function (valObj) {
-		var isValid = false,
-			msg = '';
-
-		if (!observable.__valid__()) {
-
-			// since we're returning early, make sure we turn this off
-			observable.isValidating(false);
-
-			return; //if its already NOT valid, don't add to that
-		}
-
-		//we were handed back a complex object
-		if (valObj['message']) {
-			isValid = valObj.isValid;
-			msg = valObj.message;
-		} else {
-			isValid = valObj;
-		}
-
-		if (!isValid) {
-			//not valid, so format the error message and stick it in the 'error' variable
-			observable.error(kv.formatMessage(
-				msg || ctx.message || rule.message,
-				unwrap(ctx.params),
-				observable));
-			observable.__valid__(isValid);
-		}
-
-		// tell it that we're done
-		observable.isValidating(false);
-	};
-
-	kv.utils.async(function() {
-	    //fire the validator and hand it the callback
-        rule.validator(observable(), ctx.params === undefined ? true : unwrap(ctx.params), callBack);
-	});
-}
-
 kv.validateObservable = function (observable) {
-	var i = 0,
-		rule, // the rule validator to execute
-		ctx, // the current Rule Context for the loop
-		ruleContexts = observable.rules(), //cache for iterator
-		len = ruleContexts.length; //cache for iterator
-
-	for (; i < len; i++) {
-
-		//get the Rule Context info to give to the core Rule
-		ctx = ruleContexts[i];
-
-		// checks an 'onlyIf' condition
-		if (ctx.condition && !ctx.condition()) {
-			continue;
-		}
-
-		//get the core Rule to use for validation
-		rule = ctx.rule ? kv.rules[ctx.rule] : ctx;
-
-		if (rule['async'] || ctx['async']) {
-			//run async validation
-			validateAsync(observable, rule, ctx);
-
-		} else {
-			//run normal sync validation
-			if (!validateSync(observable, rule, ctx)) {
-				return false; //break out of the loop
-			}
-		}
-	}
-	//finally if we got this far, make the observable valid again!
-	observable.clearError();
-	return true;
+	return observable.isValid();
 };
+
 ;
 var _locales = {};
 var _currentLocale;
