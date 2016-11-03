@@ -766,7 +766,10 @@ QUnit.test('setRules applies rules to all properties', function(assert) {
 			},
 			grandchild: {
 				property3: {
-					number: true
+					number: true,
+					required: {
+						severity: 2
+					}
 				}
 			},
 			ignoredDefinition: { required: true }
@@ -799,22 +802,23 @@ QUnit.test('setRules applies rules to all properties', function(assert) {
 
 	//check that all rules have been applied
 	assert.deepEqual(target.property1.rules(), [
-        { rule: 'required', params: true },
-        { rule: 'min', params: 10 },
-        { rule: 'max', params: 99 }
+        { rule: 'required', params: true, severity: 1 },
+        { rule: 'min', params: 10, severity: 1 },
+        { rule: 'max', params: 99, severity: 1 }
 	]);
 
 	assert.deepEqual(target.child.property2.rules(), [
-        { rule: 'pattern', message: 'Only AlphaNumeric please', params: '^[a-z0-9].$', condition: undefined }
+        { rule: 'pattern', message: 'Only AlphaNumeric please', params: '^[a-z0-9].$', condition: undefined, severity: 1 }
 	]);
 
 	assert.deepEqual(target.child.grandchild.property3.rules(), [
-        { rule: 'number', params: true }
+        { rule: 'number', params: true, severity: 1 },
+		{ rule: 'required', condition: undefined, message: undefined, params: true, severity: 2 }
 	]);
 
 	for (var i = 0; i < target.nestedArray().length; i++) {
 		assert.deepEqual(target.nestedArray()[i].property4.rules(), [
-			{ rule: 'email', params: true }
+			{ rule: 'email', params: true, severity: 1 }
 		]);
 	}
 
@@ -825,6 +829,27 @@ QUnit.test('setRules applies rules to all properties', function(assert) {
 	assert.ok(!target.nestedArray()[0].ignoredProperty.rules);
 	assert.ok(!target.nestedArray()[1].ignoredProperty.rules);
 	assert.ok(!target.nestedArray()[2].ignoredProperty.rules);
+});
+
+QUnit.test('setRules work correctly when params is validatedObservable', function(assert) {
+	var equalityComparison = ko.observable().extend({ min: 2 });
+
+	var definition = {
+		property1: {
+			equal: equalityComparison
+		}
+	};
+
+	var target = {
+		property1: ko.observable()
+	};
+
+	ko.validation.setRules(target, definition);
+
+	//check that all rules have been applied
+	assert.deepEqual(target.property1.rules(), [
+		{ rule: 'equal', params: equalityComparison, severity: 1 }
+	]);
 });
 
 QUnit.test('Issue #461 - validatedObservable works with nested view models if grouping.deep is true', function(assert) {

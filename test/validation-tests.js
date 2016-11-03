@@ -433,3 +433,59 @@ QUnit.test('message parameter receives params and observable when async', functi
 });
 
 //#endregion
+
+//#region Severity tests
+
+QUnit.module('Severity tests');
+
+QUnit.test('isValid returns false for warning severity', function(assert) {
+    var testObj = ko.observable('something').extend({
+        required: {
+            severity: 2
+        }
+    });
+    testObj('');
+    assert.equal(testObj.isValid(), false);
+    assert.equal(testObj.severity(), 2, 'Severity should equal severity defined in required-validation');
+});
+
+QUnit.test('default severity is 1', function(assert) {
+    var testObj = ko.observable('something').extend({
+        required: true
+    });
+    testObj('');
+    assert.equal(testObj.isValid(), false);
+    assert.equal(testObj.severity(), 1, 'Severity should be 1 when not defined');
+});
+
+QUnit.test('Lowest invalid rule severity is returned', function(assert) {
+    var testObj = ko.observable('something').extend({
+        minLength: {
+            params: 200,
+            severity: 3
+        },
+        email: {
+            severity: 2
+        },
+        required: {
+            severity: 1,
+            params: true
+        }
+    });
+    testObj('test');
+    assert.equal(testObj.isValid(), false);
+    assert.equal(testObj.severity(), 2, 'Lowest broken rule severity should be 2');
+});
+
+QUnit.test('Lowest invalid rule severity for default severity is returned', function(assert) {
+    var testObj = ko.observable('something').extend({
+        required: {
+            severity: 2
+        },
+        equal: 'cant be this.'
+    });
+    testObj('');
+    assert.equal(testObj.isValid(), false);
+    assert.equal(testObj.severity(), 1, 'Default severity for broken rule should be 1');
+});
+//#endregion
