@@ -42,8 +42,8 @@ ko.extenders['validatable'] = function (observable, options) {
 			throttleEvaluation : options.throttle || config.throttle
 		};
 
-		observable.error = ko.observable(null); // holds the error message, we only need one since we stop processing validators when one is invalid and has a severity of 1
-		observable.errorSeverity = ko.observable(1);
+		observable.error = ko.observable(null); // holds the error message, we only need one since we stop processing validators when one is invalid and has and has a severity of 1
+		observable.severity = ko.observable(1);
 		
 		// observable.rules:
 		// ObservableArray of Rule Contexts, where a Rule Context is simply the name of a rule and the params to supply to it
@@ -68,7 +68,7 @@ ko.extenders['validatable'] = function (observable, options) {
 			var previousIsValid = observable.__valid__.peek();
 
 			observable.error(error);
-			observable.errorSeverity(severity);
+			observable.severity(severity);
 			observable.__valid__(false);
 
 			if (previousError !== error && !previousIsValid) {
