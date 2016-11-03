@@ -42,7 +42,7 @@ ko.extenders['validatable'] = function (observable, options) {
 			throttleEvaluation : options.throttle || config.throttle
 		};
 
-		observable.error = ko.observable(null); // holds the error message, we only need one since we stop processing validators when one is invalid and has and has a severity of 1
+		observable.error = ko.observable(null); // holds the error message, we only need one since we stop processing validators when one is invalid and has a severity of 1
 		observable.severity = ko.observable(1);
 		
 		// observable.rules:
@@ -133,9 +133,9 @@ function validateSync(observable, rule, ctx) {
 	if (!rule.validator(observable(), (ctx.params === undefined ? true : ko.utils.unwrapObservable(ctx.params)))) { // default param is true, eg. required = true
 
 		//not valid, so format the error message and stick it in the 'error' variable
-		observable.setError(kv.formatMessage(
+		observable.setError(ko.validation.formatMessage(
 					ctx.message || rule.message,
-					unwrap(ctx.params),
+					ko.utils.unwrapObservable(ctx.params),
 					observable), ctx.severity || rule.severity);
 		return ctx.severity === 1 ? false : "warning";
 	} else {
@@ -185,7 +185,7 @@ function validateAsync(observable, rule, ctx) {
 	});
 }
 
-kv.validateObservable = function (observable) {
+ko.validation.validateObservable = function (observable) {
 	var i = 0,
 		rule, // the rule validator to execute
 		ctx, // the current Rule Context for the loop
@@ -205,7 +205,7 @@ kv.validateObservable = function (observable) {
 		}
 
 		//get the core Rule to use for validation
-		rule = ctx.rule ? kv.rules[ctx.rule] : ctx;
+		rule = ctx.rule ? ko.validation.rules[ctx.rule] : ctx;
 
 		if (rule['async'] || ctx['async']) {
 			//run async validation

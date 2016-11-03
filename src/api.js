@@ -327,8 +327,8 @@
 				//	  }
 				//  )};
 				//
-				if (params && (params.message || params.onlyIf || params.severity)) { //if it has a message, condition, or severity object, then its an object literal to use
-					return kv.addRule(observable, {
+				if (params && (params.message || params.onlyIf || (params.severity && !ko.isObservable(params.severity)))) { //if it has a message, condition, or severity object, then its an object literal to use
+					return ko.validation.addRule(observable, {
 						rule: ruleName,
 						message: params.message,
 						params: utils.isEmptyVal(params.params) ? true : params.params,
@@ -336,7 +336,7 @@
 						condition: params.onlyIf
 					});
 				} else {
-					return kv.addRule(observable, {
+					return ko.validation.addRule(observable, {
 						rule: ruleName,
 						params: params,
 						severity: 1
