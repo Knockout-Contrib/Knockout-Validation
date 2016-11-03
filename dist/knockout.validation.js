@@ -525,7 +525,7 @@ kv.configuration = configuration;
 				//	  }
 				//  )};
 				//
-				if (params && !ko.isObservable(params) && (params.message || params.onlyIf || params.severity)) { //if it has a message, condition, or severity object, then its an object literal to use
+				if (params && (params.message || params.onlyIf || params.severity)) { //if it has a message, condition, or severity object, then its an object literal to use
 					return kv.addRule(observable, {
 						rule: ruleName,
 						message: params.message,
@@ -1207,8 +1207,8 @@ ko.extenders['validatable'] = function (observable, options) {
 			throttleEvaluation : options.throttle || config.throttle
 		};
 
-		observable.error = ko.observable(null); // holds the error message, we only need one since we stop processing validators when one is invalid and has and has a severity of 1
-		observable.severity = ko.observable(1);
+		observable.error = ko.observable(null); // holds the error message, we only need one since we stop processing validators when one is invalid and has a severity of 1
+		observable.errorSeverity = ko.observable(1);
 		
 		// observable.rules:
 		// ObservableArray of Rule Contexts, where a Rule Context is simply the name of a rule and the params to supply to it
@@ -1233,7 +1233,7 @@ ko.extenders['validatable'] = function (observable, options) {
 			var previousIsValid = observable.__valid__.peek();
 
 			observable.error(error);
-			observable.severity(severity);
+			observable.errorSeverity(severity);
 			observable.__valid__(false);
 
 			if (previousError !== error && !previousIsValid) {
