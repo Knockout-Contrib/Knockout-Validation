@@ -78,6 +78,7 @@ QUnit.test('Localization files can be loaded and applied', function(assert) {
 	assert.equal(ko.validation.locale('en-US'), 'en-us', 'English - United States (en-US)');
 	assert.equal(ko.validation.locale('es-ES'), 'es-es', 'Spanish - Spain (es-ES)');
 	assert.equal(ko.validation.locale('fa-IR'), 'fa-ir', 'Farsi - Iran (fa-IR)');
+	assert.equal(ko.validation.locale('fi-FI'), 'fi-fi', 'Finnish - Finland (fi-FI)');
 	assert.equal(ko.validation.locale('fr-FR'), 'fr-fr', 'French - France (fr-FR)');
 	assert.equal(ko.validation.locale('he-IL'), 'he-il', 'Hebrew - Israel (he-IL)');
 	assert.equal(ko.validation.locale('hr-HR'), 'hr-hr', 'Croatian - Croatia (hr-HR)');
@@ -94,7 +95,7 @@ QUnit.test('Localization files can be loaded and applied', function(assert) {
 	assert.equal(ko.validation.locale('pt-PT'), 'pt-pt', 'Portuguese - Portugal (pt-PT)');
 	assert.equal(ko.validation.locale('ro-RO'), 'ro-ro', 'Romanian - Romania (ro-RO)');
 	assert.equal(ko.validation.locale('ru-RU'), 'ru-ru', 'Russian - Russia (ru-RU)');
-    assert.equal(ko.validation.locale('sk-SK'), 'sk-sk', 'Slovak - Slovak Republic (sk-SK)');
+	assert.equal(ko.validation.locale('sk-SK'), 'sk-sk', 'Slovak - Slovak Republic (sk-SK)');
 	assert.equal(ko.validation.locale('sv-SE'), 'sv-se', 'Swedish - Sweden (sv-SE)');
 	assert.equal(ko.validation.locale('tr-TR'), 'tr-tr', 'Turkish - Turkey (tr-TR)');
 	assert.equal(ko.validation.locale('uk-UA'), 'uk-ua', 'Ukrainian - Ukraine (uk-UA)');
