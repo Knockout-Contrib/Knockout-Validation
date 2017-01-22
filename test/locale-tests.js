@@ -78,6 +78,7 @@ QUnit.test('Localization files can be loaded and applied', function(assert) {
     assert.equal(ko.validation.locale('en-US'), 'en-us', 'English - United States (en-US)');
     assert.equal(ko.validation.locale('es-ES'), 'es-es', 'Spanish - Spain (es-ES)');
     assert.equal(ko.validation.locale('fa-IR'), 'fa-ir', 'Farsi - Iran (fa-IR)');
+    assert.equal(ko.validation.locale('fi-FI'), 'fi-fi', 'Finnish - Finland (fi-FI)');
     assert.equal(ko.validation.locale('fr-FR'), 'fr-fr', 'French - France (fr-FR)');
     assert.equal(ko.validation.locale('he-IL'), 'he-il', 'Hebrew - Israel (he-IL)');
     assert.equal(ko.validation.locale('hr-HR'), 'hr-hr', 'Croatian - Croatia (hr-HR)');
