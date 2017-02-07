@@ -1,5 +1,5 @@
 {
-  "name": "knockout.validation",
+  "name": "ep-knockout.validation",
   "version": "2.0.3",
   "description": "A KnockoutJS Plugin for model and property validation",
   "main": "dist/knockout.validation.js",
