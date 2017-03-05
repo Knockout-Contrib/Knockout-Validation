@@ -325,7 +325,8 @@ QUnit.module('Async Tests');
 
 QUnit.test('Async Rule Is Valid Test', function(assert) {
     var done = assert.async();
-    assert.expect(2);
+	var testObj = ko.observable(5);
+	assert.expect(2);
 
     ko.validation.rules['mustEqualAsync'] = {
         async: true,
@@ -342,13 +343,13 @@ QUnit.test('Async Rule Is Valid Test', function(assert) {
     };
     ko.validation.registerExtenders(); //make sure the new rule is registered
 
-    var testObj = ko.observable(5);
     testObj.extend({ mustEqualAsync: 5 });
 });
 
 QUnit.test('Async Rule Is NOT Valid Test', function(assert) {
     var done = assert.async();
-    assert.expect(3);
+	var testObj = ko.observable(4);
+	assert.expect(3);
 
     ko.validation.rules['mustEqualAsync'] = {
         async: true,
@@ -368,13 +369,13 @@ QUnit.test('Async Rule Is NOT Valid Test', function(assert) {
     };
     ko.validation.registerExtenders(); //make sure the new rule is registered
 
-    var testObj = ko.observable(4);
     testObj.extend({ mustEqualAsync: 5 });
 });
 
 QUnit.test('Issue #341 Async Rule that is not valid and returns synchronously should be invalid after callback', function (assert) {
     var done = assert.async();
-    assert.expect(3);
+	var testObj = ko.observable(0);
+	assert.expect(3);
 
     ko.validation.rules['immediatelyFalse'] = {
         async: true,
@@ -387,7 +388,6 @@ QUnit.test('Issue #341 Async Rule that is not valid and returns synchronously sh
     };
     ko.validation.registerExtenders();
 
-    var testObj = ko.observable(0);
     testObj.extend({ immediatelyFalse: true });
 });
 

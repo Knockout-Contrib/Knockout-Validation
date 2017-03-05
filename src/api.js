@@ -24,13 +24,6 @@
 		}
 	}
 
-	function runTraversal(obj, context) {
-		context.validatables = [];
-		cleanUpSubscriptions(context);
-		traverseGraph(obj, context);
-		dispose(context);
-	}
-
 	function traverseGraph(obj, context, level) {
 		var objValues = [],
 			val = obj.peek ? obj.peek() : obj;
@@ -83,6 +76,13 @@
 				}
 			});
 		}
+	}
+
+	function runTraversal(obj, context) {
+		context.validatables = [];
+		cleanUpSubscriptions(context);
+		traverseGraph(obj, context);
+		dispose(context);
 	}
 
 	function collectErrors(array) {
