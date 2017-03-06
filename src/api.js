@@ -276,7 +276,10 @@
 			//do not add the rule if it already exists on the observable
 			if (!hasRule) {
 				//push a Rule Context to the observables local array of Rule Contexts
-				observable.rules.push(rule);
+				observable.rules().push(rule);
+				setTimeout(function(){
+					observable.rules.notifySubscribers();
+				},1);
 			}
 			return observable;
 		},
