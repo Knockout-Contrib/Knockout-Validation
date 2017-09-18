@@ -151,7 +151,7 @@ ko.bindingHandlers['validationOptions'] = (function () {
 		init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
 			var options = ko.utils.unwrapObservable(valueAccessor());
 			if (options) {
-				var newConfig = ko.utils.extend({}, ko.validation.configuration);
+				var newConfig = ko.utils.extend({}, ko.validation.utils.getConfigOptions(element.parentElement));
 				ko.utils.extend(newConfig, options);
 
 				//store the validation options on the node so we can retrieve it later
