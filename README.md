@@ -1,4 +1,4 @@
-#Knockout Validation
+# Knockout Validation
 A KnockoutJS Plugin for model and property validation
 
 [![Build Status](https://travis-ci.org/Knockout-Contrib/Knockout-Validation.svg)](https://travis-ci.org/Knockout-Contrib/Knockout-Validation)
@@ -48,7 +48,7 @@ npm install knockout.validation --save
 - https://cdn.jsdelivr.net/knockout.validation/2.0.3/knockout.validation.min.js
 
 
-##Getting Started
+## Getting Started
 ```javascript
 //start using it!
 var myValue = ko.observable().extend({ required: true });
@@ -89,7 +89,7 @@ console.log(myViewModel.isValid()); //true
 ```
 see more examples on the Fiddle: http://jsfiddle.net/KHFn8/5424/
 
-##Native Validation Rules
+## Native Validation Rules
 **Required**:
 
 ```javascript
@@ -124,8 +124,8 @@ var myObj = ko.observable('').extend({ email: true });
 ... and [MANY MORE](https://github.com/Knockout-Contrib/Knockout-Validation/wiki/Native-Rules)
 
 _Much thanks to the [jQuery Validation Plug-In](https://github.com/jzaefferer/jquery-validation) team for their work on many of the rules_
-##Custom Validation Rules
-####Custom Rules
+## Custom Validation Rules
+#### Custom Rules
 Custom Rules can be created using the simple example below. All you need is to define a validator function and a default message.
 The validator function takes in the observable's value, and the `params` that you pass in with the `extend` method.
 
@@ -143,9 +143,9 @@ var myCustomObj = ko.observable().extend({ mustEqual: 5 });
 ```
 Learn more about Custom Rules on the [WIKI](https://github.com/Knockout-Contrib/Knockout-Validation/wiki/Custom-Validation-Rules)
 
-###Or Check out our [User-Contributed Custom Rules](https://github.com/Knockout-Contrib/Knockout-Validation/wiki/User-Contributed-Rules)!###
+### Or Check out our [User-Contributed Custom Rules](https://github.com/Knockout-Contrib/Knockout-Validation/wiki/User-Contributed-Rules)!###
 
-##HTML5 Validation Attributes
+## HTML5 Validation Attributes
 
 **Required**:
 
@@ -182,9 +182,9 @@ Learn more about Custom Rules on the [WIKI](https://github.com/Knockout-Contrib/
 ```
 **Special Note, the 'MinLength' attribute was removed until the HTML5 spec fully supports it**
 
-##Knockout Bindings
+## Knockout Bindings
 
-###ValidationMessage
+### ValidationMessage
 If you want to customize the display of your objects validation message, use the `validationMessage` binding:
 
 ```html
@@ -195,10 +195,10 @@ If you want to customize the display of your objects validation message, use the
 ```
 Check out more on [Validation Bindings](https://github.com/Knockout-Contrib/Knockout-Validation/wiki/Validation-Bindings)
 
-##Remote Validation Rules
+## Remote Validation Rules
 Check out our [Async Validation](https://github.com/Knockout-Contrib/Knockout-Validation/wiki/Async-Rules) and [jQuery AJAX Validation](https://github.com/ericmbarnard/Knockout-Validation/wiki/Async-Rules)
 
-##Localization
+## Localization
 
 Add a reference to the localization js files after the Knockout Validation plugin
 
