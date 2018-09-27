@@ -38,7 +38,7 @@ QUnit.test('clearError clears manually-specified error', function(assert) {
 	assert.equal(testObj.error(), null);
 });
 
-QUnit.test('clearError clears automatic errors', function(assert) {
+QUnit.test('clearError does not clear automatic errors', function(assert) {
 	var testObj = ko.observable(5);
 	testObj.extend({ min: 6 });
 
@@ -48,9 +48,9 @@ QUnit.test('clearError clears automatic errors', function(assert) {
 	var result = testObj.clearError();
 	assert.equal(testObj, result, 'The result should be returned to support chaining');
 
-	//check validation was cleared
-	assert.ok(testObj.isValid());
-	assert.equal(testObj.error(), null);
+	//check validation was not cleared
+	assert.equal(testObj.isValid(), false);
+	assert.notEqual(testObj.error(), null);
 });
 
 //#endregion
@@ -419,7 +419,7 @@ QUnit.test('Issue #209 - Grouping works when multiple rules are defined - Observ
 
 	vm.one('abc');
 
-	assert.equal(vm.one.error(), 'Please enter a digit.');
+	assert.equal(vm.one.error(), 'Please enter a digit.', 'observable has expected error');
 	assert.strictEqual(vm.one.isValid(), false, 'observable is not valid');
 	assert.deepEqual(errors(), ['Please enter a digit.'], 'Grouping correctly finds 1 invalid property');
 });
@@ -743,6 +743,82 @@ QUnit.test('validatedObservable works when changing from undefined to object', f
 	assert.equal(testObj.errors()[0], 'This field is required.', 'message is correct');
 });
 
+QUnit.test('validatedObservable by default is automatically isModified whenever it\'s value changes', function (assert) {
+	var testObj = ko.observable().extend({ validatable: true });
+
+	assert.strictEqual(testObj.isModified(), false, 'observable is not modified');
+
+	testObj(1);
+
+	assert.strictEqual(testObj.isModified(), true, 'observable is modified');
+});
+
+QUnit.test('validatedObservable isModified(true) on change can be disabled using global configuration', function (assert) {
+	ko.validation.init({
+		validate: {
+			setModifiedOnChange: false
+		}
+	}, true);
+
+	var testObj = ko.observable().extend({ validatable: true });
+
+	assert.strictEqual(testObj.isModified(), false, 'observable is not modified');
+
+	testObj(1);
+
+	assert.strictEqual(testObj.isModified(), false, 'observable is not modified');
+});
+
+QUnit.test('validatedObservable isModified(true) on change can be disabled using local configuration', function (assert) {
+	var testObj = ko.observable().extend({
+		validatable: {
+			setModifiedOnChange: false
+		}
+	});
+
+	assert.strictEqual(testObj.isModified(), false, 'observable is not modified');
+
+	testObj(1);
+
+	assert.strictEqual(testObj.isModified(), false, 'observable is not modified');
+});
+
+QUnit.test('Issue #622 - validatable extender does not force pureComputed evaluation until necessary', function (assert) {
+	ko.validation.init({
+		validate: {
+			setModifiedOnChange: false
+		}
+	}, true);
+
+	var wasComputed = false;
+
+	var pure = ko.pureComputed(function () {
+		wasComputed = true;
+	});
+
+	assert.strictEqual(wasComputed, false, 'not evaluating on creation');
+
+	pure.extend({
+		validatable: true
+	});
+
+	assert.strictEqual(wasComputed, false, 'not evaluating on extend validatable');
+
+	pure.isValid();
+
+	assert.strictEqual(wasComputed, false, 'not evaluating on isValid when rules do not read value');
+
+	pure.extend({
+		required: true
+	});
+
+	assert.strictEqual(wasComputed, false, 'not evaluating on extend required');
+
+	pure.isValid();
+
+	assert.strictEqual(wasComputed, true, 'evaluating on isValid when rules do read value');
+});
+
 //#endregion
 
 //#region setRules Tests
@@ -913,14 +989,6 @@ QUnit.test('can be throttled using global configuration', function(assert) {
 	var done = assert.async();
 	assert.expect(0);
 
-	var _validateObservable = ko.validation.validateObservable;
-	ko.validation.validateObservable = function() {
-		var result = _validateObservable.apply(this, arguments);
-		ko.validation.validateObservable = _validateObservable;
-		done();
-		return result;
-	};
-
 	ko.validation.init({
 		validate: {
 			throttle: 10
@@ -928,6 +996,12 @@ QUnit.test('can be throttled using global configuration', function(assert) {
 	}, true);
 
 	var observable = ko.observable().extend({ validatable: true });
+
+	var subscription = observable.isValid.subscribe(function () {
+		subscription.dispose();
+		done();
+	});
+
 	observable('1');
 	observable.extend({ minLength: 2 });
 });
@@ -936,18 +1010,15 @@ QUnit.test('can be throttled using using local configuration', function(assert) 
 	var done = assert.async();
 	assert.expect(0);
 
-	var _validateObservable = ko.validation.validateObservable;
-	ko.validation.validateObservable = function() {
-		var result = _validateObservable.apply(this, arguments);
-		ko.validation.validateObservable = _validateObservable;
-		done();
-		return result;
-	};
-
 	var observable = ko.observable().extend({
 		validatable: {
 			throttle: 10
 		}
+	});
+
+	var subscription = observable.isValid.subscribe(function () {
+		subscription.dispose();
+		done();
 	});
 
 	observable.extend({ minLength: 2 });

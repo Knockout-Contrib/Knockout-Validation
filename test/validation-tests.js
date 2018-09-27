@@ -333,6 +333,8 @@ QUnit.test('Async Rule Is Valid Test', function(assert) {
 
     var testObj = ko.observable(5);
     testObj.extend({ mustEqualAsync: 5 });
+
+    testObj.isValid();
 });
 
 QUnit.test('Async Rule Is NOT Valid Test', function(assert) {
@@ -359,6 +361,8 @@ QUnit.test('Async Rule Is NOT Valid Test', function(assert) {
 
     var testObj = ko.observable(4);
     testObj.extend({ mustEqualAsync: 5 });
+
+    testObj.isValid();
 });
 
 QUnit.test('Issue #341 Async Rule that is not valid and returns synchronously should be invalid after callback', function (assert) {
@@ -378,6 +382,8 @@ QUnit.test('Issue #341 Async Rule that is not valid and returns synchronously sh
 
     var testObj = ko.observable(0);
     testObj.extend({ immediatelyFalse: true });
+
+    testObj.isValid();
 });
 
 //#endregion
@@ -430,6 +436,8 @@ QUnit.test('message parameter receives params and observable when async', functi
 	ko.validation.registerExtenders(); //make sure the new rule is registered
 
 	testObj.extend({ mustEqualAsync: 5 });
+
+	testObj.isValid();
 });
 
 //#endregion

@@ -90,9 +90,7 @@
 		ko.utils.arrayForEach(array, function (observable) {
 			// Do not collect validatedObservable errors
 			if (utils.isValidatable(observable) && !observable.isValid()) {
-				// Use peek because we don't want a dependency for 'error' property because it
-				// changes before 'isValid' does. (Issue #99)
-				errors.push(observable.error.peek());
+				errors.push(observable.error());
 			}
 		});
 		return errors;

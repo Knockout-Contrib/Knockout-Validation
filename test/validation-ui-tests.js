@@ -644,7 +644,7 @@ QUnit.test('Issue #519 - validationElement can be applied before element is vali
 
     vm.testObj.extend({ validatable: false });
     assert.ok(!ko.validation.utils.isValidatable(vm.testObj));
-    assert.strictEqual($("#testElement").attr("title"), undefined);
+    assert.equal($("#testElement").attr("title"), false);
 });
 
 QUnit.test('Issue #519 - validationMessage can be applied before element is validatable', function(assert) {

@@ -21,6 +21,7 @@ var defaults = {
 		live: false		    //react to changes to observableArrays if observable === true
 	},
 	validate: {
+		setModifiedOnChange: true, // enables setting `isModified(true)` when observable changes
 		// throttle: 10
 	}
 };
