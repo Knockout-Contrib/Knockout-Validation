@@ -263,7 +263,7 @@ kv.configuration = configuration;
 
 		//get list of values either from array or object but ignore non-objects
 		// and destroyed objects
-		if (val && !val._destroy) {
+		if (val && !unwrap(val._destroy)) {
 			if (utils.isArray(val)) {
 				objValues = val;
 			}
