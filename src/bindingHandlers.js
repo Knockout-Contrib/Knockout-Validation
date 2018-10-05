@@ -78,6 +78,8 @@ ko.bindingHandlers['validationMessage'] = { // individual error message, if modi
 
 		if (config.allowHtmlMessages) {
 			ko.utils.setHtml(element, error);
+		} else if (typeof error == 'function'){
+			ko.bindingHandlers.text.update(element, function () { return error()(); });
 		} else {
 			ko.bindingHandlers.text.update(element, function () { return error; });
 		}
