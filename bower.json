@@ -1,6 +1,6 @@
 {
   "name": "knockout-validation",
-  "version": "2.0.3",
+  "version": "2.0.3.1",
   "description": "A KnockoutJS Plugin for model and property validation",
   "main": "dist/knockout.validation.js",
   "license": "MIT",
@@ -17,10 +17,10 @@
     "validation",
     "ko"
   ],
-  "homepage": "https://github.com/Knockout-Contrib/Knockout-Validation",
+  "homepage": "https://github.com/rax-consortio/Knockout-Validation",
   "repository": {
     "type": "git",
-    "url": "git://github.com/Knockout-Contrib/Knockout-Validation.git"
+    "url": "git://github.com/rax-consortio/Knockout-Validation.git"
   },
   "dependencies": {
     "knockout": ">=2.3.0"
