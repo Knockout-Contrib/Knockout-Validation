@@ -23,7 +23,7 @@
 		min: 'Fyll i ett värde som är större än eller lika med {0}',
 		max: 'Fyll i ett värde som är mindre än eller lika med {0}',
 		minLength: 'Fyll i minst {0} tecken',
-		maxLength: 'Fyll i färre än {0} tecken',
+		maxLength: 'Fyll i {0} tecken eller färre',
 		pattern: 'Var god kontrollera värdet',
 		step: 'Värdet måste ökas med {0}',
 		email: 'Fyll i en korrekt e-postadress',
