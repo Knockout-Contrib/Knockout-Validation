@@ -153,7 +153,7 @@ declare module "knockout" {
             minLength?: number | ValidationRuleExtenderParams<number>;
             maxLength?: number | ValidationRuleExtenderParams<number>;
             pattern?: RegExp | ValidationRuleExtenderParams<RegExp>;
-            step?: RegExp | ValidationRuleExtenderParams<RegExp>;
+            step?: number | ValidationRuleExtenderParams<number>;
             email?: boolean | ValidationRuleExtenderParams<boolean>;
             date?: boolean | ValidationRuleExtenderParams<boolean>;
             dateISO?: boolean | ValidationRuleExtenderParams<boolean>;
@@ -424,7 +424,7 @@ declare module "knockout" {
         minLength<T extends ko.Subscribable<any>>(target: T, options: number | validation.ValidationRuleExtenderParams<number>): T & validation.ObservableValidationExtension;
         maxLength<T extends ko.Subscribable<any>>(target: T, options: number | validation.ValidationRuleExtenderParams<number>): T & validation.ObservableValidationExtension;
         pattern<T extends ko.Subscribable<any>>(target: T, options: RegExp | validation.ValidationRuleExtenderParams<RegExp>): T & validation.ObservableValidationExtension;
-        step<T extends ko.Subscribable<any>>(target: T, options: RegExp | validation.ValidationRuleExtenderParams<RegExp>): T & validation.ObservableValidationExtension;
+        step<T extends ko.Subscribable<any>>(target: T, options: number | validation.ValidationRuleExtenderParams<number>): T & validation.ObservableValidationExtension;
         email<T extends ko.Subscribable<any>>(target: T, options: boolean | validation.ValidationRuleExtenderParams<boolean>): T & validation.ObservableValidationExtension;
         date<T extends ko.Subscribable<any>>(target: T, options: boolean | validation.ValidationRuleExtenderParams<boolean>): T & validation.ObservableValidationExtension;
         dateISO<T extends ko.Subscribable<any>>(target: T, options: boolean | validation.ValidationRuleExtenderParams<boolean>): T & validation.ObservableValidationExtension;
