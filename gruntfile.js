@@ -57,7 +57,7 @@ module.exports = function (grunt) {
 			}
 		},
 		qunit: {
-			files: ["test/test-runner.htm"]
+			files: ["test/test-runner-2.3.0.html", "test/test-runner-3.4.2.html", "test/test-runner-3.5.0.html"]
 		},
 		jshint: {
 			files: ["gruntfile.js", "src/**/*.js", "test/*.js", "localization/*.js"],
