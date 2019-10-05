@@ -451,96 +451,97 @@ QUnit.module('Error Collection Tests');
 
 QUnit.test('find returns first element matching predicate', function (assert) {
 
-    var vm = {
-        one: ko.observable().extend({ digit: true }),
-        two: ko.observable().extend({ max: 10 })
-    };
+	var vm = {
+		one: ko.observable().extend({ digit: true }),
+		two: ko.observable().extend({ max: 10 })
+	};
 
-    var errors = ko.validation.group(vm, { observable: false });
+	var errors = ko.validation.group(vm, { observable: false });
 
-    vm.one('abc');
-    vm.two(11);
+	vm.one('abc');
+	vm.two(11);
 
-    assert.equal(errors.find(function(val) {
-        return val() === 11;
-    })(), 11);
+	assert.equal(errors.find(function(val) {
+		return val() === 11;
+	})(), 11);
 });
 
 QUnit.test('filter returns all elements matching predicate', function (assert) {
 
-    var vm = {
-        one: ko.observable().extend({ digit: true }),
-        two: ko.observable().extend({ max: 10 }),
-        three: ko.observable().extend({ max: 15 })
-    };
+	var vm = {
+		one: ko.observable().extend({ digit: true }),
+		two: ko.observable().extend({ max: 10 }),
+		three: ko.observable().extend({ max: 15 })
+	};
 
-    var errors = ko.validation.group(vm, { observable: false });
+	var errors = ko.validation.group(vm, { observable: false });
 
-    vm.one('abc');
-    vm.two(11);
-    vm.three(16);
+	vm.one('abc');
+	vm.two(11);
+	vm.three(16);
 
-    assert.equal(errors.filter(function (val) {
-        return val.rules()[0].rule === 'max';
-    }).length, 2);
+	assert.equal(errors.filter(function (val) {
+		return val.rules()[0].rule === 'max';
+	}).length, 2);
 });
 
-QUnit.test('forEach calls back for each error', 2, function (assert) {
+QUnit.test('forEach calls back for each error', function (assert) {
+	assert.expect(2);
 
-    var vm = {
-        one: ko.observable().extend({ digit: true }),
-        two: ko.observable().extend({ max: 10 })
-    };
+	var vm = {
+		one: ko.observable().extend({ digit: true }),
+		two: ko.observable().extend({ max: 10 })
+	};
 
-    var errors = ko.validation.group(vm, { observable: false });
+	var errors = ko.validation.group(vm, { observable: false });
 
-    vm.one('abc');
-    vm.two(11);
+	vm.one('abc');
+	vm.two(11);
 
-    errors.forEach(function() {
-        assert.ok(true);
-    });
+	errors.forEach(function() {
+		assert.ok(true);
+	});
 });
 
 QUnit.test('map returns projection for each error', function (assert) {
 
-    var vm = {
-        one: ko.observable().extend({ digit: true }),
-        two: ko.observable().extend({ max: 10 })
-    };
+	var vm = {
+		one: ko.observable().extend({ digit: true }),
+		two: ko.observable().extend({ max: 10 })
+	};
 
-    var errors = ko.validation.group(vm, { observable: false });
+	var errors = ko.validation.group(vm, { observable: false });
 
-    vm.one('abc');
-    vm.two(11);
+	vm.one('abc');
+	vm.two(11);
 
-    var result = errors.map(function(item) {
-        return item.rules()[0].rule;
-    });
+	var result = errors.map(function(item) {
+		return item.rules()[0].rule;
+	});
 
-    assert.equal(result[0], 'digit');
-    assert.equal(result[1], 'max');
+	assert.equal(result[0], 'digit');
+	assert.equal(result[1], 'max');
 });
 
 QUnit.test('collection methods include error information', function(assert) {
-    var vm = {
-        one: ko.observable().extend({ digit: true })
-    };
+	var vm = {
+		one: ko.observable().extend({ digit: true })
+	};
 
-    var errors = ko.validation.group(vm, { observable: false });
+	var errors = ko.validation.group(vm, { observable: false });
 
-    vm.one('abc');
-    errors.forEach(function(item) {
-        assert.ok(
-            !!item.error &&
-            !!item.isValid &&
-            !!item.isModified &&
-            !!item.isValidating &&
-            !!item.rules &&
-            !!item.setError &&
-            !!item.clearError
-        );
-    });
+	vm.one('abc');
+	errors.forEach(function(item) {
+		assert.ok(
+			!!item.error &&
+			!!item.isValid &&
+			!!item.isModified &&
+			!!item.isValidating &&
+			!!item.rules &&
+			!!item.setError &&
+			!!item.clearError
+		);
+	});
 });
 
 //#endregion
@@ -631,24 +632,24 @@ QUnit.test('validatedObservable show error message when at least one invalid and
 });
 
 QUnit.test('validatedObservable is Valid when not modified', function(assert) {
-    var obj = ko.validatedObservable({
-        testObj: ko.observable('12345').extend({ minLength: 5 }),
-        testObj2: ko.observable('a').extend({ required: true })
-    });
+	var obj = ko.validatedObservable({
+		testObj: ko.observable('12345').extend({ minLength: 5 }),
+		testObj2: ko.observable('a').extend({ required: true })
+	});
 
-    assert.ok(obj(), 'observable works');
-    assert.ok(obj.isValid(), 'observable is valid');
+	assert.ok(obj(), 'observable works');
+	assert.ok(obj.isValid(), 'observable is valid');
 });
 
 QUnit.test('validatedObservable is not Valid when not modified', function(assert) {
 
-    var obj = ko.validatedObservable({
-        testObj: ko.observable('').extend({ minLength: 5 }),
-        testObj2: ko.observable('').extend({ required: true })
-    });
+	var obj = ko.validatedObservable({
+		testObj: ko.observable('').extend({ minLength: 5 }),
+		testObj2: ko.observable('').extend({ required: true })
+	});
 
-    assert.ok(obj(), 'observable works');
-    assert.ok(!obj.isValid(), obj.errors()[0]);
+	assert.ok(obj(), 'observable works');
+	assert.ok(!obj.isValid(), obj.errors()[0]);
 });
 
 QUnit.test('Issue #454 - validatedObservable throws when config option grouping.observable is false', function(assert) {
@@ -789,9 +790,9 @@ QUnit.test('setRules applies rules to all properties', function(assert) {
 			}
 		},
 		nestedArray: ko.observableArray([
-            { property4: ko.observable(), ignoredProperty: ko.observable() },
-            { property4: ko.observable(), ignoredProperty: ko.observable() },
-            { property4: ko.observable(), ignoredProperty: ko.observable() }
+			{ property4: ko.observable(), ignoredProperty: ko.observable() },
+			{ property4: ko.observable(), ignoredProperty: ko.observable() },
+			{ property4: ko.observable(), ignoredProperty: ko.observable() }
 		])
 	};
 
@@ -799,17 +800,17 @@ QUnit.test('setRules applies rules to all properties', function(assert) {
 
 	//check that all rules have been applied
 	assert.deepEqual(target.property1.rules(), [
-        { rule: 'required', params: true },
-        { rule: 'min', params: 10 },
-        { rule: 'max', params: 99 }
+		{ rule: 'required', params: true },
+		{ rule: 'min', params: 10 },
+		{ rule: 'max', params: 99 }
 	]);
 
 	assert.deepEqual(target.child.property2.rules(), [
-        { rule: 'pattern', message: 'Only AlphaNumeric please', params: '^[a-z0-9].$', condition: undefined }
+		{ rule: 'pattern', message: 'Only AlphaNumeric please', params: '^[a-z0-9].$', condition: undefined }
 	]);
 
 	assert.deepEqual(target.child.grandchild.property3.rules(), [
-        { rule: 'number', params: true }
+		{ rule: 'number', params: true }
 	]);
 
 	for (var i = 0; i < target.nestedArray().length; i++) {
@@ -873,12 +874,12 @@ QUnit.module('Removing Validation Tests');
 
 QUnit.test('Basic Removal', function(assert) {
 	var testObj = ko.observable('')
-                    .extend({ min: 2 });
+					.extend({ min: 2 });
 
 	testObj(3);
 
 	var testFlag = false;
-    var changeFlag = false;
+	var changeFlag = false;
 
 	assert.equal(testObj(), 3, 'observable still works');
 	assert.ok(testObj.isValid(), 'testObj is Valid');
@@ -887,9 +888,9 @@ QUnit.test('Basic Removal', function(assert) {
 		testFlag = true;
 	});
 
-    testObj.isModified.subscribe(function() {
-        changeFlag = true;
-    });
+	testObj.isModified.subscribe(function() {
+		changeFlag = true;
+	});
 
 	testObj.extend({ validatable: false });
 
@@ -978,12 +979,12 @@ QUnit.test('formatMessage may use multiple replacements', function(assert) {
 });
 
 QUnit.test('Issue #547 - formatMessage fails when params is 0', function(assert) {
-    var params = 0,
-        message = 'Please enter a value greater than or equal to {0}.',
-        obsv = ko.observable(-1);
+	var params = 0,
+		message = 'Please enter a value greater than or equal to {0}.',
+		obsv = ko.observable(-1);
 
-    var result = ko.validation.formatMessage(message, params, obsv);
-    assert.equal(result, 'Please enter a value greater than or equal to 0.');
+	var result = ko.validation.formatMessage(message, params, obsv);
+	assert.equal(result, 'Please enter a value greater than or equal to 0.');
 });
 
 
