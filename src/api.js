@@ -24,13 +24,6 @@
 		}
 	}
 
-	function runTraversal(obj, context) {
-		context.validatables = [];
-		cleanUpSubscriptions(context);
-		traverseGraph(obj, context);
-		dispose(context);
-	}
-
 	function traverseGraph(obj, context, level) {
 		var objValues = [],
 			val = obj.peek ? obj.peek() : obj;
@@ -83,6 +76,13 @@
 				}
 			});
 		}
+	}
+
+	function runTraversal(obj, context) {
+		context.validatables = [];
+		cleanUpSubscriptions(context);
+		traverseGraph(obj, context);
+		dispose(context);
 	}
 
 	function collectErrors(array) {
@@ -245,9 +245,9 @@
 				return message(params, observable);
 			}
 			var replacements = ko.utils.unwrapObservable(params);
-            if (replacements == null) {
-                replacements = [];
-            }
+			if (replacements == null) {
+				replacements = [];
+			}
 			if (!utils.isArray(replacements)) {
 				replacements = [replacements];
 			}
@@ -321,8 +321,8 @@
 				//		  message: 'This special field has a Max of {0}',
 				//		  params: 2,
 				//		  onlyIf: function() {
-				//					  return specialField.IsVisible();
-				//				  }
+				//			return specialField.IsVisible();
+				//		  }
 				//	  }
 				//  )};
 				//
