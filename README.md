@@ -2,6 +2,7 @@
 A KnockoutJS Plugin for model and property validation
 
 [![Build Status](https://travis-ci.org/Knockout-Contrib/Knockout-Validation.svg)](https://travis-ci.org/Knockout-Contrib/Knockout-Validation)
+[![Build status](https://ci.appveyor.com/api/projects/status/rmas31qgmi07wypi/branch/master?svg=true)](https://ci.appveyor.com/project/crissdev/knockout-validation/branch/master)
 [![Bower version](https://badge.fury.io/bo/knockout-validation.svg)](http://badge.fury.io/bo/knockout-validation)
 [![npm version](https://badge.fury.io/js/knockout.validation.svg)](http://badge.fury.io/js/knockout.validation)
 [![NuGet version](https://badge.fury.io/nu/Knockout.Validation.svg)](http://badge.fury.io/nu/Knockout.Validation)
@@ -10,6 +11,7 @@ Contributors:
 
 * [Eric Barnard](https://github.com/ericmbarnard)
 * [Steve Greatrex](https://github.com/stevegreatrex)
+* [Cristian Trifan](https://github.com/crissdev)
 * [Andy Booth](https://github.com/andybooth)
 * [Michal Poreba](https://github.com/michalporeba)
 * and many others!
