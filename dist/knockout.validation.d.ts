@@ -64,7 +64,7 @@ declare module "knockout" {
 
         export interface ValidationRuleExtenderParams<T = any> {
             /** The rule parameters. */
-            params: T;
+            params: T | ko.Subscribable<T>;
             /** The rule message. */
             message?: string;
             /** The rule condition. */
@@ -143,26 +143,30 @@ declare module "knockout" {
 
         export type ValidationAnonymousRuleDefinition = ValidationRuleDefinition | ValidationAsyncRuleDefinition;
 
+        export type ValidationExtendType<T> = T | ko.Subscribable<T> | ValidationRuleExtenderParams<T>;
+
+        export type ValidationExtendAccessType<T> = () => T | ValidationExtendType<T>;
+
         export interface ValidationExtendOptions {
             validation?: ValidationRule | ValidationRuleDefinition | ValidationAsyncRuleDefinition | Array<ValidationRule | ValidationRuleDefinition | ValidationAsyncRuleDefinition>;
             validatable?: boolean | ExtenderValidatableOptions;
 
-            required?: boolean | ValidationRuleExtenderParams<boolean>;
-            min?: number | ValidationRuleExtenderParams<number>;
-            max?: number | ValidationRuleExtenderParams<number>;
-            minLength?: number | ValidationRuleExtenderParams<number>;
-            maxLength?: number | ValidationRuleExtenderParams<number>;
-            pattern?: RegExp | ValidationRuleExtenderParams<RegExp>;
-            step?: number | ValidationRuleExtenderParams<number>;
-            email?: boolean | ValidationRuleExtenderParams<boolean>;
-            date?: boolean | ValidationRuleExtenderParams<boolean>;
-            dateISO?: boolean | ValidationRuleExtenderParams<boolean>;
-            number?: boolean | ValidationRuleExtenderParams<boolean>;
-            digit?: boolean | ValidationRuleExtenderParams<boolean>;
-            phoneUS?: boolean | ValidationRuleExtenderParams<boolean>;
-            equal?: ko.Subscribable<any> | ValidationRuleExtenderParams<ko.Subscribable<any>>;
-            notEqual?: ko.Subscribable<any> | ValidationRuleExtenderParams<ko.Subscribable<any>>;
-            unique?: ValidationRuleExtenderParams<ExtenderUniqueOptions>;
+            required?: ValidationExtendType<boolean>;
+            min?: ValidationExtendType<number | Date>;
+            max?: ValidationExtendType<number | Date>;
+            minLength?: ValidationExtendType<number>;
+            maxLength?: ValidationExtendType<number>;
+            pattern?: ValidationExtendType<RegExp>;
+            step?: ValidationExtendType<number>;
+            email?: ValidationExtendType<boolean>;
+            date?: ValidationExtendType<boolean>;
+            dateISO?: ValidationExtendType<boolean>;
+            number?: ValidationExtendType<boolean>;
+            digit?: ValidationExtendType<boolean>;
+            phoneUS?: ValidationExtendType<boolean>;
+            equal?: ValidationExtendAccessType<string | number | boolean>;
+            notEqual?: ValidationExtendAccessType<string | number | boolean>;
+            unique?: ValidationExtendType<ExtenderUniqueOptions>;
         }
 
         export interface ExtenderValidatableOptions {
@@ -172,7 +176,7 @@ declare module "knockout" {
 
         export interface ExtenderUniqueOptions {
             /** array or function returning (observable) array in which the value has to be unique. */
-            collection?: ko.MaybeObservableArray<any>;
+            collection?: ko.MaybeObservableArray<any> | (() => ko.MaybeObservableArray<any>);
             /** Function that returns value from an object stored in collection. If it is null the value is compared directly. */
             valueAccessor?: (item: any) => any;
             /** Set to true when object you are validating is automatically updating collection. */
@@ -418,22 +422,22 @@ declare module "knockout" {
          */
         validatable<T extends ko.Subscribable<any>>(target: T, options: boolean | validation.ExtenderValidatableOptions): T & validation.ObservableValidationExtension;
 
-        required<T extends ko.Subscribable<any>>(target: T, options: boolean | validation.ValidationRuleExtenderParams<boolean>): T & validation.ObservableValidationExtension;
-        min<T extends ko.Subscribable<any>>(target: T, options: number | validation.ValidationRuleExtenderParams<number>): T & validation.ObservableValidationExtension;
-        max<T extends ko.Subscribable<any>>(target: T, options: number | validation.ValidationRuleExtenderParams<number>): T & validation.ObservableValidationExtension;
-        minLength<T extends ko.Subscribable<any>>(target: T, options: number | validation.ValidationRuleExtenderParams<number>): T & validation.ObservableValidationExtension;
-        maxLength<T extends ko.Subscribable<any>>(target: T, options: number | validation.ValidationRuleExtenderParams<number>): T & validation.ObservableValidationExtension;
-        pattern<T extends ko.Subscribable<any>>(target: T, options: RegExp | validation.ValidationRuleExtenderParams<RegExp>): T & validation.ObservableValidationExtension;
-        step<T extends ko.Subscribable<any>>(target: T, options: number | validation.ValidationRuleExtenderParams<number>): T & validation.ObservableValidationExtension;
-        email<T extends ko.Subscribable<any>>(target: T, options: boolean | validation.ValidationRuleExtenderParams<boolean>): T & validation.ObservableValidationExtension;
-        date<T extends ko.Subscribable<any>>(target: T, options: boolean | validation.ValidationRuleExtenderParams<boolean>): T & validation.ObservableValidationExtension;
-        dateISO<T extends ko.Subscribable<any>>(target: T, options: boolean | validation.ValidationRuleExtenderParams<boolean>): T & validation.ObservableValidationExtension;
-        number<T extends ko.Subscribable<any>>(target: T, options: boolean | validation.ValidationRuleExtenderParams<boolean>): T & validation.ObservableValidationExtension;
-        digit<T extends ko.Subscribable<any>>(target: T, options: boolean | validation.ValidationRuleExtenderParams<boolean>): T & validation.ObservableValidationExtension;
-        phoneUS<T extends ko.Subscribable<any>>(target: T, options: boolean | validation.ValidationRuleExtenderParams<boolean>): T & validation.ObservableValidationExtension;
-        equal<T extends ko.Subscribable<any>>(target: T, options: ko.Subscribable<any> | validation.ValidationRuleExtenderParams<ko.Subscribable<any>>): T & validation.ObservableValidationExtension;
-        notEqual<T extends ko.Subscribable<any>>(target: T, options: ko.Subscribable<any> | validation.ValidationRuleExtenderParams<ko.Subscribable<any>>): T & validation.ObservableValidationExtension;
-        unique<T extends ko.Subscribable<any>>(target: T, options: validation.ValidationRuleExtenderParams<validation.ExtenderUniqueOptions>): T & validation.ObservableValidationExtension;
+        required<T extends ko.Subscribable<any>>(target: T, options: validation.ValidationExtendType<boolean>): T & validation.ObservableValidationExtension;
+        min<T extends ko.Subscribable<any>>(target: T, options: validation.ValidationExtendType<number>): T & validation.ObservableValidationExtension;
+        max<T extends ko.Subscribable<any>>(target: T, options: validation.ValidationExtendType<number>): T & validation.ObservableValidationExtension;
+        minLength<T extends ko.Subscribable<any>>(target: T, options: validation.ValidationExtendType<number>): T & validation.ObservableValidationExtension;
+        maxLength<T extends ko.Subscribable<any>>(target: T, options: validation.ValidationExtendType<number>): T & validation.ObservableValidationExtension;
+        pattern<T extends ko.Subscribable<any>>(target: T, options: validation.ValidationExtendType<RegExp>): T & validation.ObservableValidationExtension;
+        step<T extends ko.Subscribable<any>>(target: T, options: validation.ValidationExtendType<number>): T & validation.ObservableValidationExtension;
+        email<T extends ko.Subscribable<any>>(target: T, options: validation.ValidationExtendType<boolean>): T & validation.ObservableValidationExtension;
+        date<T extends ko.Subscribable<any>>(target: T, options: validation.ValidationExtendType<boolean>): T & validation.ObservableValidationExtension;
+        dateISO<T extends ko.Subscribable<any>>(target: T, options: validation.ValidationExtendType<boolean>): T & validation.ObservableValidationExtension;
+        number<T extends ko.Subscribable<any>>(target: T, options: validation.ValidationExtendType<boolean>): T & validation.ObservableValidationExtension;
+        digit<T extends ko.Subscribable<any>>(target: T, options: validation.ValidationExtendType<boolean>): T & validation.ObservableValidationExtension;
+        phoneUS<T extends ko.Subscribable<any>>(target: T, options: validation.ValidationExtendType<boolean>): T & validation.ObservableValidationExtension;
+        equal<T extends ko.Subscribable<any>>(target: T, options: validation.ValidationExtendAccessType<string | number | boolean>): T & validation.ObservableValidationExtension;
+        notEqual<T extends ko.Subscribable<any>>(target: T, options: validation.ValidationExtendAccessType<string | number | boolean>): T & validation.ObservableValidationExtension;
+        unique<T extends ko.Subscribable<any>>(target: T, options: validation.ValidationExtendType<validation.ExtenderUniqueOptions>): T & validation.ObservableValidationExtension;
     }
 
     export interface SubscribableFunctions<T> {
