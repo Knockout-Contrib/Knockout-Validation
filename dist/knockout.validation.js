@@ -3,7 +3,7 @@
 	License:		MIT (http://opensource.org/licenses/mit-license.php)		
 																				
 	Description:	Validation Library for KnockoutJS							
-	Version:		2.0.3											
+	Version:		2.0.4											
 ===============================================================================
 */
 /*globals require: false, exports: false, define: false, ko: false */
