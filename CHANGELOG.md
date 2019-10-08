@@ -1,23 +1,44 @@
+# 2.0.4 (2019-10-09)
+
+* fix isEmptyVal doesn't always return a boolean [#617](https://github.com/Knockout-Contrib/Knockout-Validation/issues/617)
+
+* fix maxLength message for Sweedish translation [c3468ae](https://github.com/Knockout-Contrib/Knockout-Validation/commit/c3468ae62462ad68d0bdbb42c2c9fdfa7b91a71c), [#668](https://github.com/Knockout-Contrib/Knockout-Validation/pull/668), [#581](https://github.com/Knockout-Contrib/Knockout-Validation/pull/581)
+
+* update CI configuration - target newer Node.js versions and configure AppVeyor [0a5bc13](https://github.com/Knockout-Contrib/Knockout-Validation/commit/0a5bc1397e1698548729d1dc3364f015fc603e44)
+
+* upgrade QUnit testing framework to version 2.9.2 and target more versions of Knockout in CI (2.3.0, 3.4.2, 3.5.0) [b932885](https://github.com/Knockout-Contrib/Knockout-Validation/commit/b932885a3a5fd5546889a176bd98bb732ad86c2b)
+
+* improve example for custom rules usage [#609](https://github.com/Knockout-Contrib/Knockout-Validation/pull/609)
+
+* save as a dependency instead when installing via Bower [#643](https://github.com/Knockout-Contrib/Knockout-Validation/pull/643)
+
+* add Slovak - Slovak Republic (sk-SK) localization [#605](https://github.com/Knockout-Contrib/Knockout-Validation/pull/605)
+
+* add Ukrainian - Ukraine (uk-UA) localization [#648](https://github.com/Knockout-Contrib/Knockout-Validation/pull/648)
+
+* add Finnish - Finland (fi-FI) localization [#639](https://github.com/Knockout-Contrib/Knockout-Validation/pull/639)
+
+
 # 2.0.3 (2015-05-18)
 
 ### Features
-* Add Arabic - Jordan (ar-JO) localization #546
+* Add Arabic - Jordan (ar-JO) localization [#546](https://github.com/Knockout-Contrib/Knockout-Validation/pull/546)
 
 
 ### Bug Fixes
 
-* formatMessage fails when params is falsy #547
-* async rules cannot return immediately #341
+* formatMessage fails when params is falsy [#547](https://github.com/Knockout-Contrib/Knockout-Validation/issues/547)
+* async rules cannot return immediately [#341](https://github.com/Knockout-Contrib/Knockout-Validation/issues/341)
 
 
 # 2.0.2 (2015-02-02)
 
 ### Bug Fixes
 
-* use `peerDependencies` for npm package dependencies #528
-* `validationElement` and `validationMessage` bindings throw if observable is not validatable #519
-* validation cannot be removed from attached observable #526
-* localization may not work in node.js; some files were still not working with RequireJS #509
+* use `peerDependencies` for npm package dependencies [#528](https://github.com/Knockout-Contrib/Knockout-Validation/issues/528)
+* `validationElement` and `validationMessage` bindings throw if observable is not validatable [#519](https://github.com/Knockout-Contrib/Knockout-Validation/issues/519)
+* validation cannot be removed from attached observable [#526](https://github.com/Knockout-Contrib/Knockout-Validation/issues/526)
+* localization may not work in node.js; some files were still not working with RequireJS [#509](https://github.com/Knockout-Contrib/Knockout-Validation/issues/509)
 * Nuget package will contain the same file names as for Bower or NPM
 
 
@@ -28,12 +49,12 @@ This release enables [cdnjs](https://cdnjs.com/libraries/knockout-validation) np
 
 ### Bug Fixes
 
-* Localization loading randomly breaks when using requirejs #509
+* Localization loading randomly breaks when using requirejs [#509](https://github.com/Knockout-Contrib/Knockout-Validation/issues/509)
 
 
 ### Localization
 
-* add localization file for Chinese - Taiwan (zh-TW) #513
+* add localization file for Chinese - Taiwan (zh-TW) [#513](https://github.com/Knockout-Contrib/Knockout-Validation/pull/513)
 
 
 # 2.0.0 (2015-01-20)
