@@ -10,7 +10,7 @@
 		// AMD anonymous module with hard-coded dependency on "knockout"
 		define(["knockout", "exports"], factory);
 	} else {
-		// <script> tag: use the global `ko` object, attaching a `mapping` property
+		// <script> tag: use the global `ko` object, attaching a `validation` property
 		factory(ko, ko.validation = {});
 	}
 }(function ( ko, exports ) {
