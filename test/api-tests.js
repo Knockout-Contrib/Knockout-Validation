@@ -978,6 +978,28 @@ QUnit.test('formatMessage may use multiple replacements', function(assert) {
 	assert.equal(result, 'Value must be between 1 and 5.');
 });
 
+QUnit.test('formatMessage allows arbitrary object as message', function(assert) {
+	var params = null,
+		message = { custom: 'object' },
+		obsv = ko.observable();
+
+	var result = ko.validation.formatMessage(message, params, obsv);
+	assert.strictEqual(result, message, '`formatMessage` must return message object intact');
+});
+
+QUnit.test('arbitrary object can be used as a message', function(assert) {
+	var message = { custom: 'object' },
+		obsv = ko.observable().extend({
+		validation: {
+			validator: function () { return false; },
+			message: message
+		}
+	});
+
+	var result = obsv.error();
+	assert.strictEqual(result, message);
+});
+
 QUnit.test('Issue #547 - formatMessage fails when params is 0', function(assert) {
 	var params = 0,
 		message = 'Please enter a value greater than or equal to {0}.',
