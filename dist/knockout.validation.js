@@ -1353,7 +1353,9 @@ kv.validateObservable = function (observable) {
 		ctx, // the current Rule Context for the loop
 		ruleContexts = observable.rules(), //cache for iterator
 		len = ruleContexts.length; //cache for iterator
-
+		
+	observable.clearError();
+	
 	for (; i < len; i++) {
 
 		//get the Rule Context info to give to the core Rule
@@ -1378,8 +1380,6 @@ kv.validateObservable = function (observable) {
 			}
 		}
 	}
-	//finally if we got this far, make the observable valid again!
-	observable.clearError();
 	return true;
 };
 ;
