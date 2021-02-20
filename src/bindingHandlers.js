@@ -137,6 +137,28 @@ ko.bindingHandlers['validationElement'] = {
 		});
 	}
 };
+//Allow to use a single element for several fields
+ko.bindingHandlers['validationElementArray'] = { 
+    update: function (element, valueAccessor, allBindingsAccessor, viewModel, context) {
+
+        var hasError = false;
+        var list = valueAccessor();//array observable expected
+
+        for (var _i = 0; _i < list.length; _i++) {
+            var obs = list[_i];
+            hasError = !(obs.isValid && obs.isValid());//only update validationElement on first error.
+            if (hasError) {
+                ko.bindingHandlers.validationElement.update(element, function() { return obs; }, allBindingsAccessor, viewModel, context);
+                break;
+            }
+        }
+        //no error found, we have to update at least one of the list.
+        if (!hasError && list.length > 0) {
+            ko.bindingHandlers.validationElement.update(element, function(){ return list[0]; }, allBindingsAccessor, viewModel, context);
+        }
+        
+    }
+};
 
 // ValidationOptions:
 // This binding handler allows you to override the initial config by setting any of the options for a specific element or context of elements
