@@ -394,7 +394,7 @@ declare module "knockout" {
         };
     }
 
-    export interface Extenders {
+    export interface Extenders<T> {
         /**
          * This is for creating custom validation logic on the fly.
          * 
@@ -444,7 +444,7 @@ declare module "knockout" {
         extend(requestedExtenders: validation.ValidationExtendOptions): this & validation.ObservableValidationExtension;
     }
 
-    export interface ObservableExtenderOptions extends validation.ValidationExtendOptions { }
+    export interface ObservableExtenderOptions<T> extends validation.ValidationExtendOptions { }
 }
 
 export = ko.validation;
