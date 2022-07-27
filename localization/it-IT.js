@@ -19,7 +19,7 @@
 		throw new Error('Knockout-Validation is required, please ensure it is loaded before this localization file');
 	}
 	return kv.defineLocale('it-IT', {
-		required: 'Il campo è obbligatorio.',
+		required: 'Il campo \u00E8 obbligatorio.',
 		min: 'Inserire un valore superiore od uguale a {0}.',
 		max: 'Inserire un valore inferiore od uguale a {0}.',
 		minLength: 'Inserire almeno {0} caratteri.',
